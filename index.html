@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beginner's Guide to Investing Principles — Master the Fundamentals of Building Wealth</title>
+  <meta name="description" content="Master the fundamentals of building wealth through smart investing strategies. A practical guide by Donald Lavigne.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --slate: #3D5A80;
+      --slate-deep: #2C4A6E;
+      --slate-dark: #1B3A5C;
+      --gold: #D4A843;
+      --gold-light: #E8C96A;
+      --gold-warm: #C49A38;
+      --white: #FFFFFF;
+      --gray-50: #F5F7FA;
+      --gray-100: #E8ECF2;
+      --gray-200: #D0D7E2;
+      --gray-600: #5A6B82;
+      --gray-800: #2A3B52;
+      --green: #4ECB71;
+      --blue-accent: #5B9BD5;
+      --purple-accent: #9B6BCD;
+      --coral: #E8755A;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(61,90,128,0.12);
+      --shadow-lg: 0 12px 48px rgba(61,90,128,0.20);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--gray-800);
+      background: var(--white);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(44,74,110,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212,168,67,0.15);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 2rem;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold); font-size: 1.25rem; font-weight: 800;
+      text-decoration: none; letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--gold); color: var(--slate-dark) !important;
+      padding: 0.5rem 1.25rem; border-radius: 8px;
+      font-weight: 700 !important; font-size: 0.85rem !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,168,67,0.4); }
+
+    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; }
+    .mobile-toggle span { display: block; width: 24px; height: 2px; background: var(--white); margin: 5px 0; transition: 0.3s; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(165deg, var(--slate-dark) 0%, var(--slate) 50%, #4B6D94 100%);
+      padding: 10rem 2rem 6rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(212,168,67,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(91,155,213,0.05) 0%, transparent 50%);
+    }
+    /* Floating decorative elements */
+    .hero::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(78,203,113,0.08) 0%, transparent 8%),
+        radial-gradient(circle at 85% 75%, rgba(155,107,205,0.06) 0%, transparent 10%),
+        radial-gradient(circle at 70% 15%, rgba(212,168,67,0.05) 0%, transparent 6%),
+        radial-gradient(circle at 20% 80%, rgba(91,155,213,0.06) 0%, transparent 8%);
+    }
+    .hero-grid {
+      max-width: 1200px; margin: 0 auto; position: relative;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .hero-text { color: var(--white); }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);
+      color: var(--gold-light); padding: 0.4rem 1rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+      line-height: 1.15; font-weight: 800; margin-bottom: 1.5rem;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.15rem; color: rgba(255,255,255,0.7);
+      max-width: 520px; margin-bottom: 2.5rem; line-height: 1.8;
+    }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem; border-radius: 10px; font-weight: 700;
+      font-size: 1rem; text-decoration: none; transition: all 0.25s;
+      border: none; cursor: pointer;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      color: var(--slate-dark); box-shadow: 0 4px 20px rgba(212,168,67,0.35);
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,168,67,0.5); }
+    .btn-outline {
+      background: transparent; color: var(--white);
+      border: 2px solid rgba(255,255,255,0.25);
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 3rem;
+      padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-stat-num {
+      font-size: 1.6rem; font-weight: 800; color: var(--gold);
+      display: block;
+    }
+    .hero-stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 0.2rem; }
+
+    /* Book visual */
+    .hero-book { display: flex; justify-content: center; position: relative; }
+    .book-3d { width: 320px; perspective: 1200px; }
+    .book-glow {
+      position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+      width: 260px; height: 40px;
+      background: radial-gradient(ellipse, rgba(212,168,67,0.2) 0%, transparent 70%);
+      filter: blur(10px);
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 2rem; }
+    .section-header { text-align: center; max-width: 640px; margin: 0 auto 3.5rem; }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      color: var(--slate-dark); margin-bottom: 1rem; line-height: 1.2;
+    }
+    .section-header p { color: var(--gray-600); font-size: 1.05rem; }
+    .section-label {
+      display: inline-block; color: var(--gold-warm); font-size: 0.8rem;
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── PROBLEM / SOLUTION ── */
+    .problems { background: var(--gray-50); }
+    .problem-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    }
+    .problem-card, .solution-card {
+      padding: 2rem; border-radius: var(--radius);
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .problem-card {
+      background: var(--white); border: 1px solid var(--gray-200);
+    }
+    .solution-card {
+      background: linear-gradient(135deg, var(--slate) 0%, var(--slate-deep) 100%);
+      color: var(--white);
+    }
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .problem-card .card-icon { background: #FEE2E2; }
+    .solution-card .card-icon { background: rgba(212,168,67,0.2); }
+    .card-title { font-weight: 700; margin-bottom: 0.3rem; font-size: 1rem; }
+    .card-desc { font-size: 0.9rem; opacity: 0.8; line-height: 1.6; }
+
+    /* ── CHAPTERS ── */
+    .chapters-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;
+    }
+    .chapter-card {
+      background: var(--white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius); padding: 1.75rem;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .chapter-card:hover {
+      border-color: var(--gold); transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+    .chapter-num {
+      font-size: 2.5rem; font-weight: 800;
+      color: var(--gray-100); position: absolute; top: 10px; right: 16px;
+      font-family: 'Playfair Display', serif; line-height: 1;
+    }
+    .chapter-card h3 {
+      font-size: 1.05rem; color: var(--slate-dark); margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .chapter-card p { font-size: 0.88rem; color: var(--gray-600); line-height: 1.6; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials { background: var(--slate-dark); color: var(--white); }
+    .testimonials .section-header h2 { color: var(--white); }
+    .testimonials .section-header p { color: rgba(255,255,255,0.6); }
+    .testimonials .section-label { color: var(--gold); }
+    .testimonial-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius); padding: 2rem;
+    }
+    .stars { color: var(--gold); font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+    .testimonial-text {
+      font-size: 0.95rem; line-height: 1.7;
+      color: rgba(255,255,255,0.8); margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+    .testimonial-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--slate-dark); font-size: 1rem;
+    }
+    .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: rgba(255,255,255,0.45); }
+
+    /* ── AUTHOR ── */
+    .author-section { background: var(--gray-50); }
+    .author-grid {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: auto 1fr; gap: 3rem; align-items: center;
+    }
+    .author-photo {
+      width: 200px; height: 200px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--slate), var(--slate-deep));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; color: var(--gold); font-family: 'Playfair Display', serif;
+      box-shadow: var(--shadow);
+    }
+    .author-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; color: var(--slate-dark); margin-bottom: 0.5rem;
+    }
+    .author-info p { color: var(--gray-600); font-size: 1rem; margin-bottom: 1rem; line-height: 1.8; }
+    .author-site {
+      color: var(--gold-warm); font-weight: 600; text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .author-site:hover { text-decoration: underline; }
+
+    /* ── PRICING ── */
+    .pricing { background: var(--white); }
+    .pricing-card {
+      max-width: 520px; margin: 0 auto;
+      background: var(--white); border: 2px solid var(--gold);
+      border-radius: 20px; padding: 3rem; text-align: center;
+      box-shadow: var(--shadow-lg); position: relative;
+    }
+    .pricing-popular {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--gold); color: var(--slate-dark); font-weight: 700;
+      padding: 0.35rem 1.5rem; border-radius: 999px; font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+    .pricing-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; color: var(--slate-dark); margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .pricing-card .price {
+      font-size: 3.5rem; font-weight: 800; color: var(--slate-dark);
+      margin: 1rem 0;
+    }
+    .pricing-card .price span { font-size: 1.2rem; font-weight: 500; color: var(--gray-600); }
+    .pricing-features {
+      list-style: none; text-align: left; margin: 2rem 0;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .pricing-features li {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: 0.95rem; color: var(--gray-800);
+    }
+    .pricing-features li::before {
+      content: '\2713'; color: var(--green); font-weight: 800; font-size: 1.1rem;
+    }
+    .btn-buy {
+      width: 100%; padding: 1.1rem; font-size: 1.1rem;
+      justify-content: center;
+    }
+    .guarantee {
+      margin-top: 1.25rem; font-size: 0.82rem;
+      color: var(--gray-600); display: flex; align-items: center;
+      justify-content: center; gap: 0.4rem;
+    }
+
+    /* ── EMAIL CAPTURE ── */
+    .email-section {
+      background: linear-gradient(165deg, var(--slate-dark) 0%, var(--slate) 100%);
+      color: var(--white); text-align: center;
+    }
+    .email-section .section-header h2 { color: var(--white); }
+    .email-section .section-header p { color: rgba(255,255,255,0.65); }
+    .email-form {
+      max-width: 500px; margin: 0 auto;
+      display: flex; gap: 0.75rem;
+    }
+    .email-form input {
+      flex: 1; padding: 0.9rem 1.25rem; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08); color: var(--white);
+      font-size: 1rem; font-family: 'Inter', sans-serif;
+      outline: none; transition: border-color 0.3s;
+    }
+    .email-form input::placeholder { color: rgba(255,255,255,0.4); }
+    .email-form input:focus { border-color: var(--gold); }
+    .email-form button { white-space: nowrap; }
+    .email-note {
+      margin-top: 0.75rem; font-size: 0.78rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ── FAQ ── */
+    .faq-list { max-width: 700px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--gray-200); overflow: hidden;
+    }
+    .faq-question {
+      width: 100%; background: none; border: none;
+      padding: 1.5rem 0; text-align: left; cursor: pointer;
+      font-size: 1.05rem; font-weight: 600; color: var(--slate-dark);
+      font-family: 'Inter', sans-serif; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .faq-question::after {
+      content: '+'; font-size: 1.5rem; color: var(--gold);
+      transition: transform 0.3s; font-weight: 400;
+    }
+    .faq-item.active .faq-question::after { content: '\2212'; }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s;
+    }
+    .faq-item.active .faq-answer { max-height: 200px; }
+    .faq-answer p {
+      padding-bottom: 1.5rem; font-size: 0.95rem;
+      color: var(--gray-600); line-height: 1.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--slate-dark); color: rgba(255,255,255,0.5);
+      padding: 3rem 2rem; text-align: center; font-size: 0.85rem;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero { padding: 8rem 1.5rem 4rem; }
+      .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 3rem; }
+      .hero-sub { margin: 0 auto 2rem; }
+      .hero-buttons { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-book { order: -1; }
+      .book-3d { width: 240px; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr; }
+      .author-grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+      .email-form { flex-direction: column; }
+      .nav-links { display: none; }
+      .mobile-toggle { display: block; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--slate-deep); padding: 1.5rem 2rem; gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">InvestingArea</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">What's Inside</a></li>
+      <li><a href="#chapters">Chapters</a></li>
+      <li><a href="#author">Author</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#pricing" class="nav-cta">Get the Book</a></li>
+    </ul>
+    <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-text">
+      <div class="hero-badge">New for 2026</div>
+      <h1>Master the <span>Fundamentals</span> of Building Wealth</h1>
+      <p class="hero-sub">A beginner's guide to investing principles — learn smart strategies to build wealth through stocks, ETFs, and sound financial planning.</p>
+      <div class="hero-buttons">
+        <a href="#pricing" class="btn btn-gold">Buy Now — $29.99</a>
+        <a href="#about" class="btn btn-outline">See What's Inside</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <span class="hero-stat-num">12</span>
+          <span class="hero-stat-label">Chapters</span>
+        </div>
+        <div>
+          <span class="hero-stat-num">100+</span>
+          <span class="hero-stat-label">Pages</span>
+        </div>
+        <div>
+          <span class="hero-stat-num">2026</span>
+          <span class="hero-stat-label">Updated</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-book">
+      <div class="book-3d">
+        <!-- Actual book cover image -->
+        <img src="book-cover.png" alt="Beginner's Guide to Investing Principles book cover" style="width:100%;border-radius:10px;box-shadow:20px 20px 60px rgba(0,0,0,0.35),-2px -2px 15px rgba(212,168,67,0.12);transform:rotateY(-8deg);transition:transform 0.5s;" onmouseover="this.style.transform='rotateY(-3deg) scale(1.02)'" onmouseout="this.style.transform='rotateY(-8deg)'">
+        <div class="book-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section class="problems" id="about">
+  <div class="section-header">
+    <span class="section-label">Why This Book</span>
+    <h2>Investing Shouldn't Feel This Hard</h2>
+    <p>Most beginner resources either oversimplify or overwhelm. This book meets you where you are.</p>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="card-icon">😵</div>
+      <div>
+        <div class="card-title">Information overload</div>
+        <div class="card-desc">Thousands of YouTube gurus and Reddit threads, all contradicting each other.</div>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="card-icon">🎯</div>
+      <div>
+        <div class="card-title">One clear, structured path</div>
+        <div class="card-desc">12 chapters that build on each other — from opening an account to managing a real portfolio.</div>
+      </div>
+    </div>
+    <div class="problem-card">
+      <div class="card-icon">😰</div>
+      <div>
+        <div class="card-title">Fear of losing money</div>
+        <div class="card-desc">You know you should invest, but the risk of getting it wrong keeps you on the sidelines.</div>
+      </div>
+    </div>
+    <div class="solution-card">
+      <div class="card-icon">🛡️</div>
+      <div>
+        <div class="card-title">Risk management built in</div>
+        <div class="card-desc">Dedicated chapters on diversification, risk assessment, and protecting your downside.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTERS -->
+<section id="chapters">
+  <div class="section-header">
+    <span class="section-label">Inside the Book</span>
+    <h2>12 Chapters to Go from Zero to Investor</h2>
+    <p>Each chapter builds your knowledge step by step, so nothing feels overwhelming.</p>
+  </div>
+  <div class="chapters-grid">
+    <div class="chapter-card">
+      <span class="chapter-num">01</span>
+      <h3>Why Invest in Stocks?</h3>
+      <p>Understand the case for stocks and why starting now matters more than timing the market.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">02</span>
+      <h3>Stock Market Fundamentals</h3>
+      <p>How exchanges work, what drives prices, and the key terms you actually need to know.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">03</span>
+      <h3>Setting Your Goals</h3>
+      <p>Define your financial objectives and align your investment strategy accordingly.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">04</span>
+      <h3>Brokerage Accounts</h3>
+      <p>How to choose a broker, open an account, and navigate the platform with confidence.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">05</span>
+      <h3>Research & Analysis</h3>
+      <p>Evaluate companies using fundamental metrics — P/E ratios, earnings, revenue, and more.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">06</span>
+      <h3>Building Your Portfolio</h3>
+      <p>Construct a balanced portfolio that matches your goals and risk tolerance.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">07</span>
+      <h3>Risk Management</h3>
+      <p>Strategies to protect your investments — diversification, position sizing, and stop losses.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">08</span>
+      <h3>Investment Strategies</h3>
+      <p>Value investing, growth investing, dividend strategies, and finding what fits you.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">09</span>
+      <h3>ETFs & Index Funds</h3>
+      <p>The simplest way to diversify — low-cost funds that track the entire market.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">10</span>
+      <h3>Taxes & Retirement</h3>
+      <p>Tax-advantaged accounts, capital gains basics, and long-term planning essentials.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">11</span>
+      <h3>Common Mistakes</h3>
+      <p>The pitfalls that trap beginners — and exactly how to avoid each one.</p>
+    </div>
+    <div class="chapter-card">
+      <span class="chapter-num">12</span>
+      <h3>Your Action Plan</h3>
+      <p>A concrete roadmap: your first 30 days as an investor, step by step.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-header">
+    <span class="section-label">Reader Reviews</span>
+    <h2>What Early Readers Are Saying</h2>
+    <p>Real feedback from people who were once exactly where you are now.</p>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"I'd been putting off investing for years out of fear. This book explained everything so clearly that I opened my first brokerage account before I even finished reading."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">M</div>
+        <div>
+          <div class="testimonial-name">Marcus T.</div>
+          <div class="testimonial-role">First-time investor</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Finally — a book that doesn't try to sell me a 'get rich quick' system. Just solid, practical advice. The chapter on risk management alone was worth the price."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">S</div>
+        <div>
+          <div class="testimonial-name">Sarah K.</div>
+          <div class="testimonial-role">Small business owner</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Bought this for my college-age son. He texted me to say he actually understood investing for the first time. Clear writing, zero fluff. Highly recommend."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">R</div>
+        <div>
+          <div class="testimonial-name">Robert L.</div>
+          <div class="testimonial-role">Parent & long-term investor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHOR -->
+<section class="author-section" id="author">
+  <div class="section-header">
+    <span class="section-label">About the Author</span>
+    <h2>Meet Donald Lavigne</h2>
+  </div>
+  <div class="author-grid">
+    <div class="author-photo">DL</div>
+    <div class="author-info">
+      <h3>Donald Lavigne</h3>
+      <p>Don is the founder of InvestingArea.com and a passionate advocate for making investing accessible to everyone. He wrote this book because he believes the biggest barrier to building wealth isn't intelligence or income — it's simply knowing where to start.</p>
+      <p>This guide distills years of real-world investing experience into a clear, actionable framework that anyone can follow.</p>
+      <a href="https://investingarea.com" class="author-site" target="_blank">Visit InvestingArea.com →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-header">
+    <span class="section-label">Get Started</span>
+    <h2>Invest in Your Financial Education</h2>
+    <p>One book. Zero jargon. A lifetime of smarter investing.</p>
+  </div>
+  <div class="pricing-card">
+    <div class="pricing-popular">MOST POPULAR</div>
+    <h3>Complete Digital Edition</h3>
+    <div class="price">$29<span>.99</span></div>
+    <ul class="pricing-features">
+      <li>Full 12-chapter eBook (PDF)</li>
+      <li>Bonus: Stock Research Checklist</li>
+      <li>Bonus: First 30-Day Action Plan Template</li>
+      <li>Free updates for life</li>
+      <li>Instant digital delivery</li>
+    </ul>
+    <button class="btn btn-gold btn-buy" onclick="document.getElementById('buyModal').style.display='flex'">
+      Buy Now — $29.99
+    </button>
+    <div class="guarantee">🔒 30-day money-back guarantee. No questions asked.</div>
+  </div>
+</section>
+
+<!-- EMAIL CAPTURE -->
+<section class="email-section">
+  <div class="section-header">
+    <span class="section-label">Free Preview</span>
+    <h2>Not Ready to Buy? Get Chapter 1 Free</h2>
+    <p>Enter your email and we'll send you the first chapter — plus weekly investing tips.</p>
+  </div>
+  <form class="email-form" onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:var(--gold);font-weight:600;padding:1rem;\'>✓ Check your inbox! Chapter 1 is on its way.</p>';">
+    <input type="email" placeholder="you@email.com" required>
+    <button type="submit" class="btn btn-gold">Send Chapter 1</button>
+  </form>
+  <p class="email-note">No spam, ever. Unsubscribe anytime.</p>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-header">
+    <span class="section-label">Questions</span>
+    <h2>Frequently Asked Questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question">Do I need any investing experience to read this book?</button>
+      <div class="faq-answer"><p>Not at all. This book is specifically designed for complete beginners. It starts from the very basics and builds your knowledge gradually, chapter by chapter. If you've never bought a stock before, this is exactly where to start.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">What format does the book come in?</button>
+      <div class="faq-answer"><p>You'll receive a professionally formatted PDF that works beautifully on any device — laptop, tablet, phone, or e-reader. It's delivered instantly after purchase.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Is this book relevant for 2026?</button>
+      <div class="faq-answer"><p>Absolutely. While the core investing principles are timeless, this edition has been updated with current market context, modern brokerage platforms, and strategies relevant to today's economic environment.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">How much money do I need to start investing?</button>
+      <div class="faq-answer"><p>The book covers strategies for every budget. Many modern brokerages allow you to start with as little as $1 through fractional shares. Chapter 4 walks you through selecting the right platform regardless of your starting amount.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">What if the book isn't right for me?</button>
+      <div class="faq-answer"><p>No problem at all. You're covered by a 30-day money-back guarantee. If you don't find the book valuable, just reach out and you'll get a full refund — no questions asked.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="https://investingarea.com" target="_blank">InvestingArea.com</a>
+    <a href="#about">About</a>
+    <a href="#faq">FAQ</a>
+    <a href="mailto:ahpts.bernardsville@gmail.com">Contact</a>
+  </div>
+  <p>&copy; 2026 Donald Lavigne &middot; InvestingArea.com &middot; All rights reserved.</p>
+  <p style="margin-top:0.75rem;font-size:0.75rem;opacity:0.5;">This book is for educational purposes only and does not constitute financial advice.</p>
+</footer>
+
+<!-- BUY MODAL -->
+<div id="buyModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:2.5rem;max-width:440px;width:90%;position:relative;text-align:center;">
+    <button onclick="document.getElementById('buyModal').style.display='none'" style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999;">x</button>
+    <div style="font-size:2.5rem;margin-bottom:1rem;">📘</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--slate-dark);margin-bottom:0.5rem;">Complete Your Purchase</h3>
+    <p style="color:var(--gray-600);font-size:0.9rem;margin-bottom:1.5rem;">Beginner's Guide to Investing Principles — Digital Edition</p>
+    <div style="background:var(--gray-50);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.95rem;margin-bottom:0.5rem;"><span>eBook (PDF)</span><strong>$29.99</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.95rem;color:var(--green);"><span>Bonuses included</span><strong>FREE</strong></div>
+      <hr style="border:none;border-top:1px solid var(--gray-200);margin:0.75rem 0;">
+      <div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.1rem;"><span>Total</span><span>$29.99</span></div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--gray-600);margin-bottom:1.5rem;">Payment integration coming soon. To purchase now, email <a href="mailto:ahpts.bernardsville@gmail.com" style="color:var(--gold);font-weight:600;">ahpts.bernardsville@gmail.com</a></p>
+    <a href="mailto:ahpts.bernardsville@gmail.com?subject=Purchase: Beginner's Guide to Investing Principles&body=I'd like to purchase the Beginner's Guide to Investing Principles eBook ($29.99). Please send me payment details." class="btn btn-gold" style="width:100%;justify-content:center;text-decoration:none;">Email to Purchase</a>
+    <div style="margin-top:1rem;font-size:0.75rem;color:#999;">🔒 30-day money-back guarantee</div>
+  </div>
+</div>
+
+<script>
+  // FAQ Accordion
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const wasActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+      if (!wasActive) item.classList.add('active');
+    });
+  });
+
+  // Smooth reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.chapter-card, .problem-card, .solution-card, .testimonial-card, .faq-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
