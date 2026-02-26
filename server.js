@@ -14,6 +14,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Lazy DB init ───────────────────────────────────────────
+// Runs once on first request — works in both serverless (Vercel)
+// and traditional long-running server mode.
+let _dbInitialized = false;
+let _dbInitPromise = null;
+
+function ensureDB() {
+  if (_dbInitialized) return Promise.resolve();
+  if (_dbInitPromise) return _dbInitPromise;
+  _dbInitPromise = (async () => {
+    if (!process.env.DATABASE_URL) {
+      console.warn('⚠  DATABASE_URL not set — database features disabled.');
+      _dbInitialized = true;
+      return;
+    }
+    await initDB();
+    try {
+      await initTracking();
+    } catch (err) {
+      console.warn('⚠  Tracking tables could not be initialized:', err.message, '— analytics disabled.');
+    }
+    _dbInitialized = true;
+  })();
+  return _dbInitPromise;
+}
+
 // ── Stripe Webhook — raw body BEFORE express.json() ───────
 // Stripe requires the raw, unparsed request body to verify signatures.
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
@@ -22,6 +48,11 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), strip
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// ── Ensure DB is ready before every request ───────────────
+app.use((_req, _res, next) => {
+  ensureDB().then(() => next()).catch(() => next());
+});
 
 // ── API Routes ────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -54,25 +85,14 @@ app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ── Start ─────────────────────────────────────────────────
-async function start() {
-  if (process.env.DATABASE_URL) {
-    await initDB();
-    try {
-      await initTracking();
-    } catch (err) {
-      console.warn('⚠  Tracking tables could not be initialized:', err.message, '— analytics disabled.');
-    }
-  } else {
-    console.warn('⚠  DATABASE_URL not set — database features disabled. Add it to .env to enable.');
-  }
-
+// ── Local dev: start listening ────────────────────────────
+// On Vercel the module is imported as a serverless function handler;
+// app.listen() is skipped and the default export is used instead.
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`\n  Funds Edge running at http://localhost:${PORT}\n`);
   });
 }
 
-start().catch(err => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+// ── Vercel serverless export ──────────────────────────────
+export default app;
