@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { getTokenFromRequest } from './auth.js';
-import { getAllUsers, updateUser, getUserById, getFeatures, updateFeature } from '../db/index.js';
+import { getAllUsers, updateUser, getUserById, getFeatures, updateFeature, getSettings, setSetting } from '../db/index.js';
 
 const router = express.Router();
 
@@ -88,6 +88,35 @@ router.patch('/features/:key', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Update feature error:', err.message);
     res.status(500).json({ error: 'Failed to update feature' });
+  }
+});
+
+// ── POST /api/admin/settings ───────────────────────────────
+// Body: { sitelock_enabled: bool, sitelock_message: string }
+router.post('/settings', requireAdmin, async (req, res) => {
+  try {
+    const { sitelock_enabled, sitelock_message } = req.body;
+    if (sitelock_enabled !== undefined)
+      await setSetting('sitelock_enabled', String(!!sitelock_enabled));
+    if (sitelock_message !== undefined)
+      await setSetting('sitelock_message', sitelock_message);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Save settings error:', err.message);
+    res.status(500).json({ error: 'Failed to save settings' });
+  }
+});
+
+// ── GET /api/admin/settings ────────────────────────────────
+router.get('/settings', requireAdmin, async (_req, res) => {
+  try {
+    const s = await getSettings();
+    res.json({
+      sitelock_enabled: s.sitelock_enabled === 'true',
+      sitelock_message: s.sitelock_message || '',
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

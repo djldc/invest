@@ -8,6 +8,7 @@
         "includeFiles": [
           "**/*.html",
           "tracker.js",
+          "sitelock.js",
           "**/*.css",
           "**/*.png",
           "**/*.jpg",

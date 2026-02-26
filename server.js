@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initDB, initTracking, getFeatures } from './db/index.js';
+import { initDB, initTracking, getFeatures, getSettings } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import stripeRoutes, { stripeWebhook } from './routes/stripe.js';
@@ -59,6 +59,20 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/track', trackRoutes);
+
+// ── Public: site settings (sitelock status, etc.) ─────────
+app.get('/api/settings', async (_req, res) => {
+  try {
+    if (!process.env.DATABASE_URL) return res.json({ sitelock_enabled: false, sitelock_message: '' });
+    const s = await getSettings();
+    res.json({
+      sitelock_enabled: s.sitelock_enabled === 'true',
+      sitelock_message: s.sitelock_message || '',
+    });
+  } catch {
+    res.json({ sitelock_enabled: false, sitelock_message: '' }); // fail open
+  }
+});
 
 // ── Public: feature visibility map (no auth required) ─────
 app.get('/api/features', async (_req, res) => {

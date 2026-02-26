@@ -59,7 +59,36 @@ export async function initDB() {
       ('advisor-directory',   'Advisor Directory',      '🤝', 'premium-09-advisor-directory.html',   TRUE)
     ON CONFLICT (key) DO NOTHING
   `;
-  console.log('Database initialized — users + features tables ready');
+  // Settings table (site lockdown, etc.)
+  await sql`
+    CREATE TABLE IF NOT EXISTS settings (
+      key        TEXT PRIMARY KEY,
+      value      TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`
+    INSERT INTO settings (key, value) VALUES
+      ('sitelock_enabled', 'false'),
+      ('sitelock_message', 'This site is temporarily unavailable. Please check back soon.')
+    ON CONFLICT (key) DO NOTHING
+  `;
+  console.log('Database initialized — users + features + settings tables ready');
+}
+
+// ── Settings ───────────────────────────────────────────────
+export async function getSettings() {
+  const sql = getDB();
+  const rows = await sql`SELECT key, value FROM settings`;
+  return Object.fromEntries(rows.map(r => [r.key, r.value]));
+}
+
+export async function setSetting(key, value) {
+  const sql = getDB();
+  await sql`
+    INSERT INTO settings (key, value) VALUES (${key}, ${value})
+    ON CONFLICT (key) DO UPDATE SET value = ${value}, updated_at = NOW()
+  `;
 }
 
 // ── Social OAuth (Google / Apple) ─────────────────────────

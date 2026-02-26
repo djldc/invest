@@ -204,6 +204,58 @@
     </div>
   </div>
 
+  <!-- Site Lockdown -->
+  <div class="section-gap">
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <span class="table-title">🔒 Site Lockdown</span>
+          <div style="font-size:0.8rem;color:var(--gray-600);margin-top:3px">Show a splash screen to all non-admin visitors — admins always see the site normally</div>
+        </div>
+      </div>
+      <div style="padding:1.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+          <span style="font-size:0.9rem;color:var(--gray-700);font-weight:500;">Status:</span>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+            <div style="position:relative;display:inline-block;width:52px;height:28px;">
+              <input type="checkbox" id="slToggle" style="opacity:0;width:0;height:0;position:absolute;"
+                onchange="updateSlStatus()">
+              <span id="slTrack" style="
+                position:absolute;top:0;left:0;right:0;bottom:0;
+                background:#ccc;border-radius:28px;transition:0.2s;cursor:pointer;
+              "></span>
+              <span id="slThumb" style="
+                position:absolute;top:3px;left:3px;width:22px;height:22px;
+                background:#fff;border-radius:50%;transition:0.2s;
+                box-shadow:0 1px 4px rgba(0,0,0,0.3);
+              "></span>
+            </div>
+            <span id="slStatusLabel" style="font-size:0.9rem;font-weight:600;color:var(--gray-500);">OPEN</span>
+          </label>
+        </div>
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block;font-size:0.85rem;font-weight:500;color:var(--gray-700);margin-bottom:0.4rem;">Visitor Message</label>
+          <textarea id="slMessage" rows="3" style="
+            width:100%;box-sizing:border-box;
+            padding:0.65rem 0.75rem;
+            border:1px solid var(--border);border-radius:8px;
+            font-family:Inter,sans-serif;font-size:0.9rem;
+            color:var(--gray-800);background:#fff;resize:vertical;
+            outline:none;
+          " placeholder="This site is temporarily unavailable. Please check back soon."></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <button onclick="saveSitelock()" style="
+            background:var(--primary);color:#fff;border:none;
+            padding:0.55rem 1.4rem;border-radius:8px;
+            font-size:0.9rem;font-weight:600;cursor:pointer;
+          ">Save Settings</button>
+          <span id="slSaveStatus" style="font-size:0.85rem;color:var(--gray-500);"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Feature Visibility -->
   <div class="section-gap">
     <div class="table-card">
@@ -389,6 +441,49 @@
 
   // ── Features ─────────────────────────────────────────────
   let allFeatures = [];
+
+  // ── Site Lockdown ─────────────────────────────────────
+  async function loadSitelock() {
+    try {
+      const res = await fetch('/api/admin/settings', { credentials: 'include' });
+      const data = await res.json();
+      document.getElementById('slToggle').checked = !!data.sitelock_enabled;
+      document.getElementById('slMessage').value = data.sitelock_message || '';
+      updateSlStatus();
+    } catch { /* silent */ }
+  }
+
+  function updateSlStatus() {
+    const locked = document.getElementById('slToggle').checked;
+    const track = document.getElementById('slTrack');
+    const thumb = document.getElementById('slThumb');
+    const label = document.getElementById('slStatusLabel');
+    track.style.background = locked ? '#c0392b' : '#ccc';
+    thumb.style.left = locked ? '27px' : '3px';
+    label.textContent = locked ? 'LOCKED' : 'OPEN';
+    label.style.color = locked ? '#c0392b' : 'var(--gray-500)';
+  }
+
+  async function saveSitelock() {
+    const status = document.getElementById('slSaveStatus');
+    status.textContent = 'Saving…';
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          sitelock_enabled: document.getElementById('slToggle').checked,
+          sitelock_message: document.getElementById('slMessage').value.trim(),
+        }),
+      });
+      const data = await res.json();
+      status.textContent = data.ok ? '✓ Saved' : '✗ Error';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    } catch {
+      status.textContent = '✗ Failed';
+    }
+  }
 
   async function loadFeatures() {
     try {
@@ -591,7 +686,7 @@
         document.getElementById('featuresWrap').innerHTML = '';
         return;
       }
-      await Promise.all([loadUsers(), loadFeatures(), loadAnalytics()]);
+      await Promise.all([loadUsers(), loadFeatures(), loadAnalytics(), loadSitelock()]);
     } catch {
       window.location.href = 'premium-login.html?redirect=admin.html';
     }
