@@ -252,30 +252,6 @@
     .testimonial-name { font-weight: 600; font-size: 0.9rem; }
     .testimonial-role { font-size: 0.78rem; color: rgba(255,255,255,0.45); }
 
-    /* ── AUTHOR ── */
-    .author-section { background: var(--gray-50); }
-    .author-grid {
-      max-width: 900px; margin: 0 auto;
-      display: grid; grid-template-columns: auto 1fr; gap: 3rem; align-items: center;
-    }
-    .author-photo {
-      width: 200px; height: 200px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--slate), var(--slate-deep));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 4rem; color: var(--gold); font-family: 'Playfair Display', serif;
-      box-shadow: var(--shadow);
-    }
-    .author-info h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem; color: var(--slate-dark); margin-bottom: 0.5rem;
-    }
-    .author-info p { color: var(--gray-600); font-size: 1rem; margin-bottom: 1rem; line-height: 1.8; }
-    .author-site {
-      color: var(--gold-warm); font-weight: 600; text-decoration: none;
-      font-size: 0.95rem;
-    }
-    .author-site:hover { text-decoration: underline; }
-
     /* ── PRICING ── */
     .pricing { background: var(--white); }
     .pricing-card {
@@ -382,6 +358,108 @@
     footer a:hover { text-decoration: underline; }
     .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
 
+    /* ── AUTH MODAL ── */
+    .auth-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .auth-overlay.open { display: flex; }
+    .auth-modal {
+      background: var(--white); border-radius: 20px;
+      padding: 2.5rem 2rem; width: 90%; max-width: 400px;
+      position: relative; animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .auth-close {
+      position: absolute; top: 1rem; right: 1.25rem;
+      background: none; border: none; font-size: 1.4rem;
+      color: var(--gray-600); cursor: pointer; line-height: 1;
+    }
+    .auth-logo {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold); font-size: 1.2rem; font-weight: 800;
+      text-align: center; margin-bottom: 0.25rem;
+    }
+    .auth-headline {
+      text-align: center; font-size: 1.25rem; font-weight: 700;
+      color: var(--slate-dark); margin-bottom: 0.4rem;
+    }
+    .auth-sub {
+      text-align: center; font-size: 0.85rem; color: var(--gray-600);
+      margin-bottom: 1.75rem;
+    }
+    .auth-tabs {
+      display: flex; gap: 0; margin-bottom: 1.75rem;
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+    .auth-tab {
+      flex: 1; padding: 0.6rem; border: none; background: var(--gray-50);
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      color: var(--gray-600); font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .auth-tab.active {
+      background: var(--slate); color: var(--white);
+    }
+    .auth-social-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 0.8rem 1rem; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    .auth-google {
+      background: var(--white); border: 1.5px solid var(--gray-200);
+      color: var(--gray-800);
+    }
+    .auth-google:hover { border-color: #4285F4; background: #f7f9ff; }
+    .auth-apple {
+      background: #000; border: 1.5px solid #000;
+      color: var(--white);
+    }
+    .auth-apple:hover { background: #1a1a1a; }
+    .auth-divider {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 1.25rem 0; color: var(--gray-600); font-size: 0.8rem;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--gray-200);
+    }
+    .auth-footer-note {
+      text-align: center; font-size: 0.75rem; color: var(--gray-600);
+      margin-top: 1.25rem; line-height: 1.6;
+    }
+    .auth-footer-note a { color: var(--gold-warm); }
+    .auth-status {
+      text-align: center; font-size: 0.88rem; padding: 0.6rem;
+      border-radius: 8px; margin-bottom: 0.75rem; display: none;
+    }
+    .auth-status.error { background: #fee; color: #c00; display: block; }
+    .auth-status.success { background: #efe; color: #060; display: block; }
+    .auth-input {
+      width: 100%; padding: 0.75rem 1rem; border-radius: 10px;
+      border: 1.5px solid var(--gray-200); font-size: 0.95rem;
+      font-family: 'Inter', sans-serif; color: var(--gray-800);
+      background: var(--white); outline: none; transition: border-color 0.2s;
+      margin-bottom: 0.65rem; display: block;
+    }
+    .auth-input:focus { border-color: var(--slate); }
+    .auth-input::placeholder { color: var(--gray-600); }
+    .auth-submit {
+      width: 100%; padding: 0.85rem; border-radius: 10px;
+      background: var(--slate); color: var(--white);
+      border: none; font-size: 0.97rem; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background 0.2s; margin-top: 0.25rem;
+    }
+    .auth-submit:hover { background: var(--slate-deep); }
+    .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .hero { padding: 8rem 1.5rem 4rem; }
@@ -393,8 +471,7 @@
       .book-3d { width: 240px; }
       .problem-grid { grid-template-columns: 1fr; }
       .testimonial-grid { grid-template-columns: 1fr; }
-      .author-grid { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-      .email-form { flex-direction: column; }
+.email-form { flex-direction: column; }
       .nav-links { display: none; }
       .mobile-toggle { display: block; }
       .nav-links.open {
@@ -410,14 +487,31 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="#" class="nav-logo">InvestingArea</a>
+    <a href="index.html" class="nav-logo"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:48px;display:block;"></a>
     <ul class="nav-links" id="navLinks">
       <li><a href="#about">What's Inside</a></li>
       <li><a href="#chapters">Chapters</a></li>
-      <li><a href="#author">Author</a></li>
+      <li><a href="financial-calculators.html">Calculators</a></li>
+      <li id="li-premium-calc" style="display:none"><a href="premium-financial-calculators.html" style="color:var(--gold-light)!important;font-weight:700!important;">★ Premium Calcs</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="#pricing" class="nav-cta">Get the Book</a></li>
     </ul>
+    <!-- Auth nav area -->
+    <div id="navAuthArea" style="display:flex;align-items:center;gap:0.75rem;margin-left:0.5rem;">
+      <button id="navSignInBtn" onclick="openAuthModal('signin')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:var(--white);padding:0.45rem 1.1rem;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;">Sign In</button>
+      <!-- Logged-in user menu (hidden until auth) -->
+      <div id="navUserMenu" style="display:none;position:relative;">
+        <button id="navAvatarBtn" onclick="toggleUserMenu()" style="display:flex;align-items:center;gap:0.5rem;background:none;border:none;cursor:pointer;color:var(--white);font-family:inherit;">
+          <img id="navAvatarImg" src="" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);display:none;">
+          <div id="navAvatarInitials" style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--slate-dark);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;"></div>
+          <span id="navUserName" style="font-size:0.85rem;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        </button>
+        <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);min-width:180px;overflow:hidden;z-index:200;">
+          <a href="my-account.html" style="display:block;padding:0.75rem 1.25rem;color:var(--slate-dark);text-decoration:none;font-size:0.88rem;font-weight:600;border-bottom:1px solid #f0f0f0;">👤 My Account</a>
+          <button onclick="signOut()" style="display:block;width:100%;text-align:left;padding:0.75rem 1.25rem;color:#c0392b;background:none;border:none;font-size:0.88rem;cursor:pointer;font-family:inherit;border-top:1px solid #f0f0f0;">Sign Out</button>
+        </div>
+      </div>
+    </div>
     <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')">
       <span></span><span></span><span></span>
     </button>
@@ -453,7 +547,7 @@
     <div class="hero-book">
       <div class="book-3d">
         <!-- Actual book cover image -->
-        <img src="book-cover.png" alt="Beginner's Guide to Investing Principles book cover" style="width:100%;border-radius:10px;box-shadow:20px 20px 60px rgba(0,0,0,0.35),-2px -2px 15px rgba(212,168,67,0.12);transform:rotateY(-8deg);transition:transform 0.5s;" onmouseover="this.style.transform='rotateY(-3deg) scale(1.02)'" onmouseout="this.style.transform='rotateY(-8deg)'">
+        <img src="Funds-Edge-Book-Cover.png" alt="Beginner's Guide to Investing Principles book cover" style="width:100%;border-radius:10px;box-shadow:20px 20px 60px rgba(0,0,0,0.35),-2px -2px 15px rgba(212,168,67,0.12);transform:rotateY(-8deg);transition:transform 0.5s;" onmouseover="this.style.transform='rotateY(-3deg) scale(1.02)'" onmouseout="this.style.transform='rotateY(-8deg)'">
         <div class="book-glow"></div>
       </div>
     </div>
@@ -614,23 +708,6 @@
   </div>
 </section>
 
-<!-- AUTHOR -->
-<section class="author-section" id="author">
-  <div class="section-header">
-    <span class="section-label">About the Author</span>
-    <h2>Meet Donald Lavigne</h2>
-  </div>
-  <div class="author-grid">
-    <div class="author-photo">DL</div>
-    <div class="author-info">
-      <h3>Donald Lavigne</h3>
-      <p>Don is the founder of InvestingArea.com and a passionate advocate for making investing accessible to everyone. He wrote this book because he believes the biggest barrier to building wealth isn't intelligence or income — it's simply knowing where to start.</p>
-      <p>This guide distills years of real-world investing experience into a clear, actionable framework that anyone can follow.</p>
-      <a href="https://investingarea.com" class="author-site" target="_blank">Visit InvestingArea.com →</a>
-    </div>
-  </div>
-</section>
-
 <!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="section-header">
@@ -649,7 +726,7 @@
       <li>Free updates for life</li>
       <li>Instant digital delivery</li>
     </ul>
-    <button class="btn btn-gold btn-buy" onclick="document.getElementById('buyModal').style.display='flex'">
+    <button class="btn btn-gold btn-buy" onclick="openBuyModal()">
       Buy Now — $29.99
     </button>
     <div class="guarantee">🔒 30-day money-back guarantee. No questions asked.</div>
@@ -669,6 +746,149 @@
   </form>
   <p class="email-note">No spam, ever. Unsubscribe anytime.</p>
 </section>
+
+<!-- PREMIUM TOOLS SECTION -->
+<section id="premium-tools" style="background:var(--gray-50);">
+  <div class="section-header">
+    <span class="section-label">Premium Members</span>
+    <h2>The Complete Funds Edge Platform</h2>
+    <p>Beyond the book — a full suite of financial tools, dashboards, and calculators available to Premium members.</p>
+  </div>
+
+  <!-- Calculators callout -->
+  <div style="max-width:1000px;margin:0 auto 3rem;">
+    <div style="background:linear-gradient(135deg,#0c0c0e,#1a1a1f);border-radius:16px;padding:2.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:#c9a84c;margin-bottom:0.75rem;">Free for Everyone</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#f0ede6;margin-bottom:0.5rem;">25 Financial Calculators</h3>
+        <p style="font-size:0.9rem;color:#7a7880;max-width:480px;line-height:1.7;">Budgeting, debt payoff, compound interest, retirement, real estate, IRR, NPV, Monte Carlo simulation — all 25 in one place. No signup required.</p>
+      </div>
+      <a href="financial-calculators.html" style="background:linear-gradient(135deg,#a87d28,#c9a84c);color:#0c0c0e;padding:0.9rem 2rem;border-radius:10px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;font-size:0.95rem;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Open Calculators →</a>
+    </div>
+  </div>
+
+  <!-- Premium hub cards -->
+  <div style="max-width:1000px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(212,168,67,0.12);">🎯</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Financial Health Score</h4>
+          <p>15 questions. Your personalized score across 5 financial pillars with a custom action plan.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(91,155,213,0.12);">📊</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Market Dashboard</h4>
+          <p>S&P 500, Fear & Greed Index, yield curve, sector performance, and economic indicators.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(78,203,113,0.12);">📚</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Education Library</h4>
+          <p>47 structured courses, 180+ guides, and a 320-term glossary tied to live calculators.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(155,107,205,0.12);">⇄</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Scenario Comparison</h4>
+          <p>Compare any two financial decisions side by side with real math — retire at 60 vs. 65, invest $500 vs. $1,000/mo.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(232,117,90,0.12);">✅</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Financial Checklists</h4>
+          <p>Monthly, quarterly, annual, and life-event checklists. Progress saved. Never miss a critical task.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(212,168,67,0.12);">📅</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Financial Calendar</h4>
+          <p>Every tax deadline, IRA window, estimated tax date, and market event for 2026 in one clean timeline.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(26,107,90,0.12);">💬</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Community Q&amp;A</h4>
+          <p>Ask questions, share results, get answers from 2,841 members. 94% answer rate within 4 hours.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(212,168,67,0.12);">📬</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>The Money Memo</h4>
+          <p>Weekly newsletter: market update, one actionable tip, calculator walkthrough. 14,280 subscribers.</p>
+        </div>
+      </a>
+
+      <a href="premium-login.html" style="text-decoration:none;" class="premium-tool-card">
+        <div class="ptcard">
+          <div class="ptcard-icon" style="background:rgba(26,58,107,0.12);">🤝</div>
+          <div class="ptcard-badge">Premium</div>
+          <h4>Advisor Directory</h4>
+          <p>Find vetted, fee-only fiduciary advisors near you. Filter by specialty, minimum assets, and credentials.</p>
+        </div>
+      </a>
+
+    </div>
+
+    <div style="text-align:center;margin-top:2.5rem;">
+      <a href="premium-login.html" class="btn btn-gold" style="display:inline-flex;margin-right:1rem;">Sign In to Premium →</a>
+      <a href="#pricing" class="btn btn-outline">Get Premium — $29.99</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ptcard {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 1.75rem;
+    transition: all 0.3s; position: relative; height: 100%;
+  }
+  .premium-tool-card:hover .ptcard {
+    border-color: var(--gold); transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .ptcard-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 0.75rem;
+  }
+  .ptcard-badge {
+    display: inline-block; background: rgba(212,168,67,0.12);
+    border: 1px solid rgba(212,168,67,0.25); color: var(--gold-warm);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; padding: 0.2rem 0.6rem;
+    border-radius: 999px; margin-bottom: 0.75rem;
+  }
+  .ptcard h4 {
+    font-size: 1rem; font-weight: 700; color: var(--slate-dark);
+    margin-bottom: 0.4rem;
+  }
+  .ptcard p { font-size: 0.87rem; color: var(--gray-600); line-height: 1.6; }
+</style>
 
 <!-- FAQ -->
 <section id="faq">
@@ -703,14 +923,53 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-links">
-    <a href="https://investingarea.com" target="_blank">InvestingArea.com</a>
+    <a href="https://fundsedge.com" target="_blank">FundsEdge.com</a>
+    <a href="financial-calculators.html">25 Calculators</a>
+    <a href="premium-login.html">&#9733; Members Login</a>
     <a href="#about">About</a>
     <a href="#faq">FAQ</a>
     <a href="mailto:ahpts.bernardsville@gmail.com">Contact</a>
   </div>
-  <p>&copy; 2026 Donald Lavigne &middot; InvestingArea.com &middot; All rights reserved.</p>
+  <p>&copy; 2026 Donald Lavigne &middot; FundsEdge.com &middot; All rights reserved.</p>
   <p style="margin-top:0.75rem;font-size:0.75rem;opacity:0.5;">This book is for educational purposes only and does not constitute financial advice.</p>
 </footer>
+
+<!-- AUTH MODAL -->
+<div id="authOverlay" class="auth-overlay" onclick="handleOverlayClick(event)">
+  <div class="auth-modal" id="authModal">
+    <button class="auth-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
+    <div class="auth-logo"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:60px;display:block;"></div>
+    <h2 class="auth-headline" id="authHeadline">Welcome back</h2>
+    <p class="auth-sub" id="authSub">Sign in to access your premium tools</p>
+
+    <!-- Sign In / Sign Up tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabSignin" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Status message -->
+    <div class="auth-status" id="authStatus"></div>
+
+    <!-- Google Sign-In button — rendered by GIS SDK into this container -->
+    <div id="googleSignInBtn" style="width:100%;margin-bottom:0.75rem;min-height:44px;display:flex;justify-content:center;"></div>
+
+    <div class="auth-divider">or</div>
+
+    <!-- Email / Password form -->
+    <form id="emailAuthForm" onsubmit="handleEmailAuth(event)">
+      <input type="text" id="authName" class="auth-input" placeholder="Your name" autocomplete="name" style="display:none;">
+      <input type="email" id="authEmail" class="auth-input" placeholder="Email address" autocomplete="email" required>
+      <input type="password" id="authPassword" class="auth-input" placeholder="Password (min 8 characters)" autocomplete="current-password" required minlength="8">
+      <button type="submit" class="auth-submit" id="emailSubmitBtn">Sign In</button>
+    </form>
+
+    <p class="auth-footer-note">
+      By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>
+      <span id="authToggleNote">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Sign up free</a></span>
+    </p>
+  </div>
+</div>
 
 <!-- BUY MODAL -->
 <div id="buyModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
@@ -725,9 +984,15 @@
       <hr style="border:none;border-top:1px solid var(--gray-200);margin:0.75rem 0;">
       <div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.1rem;"><span>Total</span><span>$29.99</span></div>
     </div>
-    <p style="font-size:0.82rem;color:var(--gray-600);margin-bottom:1.5rem;">Payment integration coming soon. To purchase now, email <a href="mailto:ahpts.bernardsville@gmail.com" style="color:var(--gold);font-weight:600;">ahpts.bernardsville@gmail.com</a></p>
-    <a href="mailto:ahpts.bernardsville@gmail.com?subject=Purchase: Beginner's Guide to Investing Principles&body=I'd like to purchase the Beginner's Guide to Investing Principles eBook ($29.99). Please send me payment details." class="btn btn-gold" style="width:100%;justify-content:center;text-decoration:none;">Email to Purchase</a>
-    <div style="margin-top:1rem;font-size:0.75rem;color:#999;">🔒 30-day money-back guarantee</div>
+    <div id="buyModalContent">
+      <p style="font-size:0.82rem;color:var(--gray-600);margin-bottom:1.5rem;">Secure checkout powered by Stripe. Instant digital delivery.</p>
+      <button class="btn btn-gold" id="buyStripeBtn" onclick="stripeCheckout('book')" style="width:100%;justify-content:center;display:flex;gap:0.5rem;">🔒 Buy Now — $29.99</button>
+    </div>
+    <div id="buyModalLoading" style="display:none;text-align:center;padding:0.5rem 0 1rem;">
+      <div style="font-size:0.9rem;color:var(--gray-600);">Loading secure checkout…</div>
+    </div>
+    <div id="buyModalError" style="display:none;margin-top:0.75rem;padding:0.75rem;background:#fde8e8;border-radius:8px;font-size:0.82rem;color:#7a1f20;"></div>
+    <div style="margin-top:1rem;font-size:0.75rem;color:#999;">🔒 30-day money-back guarantee · Powered by Stripe</div>
   </div>
 </div>
 
@@ -759,6 +1024,326 @@
     observer.observe(el);
   });
 </script>
+
+<!-- Google Identity Services SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+// ─────────────────────────────────────────────
+//  AUTH MODAL
+// ─────────────────────────────────────────────
+
+const GOOGLE_CLIENT_ID = '689566851996-6j87mv2f5efncg959nsih2a3ugf2gpqn.apps.googleusercontent.com';
+const APPLE_CLIENT_ID  = ''; // TODO: paste your Apple Service ID here
+
+let googleInitialized = false;
+
+function openAuthModal(tab = 'signin') {
+  document.getElementById('authOverlay').classList.add('open');
+  switchTab(tab);
+  clearAuthStatus();
+  // Render the real Google button once the modal is visible
+  requestAnimationFrame(renderGoogleButton);
+}
+
+function renderGoogleButton() {
+  if (!GOOGLE_CLIENT_ID || typeof google === 'undefined') return;
+  const container = document.getElementById('googleSignInBtn');
+  if (!container) return;
+
+  if (!googleInitialized) {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: onGoogleCredential,
+    });
+    googleInitialized = true;
+  }
+
+  // Clear any previously rendered button and re-render at correct width
+  container.innerHTML = '';
+  google.accounts.id.renderButton(container, {
+    theme: 'outline',
+    size: 'large',
+    text: 'continue_with',
+    width: container.offsetWidth || 340,
+    logo_alignment: 'center',
+  });
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('authOverlay')) closeAuthModal();
+}
+
+function switchTab(tab) {
+  const isSignin = tab === 'signin';
+  document.getElementById('tabSignin').classList.toggle('active', isSignin);
+  document.getElementById('tabSignup').classList.toggle('active', !isSignin);
+  document.getElementById('authHeadline').textContent = isSignin ? 'Welcome back' : 'Create your account';
+  document.getElementById('authSub').textContent = isSignin
+    ? 'Sign in to access your premium tools'
+    : 'Join free and start your investing journey';
+  document.getElementById('authToggleNote').innerHTML = isSignin
+    ? 'Don\'t have an account? <a href="#" onclick="switchTab(\'signup\');return false;">Sign up free</a>'
+    : 'Already have an account? <a href="#" onclick="switchTab(\'signin\');return false;">Sign in</a>';
+  // Show name field only on sign-up
+  const nameField = document.getElementById('authName');
+  nameField.style.display = isSignin ? 'none' : 'block';
+  nameField.required = !isSignin;
+  document.getElementById('authPassword').autocomplete = isSignin ? 'current-password' : 'new-password';
+  document.getElementById('emailSubmitBtn').textContent = isSignin ? 'Sign In' : 'Create Account';
+  clearAuthStatus();
+}
+
+// ── Email / Password Auth ─────────────────────
+async function handleEmailAuth(e) {
+  e.preventDefault();
+  const isSignin = document.getElementById('tabSignin').classList.contains('active');
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const name     = document.getElementById('authName').value.trim();
+  const btn      = document.getElementById('emailSubmitBtn');
+
+  btn.disabled = true;
+  btn.textContent = isSignin ? 'Signing in...' : 'Creating account...';
+  clearAuthStatus();
+
+  try {
+    const endpoint = isSignin ? '/api/auth/email/signin' : '/api/auth/email/signup';
+    const body = isSignin ? { email, password } : { email, password, name };
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Authentication failed');
+    onAuthSuccess(data.user, data.token);
+  } catch (err) {
+    setAuthStatus(err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = isSignin ? 'Sign In' : 'Create Account';
+  }
+}
+
+function setAuthStatus(msg, type) {
+  const el = document.getElementById('authStatus');
+  el.textContent = msg;
+  el.className = 'auth-status ' + type;
+}
+
+function clearAuthStatus() {
+  document.getElementById('authStatus').className = 'auth-status';
+  document.getElementById('authStatus').textContent = '';
+}
+
+// ── Google Sign-In ────────────────────────────
+async function onGoogleCredential(response) {
+  setAuthStatus('Signing in...', 'success');
+  try {
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Sign-in failed');
+    onAuthSuccess(data.user, data.token);
+  } catch (err) {
+    setAuthStatus(err.message, 'error');
+  }
+}
+
+// ── After successful auth ─────────────────────
+function onAuthSuccess(user, token) {
+  if (token) localStorage.setItem('ia_token', token);
+  localStorage.setItem('ia_user', JSON.stringify(user));
+
+  setAuthStatus('Signed in! Redirecting...', 'success');
+  updateNavForUser(user);
+
+  // Book owners and premium members go to the account overview page
+  const isPremium = user.subscription_status === 'premium' || user.is_admin;
+  if (user.has_book || isPremium) {
+    setTimeout(() => { window.location.href = 'my-account.html'; }, 600);
+  } else {
+    setTimeout(closeAuthModal, 800);
+  }
+}
+
+// ── Nav state ─────────────────────────────────
+function updateNavForUser(user) {
+  document.getElementById('navSignInBtn').style.display = 'none';
+  document.getElementById('navUserMenu').style.display = 'flex';
+
+  const initials = (user.name || user.email || '?')
+    .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('navAvatarInitials').textContent = initials;
+
+  const displayName = (user.name || user.email || '').split(' ')[0];
+  document.getElementById('navUserName').textContent = displayName;
+
+  if (user.picture) {
+    const img = document.getElementById('navAvatarImg');
+    img.src = user.picture;
+    img.style.display = 'block';
+    document.getElementById('navAvatarInitials').style.display = 'none';
+  }
+
+  // Show Premium Calculators link for premium members and admins
+  if (user.subscription_status === 'premium' || user.is_admin) {
+    const li = document.getElementById('li-premium-calc');
+    if (li) li.style.display = '';
+  }
+}
+
+function toggleUserMenu() {
+  const dropdown = document.getElementById('userDropdown');
+  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('navUserMenu').contains(e.target)) {
+    const dd = document.getElementById('userDropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+async function signOut() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  localStorage.removeItem('ia_token');
+  localStorage.removeItem('ia_user');
+  document.getElementById('navSignInBtn').style.display = '';
+  document.getElementById('navUserMenu').style.display = 'none';
+  document.getElementById('userDropdown').style.display = 'none';
+}
+
+// ── Restore session on page load ──────────────
+(async function restoreSession() {
+  const cached = localStorage.getItem('ia_user');
+  if (cached) {
+    try {
+      // Quick UI restore from cache
+      updateNavForUser(JSON.parse(cached));
+      // Verify with server to get latest flags (e.g. has_book, subscription_status)
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        updateNavForUser(data.user);
+        localStorage.setItem('ia_user', JSON.stringify(data.user));
+      } else {
+        // Session expired
+        localStorage.removeItem('ia_token');
+        localStorage.removeItem('ia_user');
+        document.getElementById('navSignInBtn').style.display = '';
+        document.getElementById('navUserMenu').style.display = 'none';
+      }
+    } catch (_) {}
+  }
+})();
+
+// ── Open Buy Modal (or redirect book owners to download page) ─
+function openBuyModal() {
+  const cached = localStorage.getItem('ia_user');
+  if (cached) {
+    try {
+      const user = JSON.parse(cached);
+      if (user.has_book) {
+        window.location.href = 'book-download.html';
+        return;
+      }
+    } catch (_) {}
+  }
+  document.getElementById('buyModal').style.display = 'flex';
+}
+
+// ── Stripe Embedded Checkout ───────────────────────────────
+let _stripe = null;
+let _embeddedCheckout = null;
+
+async function openEmbeddedCheckout(type) {
+  const overlay    = document.getElementById('stripeOverlay');
+  const container  = document.getElementById('stripeCheckoutEl');
+  overlay.style.display = 'block';
+  container.innerHTML = '<div style="text-align:center;padding:2.5rem;color:#666;font-family:Inter,sans-serif;">Loading secure checkout…</div>';
+
+  try {
+    if (!_stripe) {
+      const cfg = await fetch('/api/stripe/config').then(r => r.json());
+      if (!cfg.publishableKey) throw new Error(cfg.error || 'Stripe not configured');
+      _stripe = Stripe(cfg.publishableKey);
+    }
+    if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+
+    _embeddedCheckout = await _stripe.initEmbeddedCheckout({
+      fetchClientSecret: async () => {
+        const res = await fetch('/api/stripe/create-checkout', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, embedded: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Checkout failed');
+        return data.clientSecret;
+      },
+    });
+    container.innerHTML = '';
+    _embeddedCheckout.mount('#stripeCheckoutEl');
+  } catch (err) {
+    container.innerHTML = `<div style="padding:1.5rem;color:#c0392b;background:#fde8e8;border-radius:8px;font-family:Inter,sans-serif;">${err.message}</div>`;
+  }
+}
+
+function closeStripeOverlay() {
+  if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+  document.getElementById('stripeOverlay').style.display = 'none';
+}
+
+// ── Stripe Checkout entry point ────────────────────────────
+// type: 'book' | 'premium_monthly' | 'premium_lifetime'
+async function stripeCheckout(type) {
+  // Must be signed in — prompt auth if not
+  const cached = localStorage.getItem('ia_user');
+  if (!cached) {
+    document.getElementById('buyModal').style.display = 'none';
+    openAuthModal('signup');
+    return;
+  }
+
+  // If user already owns the book, send them to the download page
+  if (type === 'book') {
+    try {
+      const user = JSON.parse(cached);
+      if (user.has_book) {
+        window.location.href = 'book-download.html';
+        return;
+      }
+    } catch (_) {}
+  }
+
+  // Close the buy modal and open embedded checkout overlay
+  document.getElementById('buyModal').style.display = 'none';
+  openEmbeddedCheckout(type);
+}
+</script>
+
+<!-- ── Stripe Embedded Checkout Overlay ─────────────────── -->
+<div id="stripeOverlay" onclick="if(event.target===this)closeStripeOverlay()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10000;overflow-y:auto;padding:20px;">
+  <div style="position:relative;width:100%;max-width:640px;margin:40px auto;border-radius:16px;overflow:hidden;background:#fff;">
+    <button onclick="closeStripeOverlay()" aria-label="Close checkout"
+            style="position:absolute;top:10px;right:10px;z-index:1;background:rgba(0,0,0,0.08);border:none;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:32px;cursor:pointer;color:#444;">×</button>
+    <div id="stripeCheckoutEl" style="min-height:220px;"></div>
+  </div>
+</div>
 
 </body>
 </html>

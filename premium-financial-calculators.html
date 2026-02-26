@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Calculators — Funds Edge</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c1628;--surface:#0f1e35;--card:#152540;--card2:#1a2d4e;
+  --border:#1e3558;--border2:#172e4d;
+  --gold:#D4A843;--gold-l:#E8C96A;--gold-d:rgba(212,168,67,.15);--gold-dd:rgba(212,168,67,.08);
+  --gold-glow:rgba(212,168,67,.25);
+  --text:#e8edf5;--muted:#7d94b0;--muted2:#3d5475;
+  --blue:#5B9BD5;--green:#4ECB71;--red:#e07878;
+  --sidebar:265px;
+  --nav-h:58px;
+}
+html{scroll-behavior:smooth}
+.layout-row{display:flex;flex:1;min-height:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* subtle radial glow */
+body::after{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:80vw;height:60vh;background:radial-gradient(ellipse at center,rgba(212,168,67,.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 45% at 15% 15%,rgba(91,155,213,.08) 0%,transparent 55%),radial-gradient(ellipse 55% 40% at 85% 80%,rgba(212,168,67,.06) 0%,transparent 55%),radial-gradient(ellipse 40% 30% at 50% 5%,rgba(212,168,67,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+/* ─── SIDEBAR ─────────────── */
+#sidebar{width:var(--sidebar);min-width:var(--sidebar);height:calc(100vh - var(--nav-h));position:sticky;top:var(--nav-h);background:var(--surface);border-right:1px solid var(--border2);display:flex;flex-direction:column;overflow:hidden;z-index:10;transition:transform .3s ease}
+.sb-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border2)}
+.sb-premium-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(212,168,67,.2),rgba(78,203,113,.15));border:1px solid rgba(212,168,67,.35);border-radius:3px;padding:3px 8px;font-size:14px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold-l);margin-bottom:8px}
+.sb-logo-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;background:linear-gradient(135deg,var(--text),var(--gold-l) 60%,var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0 24px}
+.sb-nav::-webkit-scrollbar{width:3px}
+.sb-nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* sb-cat: accordion CSS above */
+/* sb-cat span: accordion */
+/* sb-item: accordion */
+/* */
+/* */
+
+/* ─── MAIN ─────────────── */
+#main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;z-index:1}
+.main-topbar{display:flex;align-items:center;gap:16px;padding:16px 32px;border-bottom:1px solid var(--border2);background:rgba(9,9,15,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5}
+#hamburger{display:none;background:none;border:1px solid var(--border);border-radius:4px;padding:7px 9px;cursor:pointer;color:var(--muted)}
+#hamburger:hover{border-color:var(--gold);color:var(--gold)}
+.topbar-breadcrumb{font-size:12px;color:var(--muted);letter-spacing:.08em;}
+.topbar-breadcrumb span{color:var(--gold-l)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.topbar-count{font-size:15px;letter-spacing:.2em;color:var(--muted2);background:var(--card);border:1px solid var(--border2);border-radius:3px;padding:4px 10px}
+.topbar-pro{font-size:14px;letter-spacing:.2em;text-transform:uppercase;background:linear-gradient(135deg,var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:500}
+
+.content-wrap{flex:1;padding:36px 40px 80px;max-width:820px}
+
+/* ─── PANELS ─────────────── */
+.calc-panel{display:none;animation:fadeUp .3s ease forwards}
+.calc-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel-header{margin-bottom:28px}
+/* panel-tag: premium CSS above */
+/* panel-title: premium CSS above */
+.panel-desc{font-size:15px;color:var(--muted);line-height:1.7;max-width:600px}
+
+/* ─── INPUTS ─────────────── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.input-wrap{position:relative}
+.pfx,.sfx{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);pointer-events:none}
+.pfx{left:12px}.sfx{right:12px}
+input[type=number],input[type=text],select,textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+input[type=number],input[type=text],select{padding:11px 12px}
+textarea{padding:11px 12px;resize:vertical;min-height:80px}
+input.has-p{padding-left:26px}
+input.has-s{padding-right:34px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-d)}
+select{cursor:pointer}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:4px;padding:0;border:none;flex:1;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--gold) var(--pct,50%),var(--border) var(--pct,50%));border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);margin-top:-6.5px;border:2px solid var(--bg);box-shadow:0 0 8px rgba(212,168,67,.5);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.range-group{display:flex;align-items:center;gap:10px}
+.range-val{min-width:70px;text-align:right;font-size:14px;color:var(--gold-l)}
+.section-head{font-size:15px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted2);grid-column:1/-1;padding-top:4px;display:flex;align-items:center;gap:10px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border2)}
+.helper{font-size:15px;color:var(--muted2);margin-top:3px}
+
+/* ─── BUTTONS ─────────────── */
+/* calc-btn: premium CSS above */
+.calc-btn:hover{background-position:100%;transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,168,67,.3)}
+.calc-btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:10px;margin-top:6px}
+.calc-btn-alt{width:100%;padding:15px;margin-top:6px;background:linear-gradient(135deg,#1f8f80,var(--green),#1f8f80);background-size:200%;border:none;border-radius:4px;color:#060f0e;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;cursor:pointer;transition:background-position .4s,transform .15s}
+.calc-btn-alt:hover{background-position:100%;transform:translateY(-1px)}
+
+/* ─── RESULTS ─────────────── */
+.results{display:none;margin-top:26px;animation:fadeUp .3s ease forwards}
+.results.show{display:block}
+.results-title{font-size:15px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.results-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+.r-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:14px}
+.r-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;position:relative;overflow:hidden}
+/* r-card.hi: premium CSS above */
+/* r-card.hi::before: premium CSS above */
+.r-card.pos{border-color:rgba(78,203,113,.25)}
+.r-card.neg{border-color:rgba(201,90,122,.25)}
+.r-card.amber{border-color:rgba(232,164,74,.25)}
+.r-lbl{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.r-val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--text);line-height:1}
+/* r-card.hi .r-val: premium CSS above */
+.r-card.pos .r-val{color:var(--green)}
+.r-card.neg .r-val{color:var(--red)}
+.r-card.amber .r-val{color:var(--amber)}
+.r-sub{font-size:15px;color:var(--muted);margin-top:5px}
+
+/* ─── BAR ─────────────── */
+.bbar-wrap{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:14px}
+.bbar-lbl{font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.bbar-track{height:9px;border-radius:5px;background:var(--border);overflow:hidden;display:flex;margin-bottom:10px}
+.bbar-seg{height:100%;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.bbar-s1{background:var(--gold)}
+.bbar-s2{background:var(--green)}
+.bbar-s3{background:var(--amber)}
+.bbar-s4{background:#c95a7a}
+.bbar-s5{background:var(--muted2)}
+.bbar-leg{display:flex;flex-wrap:wrap;gap:14px}
+.leg-it{display:flex;align-items:center;gap:5px;font-size:15px;color:var(--muted)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ─── TABLE ─────────────── */
+.sched-wrap{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:14px}
+.sched-head{background:var(--card);padding:12px 16px;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border2)}
+.sched-toggle{background:none;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'DM Mono',monospace;font-size:15px;letter-spacing:.1em;padding:5px 10px;cursor:pointer;transition:all .2s}
+.sched-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.sched-tbl-wrap{display:none;max-height:280px;overflow-y:auto}
+.sched-tbl-wrap.show{display:block}
+.sched-tbl-wrap::-webkit-scrollbar{width:4px}
+.sched-tbl-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+thead th{background:rgba(212,168,67,.07);padding:9px 14px;text-align:right;font-size:14px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);position:sticky;top:0}
+thead th:first-child{text-align:left}
+tbody td{padding:8px 14px;text-align:right;border-bottom:1px solid rgba(37,37,53,.6);color:var(--text)}
+tbody td:first-child{text-align:left;color:var(--muted)}
+tbody tr:hover td{background:rgba(212,168,67,.04)}
+
+/* ─── COMPARE ─────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.compare-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;text-align:center}
+.compare-card.winner{border-color:rgba(78,203,113,.4);background:linear-gradient(135deg,var(--card),rgba(78,203,113,.07))}
+.compare-card.loser{opacity:.65}
+.compare-label{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.compare-val{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.compare-card.winner .compare-val{color:var(--green)}
+.compare-badge{display:inline-block;padding:3px 8px;border-radius:3px;font-size:15px;letter-spacing:.1em;background:rgba(78,203,113,.15);color:var(--green)}
+
+/* ─── NOTES ─────────────── */
+.note-box{background:var(--gold-dd);border:1px solid rgba(212,168,67,.15);border-radius:5px;padding:12px 14px;font-size:14px;color:var(--muted);line-height:1.6;margin-top:14px}
+.alert-green{background:rgba(78,203,113,.08);border:1px solid rgba(78,203,113,.2);border-radius:5px;padding:10px 14px;font-size:14px;color:var(--green);margin-top:10px}
+.alert-red{background:rgba(201,90,122,.08);border:1px solid rgba(201,90,122,.2);border-radius:5px;padding:10px 14px;font-size:14px;color:var(--red);margin-top:10px}
+.alert-amber{background:rgba(232,164,74,.08);border:1px solid rgba(232,164,74,.2);border-radius:5px;padding:10px 14px;font-size:14px;color:var(--amber);margin-top:10px}
+.divider{border:none;border-top:1px solid var(--border2);margin:20px 0}
+
+/* ─── SPECIAL ─────────────── */
+.alloc-visual{display:flex;border-radius:6px;overflow:hidden;height:40px;margin-bottom:12px}
+.alloc-seg{display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(0,0,0,.7);font-weight:500;transition:width .8s cubic-bezier(.16,1,.3,1);overflow:hidden;white-space:nowrap}
+.fire-bands{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.fire-band{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center}
+.fire-band-label{font-size:14px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fire-band-val{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600}
+.fb-lean{color:var(--green)}.fb-reg{color:var(--gold-l)}.fb-fat{color:var(--amber)}
+.milestone-bar{margin-bottom:12px}
+.milestone-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:15px}
+.milestone-name{width:120px;color:var(--muted);font-size:15px;letter-spacing:.1em;text-transform:uppercase}
+.milestone-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.milestone-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .8s cubic-bezier(.16,1,.3,1)}
+.milestone-pct{width:40px;text-align:right;font-size:14px;color:var(--gold-l)}
+
+/* ─── MOBILE ─────────────── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9}
+@media(max-width:768px){
+  body{display:block}
+  #sidebar{position:fixed;top:var(--nav-h);left:0;height:calc(100% - var(--nav-h));transform:translateX(-100%);z-index:20}
+  #sidebar.open{transform:translateX(0)}
+  #main{width:100%}
+  #hamburger{display:flex}
+  .content-wrap{padding:24px 20px 60px}
+  .calc-grid{grid-template-columns:1fr}
+  .field.full{grid-column:1}
+  .r-grid{grid-template-columns:1fr 1fr}
+  .two-col,.fire-bands{grid-template-columns:1fr}
+  .main-topbar{padding:14px 20px}
+  #overlay.show{display:block}
+}
+
+/* ─── SITE NAV — PREMIUM GOLD ─────────────────── */
+.site-nav{
+  height:var(--nav-h);
+  background:rgba(8,15,30,.97);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(212,168,67,.22);
+  position:sticky;top:0;z-index:50;flex-shrink:0;
+  box-shadow:0 1px 24px rgba(212,168,67,.08);
+}
+.sn-inner{height:100%;display:flex;align-items:center;padding:0 28px;gap:0;}
+.sn-logo{
+  font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold-l),var(--gold),var(--gold-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-decoration:none;letter-spacing:-.01em;margin-right:32px;white-space:nowrap;
+}
+.sn-links{display:flex;align-items:center;gap:2px;flex:1;}
+.sn-link{padding:7px 14px;border-radius:6px;font-size:14px;font-weight:500;color:rgba(232,237,245,.5);cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none;}
+.sn-link:hover{background:rgba(212,168,67,.07);color:rgba(232,237,245,.85);}
+.sn-link.active{background:rgba(212,168,67,.14);color:var(--gold-l);border:1px solid rgba(212,168,67,.2);}
+.sn-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.sn-user{font-size:14px;color:var(--gold-l);background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.25);border-radius:20px;padding:4px 14px;white-space:nowrap;}
+.sn-badge{font-size:14px;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:3px;background:linear-gradient(135deg,rgba(212,168,67,.25),rgba(232,201,106,.2));border:1px solid rgba(212,168,67,.35);color:var(--gold-l);}
+.sn-signout{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Inter',sans-serif;font-size:14px;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.sn-signout:hover{border-color:var(--red);color:var(--red);}
+@media(max-width:768px){.sn-links{display:none;}.sn-right{gap:8px;}}
+
+/* ─── ACCORDION SIDEBAR ─────────────────────────── */
+.sb-cat{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 8px;
+  font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);
+  cursor:pointer;user-select:none;transition:color .15s;
+  border-top:1px solid rgba(30,53,88,.5);margin-top:2px;
+}
+.sb-cat:first-child,.sb-cat:nth-child(2){border-top:none;margin-top:0;}
+.sb-cat:hover{color:var(--muted);}
+.sb-cat.open{color:var(--gold);}
+.sb-cat-left{display:flex;align-items:center;gap:7px;}
+.sb-cat-chevron{font-size:15px;transition:transform .25s cubic-bezier(.16,1,.3,1);display:inline-block;opacity:.5;margin-left:4px;}
+.sb-cat.open .sb-cat-chevron{transform:rotate(90deg);opacity:1;}
+.sb-items{overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.16,1,.3,1);}
+.sb-items.open{max-height:600px;}
+.sb-item{
+  display:block;padding:7px 16px 7px 30px;
+  font-size:15px;color:var(--muted);cursor:pointer;
+  transition:all .12s;border-left:2px solid transparent;
+  line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sb-item:hover{color:var(--text);background:var(--gold-dd);}
+.sb-item.active{color:var(--gold-l);border-left-color:var(--gold);background:var(--gold-d);}
+
+/* ─── PREMIUM PANELS — gold enhancements ─────────── */
+.panel-tag{
+  font-size:15px;letter-spacing:.28em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--gold),var(--gold-l));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:10px;display:inline-block;
+}
+.panel-title{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700;color:var(--text);line-height:1.15;margin-bottom:10px;letter-spacing:-.02em;}
+.panel-desc{font-size:15px;color:var(--muted);line-height:1.75;max-width:600px;}
+.r-card.hi{border-color:rgba(212,168,67,.4);background:linear-gradient(135deg,var(--card),rgba(212,168,67,.06));}
+.r-card.hi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.r-card.hi .r-val{color:var(--gold-l);}
+.calc-btn{
+  width:100%;padding:15px;margin-top:6px;
+  background:linear-gradient(135deg,#a8751c,var(--gold),#a8751c);background-size:200%;
+  border:none;border-radius:4px;color:#0c1628;
+  font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:.25em;text-transform:uppercase;
+  cursor:pointer;transition:background-position .4s,transform .15s,box-shadow .3s;
+  box-shadow:0 2px 12px rgba(212,168,67,.2);
+}
+.calc-btn:hover{background-position:100%;transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,168,67,.35);}
+.calc-btn:active{transform:translateY(0);}
+
+</style>
+</head>
+<body>
+
+<!-- ─── SITE NAV ─── -->
+<nav class="site-nav">
+  <div class="sn-inner">
+    <a class="sn-logo" href="index.html"><img src="Logo-Premium-tr.png" alt="Funds Edge" style="height:28px;display:block;"></a>
+    <div class="sn-links">
+      <a class="sn-link" href="index.html">&#8962; Home</a>
+      <a class="sn-link" href="premium-hub.html">&#9733; Premium Hub</a>
+      <a class="sn-link" href="financial-calculators.html">&#x1F9EE; Book Calculators</a>
+      <a class="sn-link active" href="premium-financial-calculators.html">&#11088; Premium Calculators</a>
+    </div>
+    <div class="sn-right">
+      <span class="sn-badge">&#9733; PREMIUM</span>
+      <span class="sn-user" id="sn-username" style="display:none"></span>
+      <a href="my-account.html" style="font-size:12px;font-weight:500;color:rgba(232,237,245,.55);text-decoration:none;border:1px solid rgba(212,168,67,.25);border-radius:6px;padding:5px 12px;transition:all .15s;white-space:nowrap;" onmouseover="this.style.color='#E8C96A';this.style.borderColor='rgba(212,168,67,.4)'" onmouseout="this.style.color='rgba(232,237,245,.55)';this.style.borderColor='rgba(212,168,67,.25)'">My Account</a>
+      <button class="sn-signout" onclick="snSignOut()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+<div class="layout-row">
+<!-- ─── SIDEBAR ─────────────── -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-premium-badge">⬡ Premium Suite</div>
+    <div class="sb-logo-title">Premium Suite</div>
+    <div style="font-size:10px;color:rgba(212,168,67,.55);margin-top:5px;letter-spacing:.14em;text-transform:uppercase;">22 Advanced Calculators</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-cat open" onclick="toggleCat(this)"><span class="sb-cat-left">🔒 <span>Pro Tools</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items open">
+      <div class="sb-item" onclick="show(1)">Tax Bracket Optimizer</div>
+      <div class="sb-item" onclick="show(2)">Social Security Optimization</div>
+      <div class="sb-item" onclick="show(3)">FIRE Calculator</div>
+      <div class="sb-item" onclick="show(4)">Life Insurance Needs</div>
+      <div class="sb-item" onclick="show(5)">College Savings (529 Plan)</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">💼 <span>Business</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(6)">Quarterly Estimated Tax</div>
+      <div class="sb-item" onclick="show(7)">Business Valuation</div>
+      <div class="sb-item" onclick="show(8)">Break-Even Analysis</div>
+      <div class="sb-item" onclick="show(9)">Payroll Tax Calculator</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">🏠 <span>Advanced Real Estate</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(10)">House vs. Rent</div>
+      <div class="sb-item" onclick="show(11)">BRRRR Strategy</div>
+      <div class="sb-item" onclick="show(12)">1031 Exchange</div>
+      <div class="sb-item" onclick="show(13)">Fix &amp; Flip Profit</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">📊 <span>Portfolio &amp; Tax</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(14)">Tax-Loss Harvesting</div>
+      <div class="sb-item" onclick="show(15)">Asset Location Optimizer</div>
+      <div class="sb-item" onclick="show(16)">DRIP Calculator</div>
+      <div class="sb-item" onclick="show(17)">Options Pricing (Black-Scholes)</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">🎯 <span>Life Planning</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(18)">Salary Negotiation</div>
+      <div class="sb-item" onclick="show(19)">Buy vs. Lease (Car)</div>
+      <div class="sb-item" onclick="show(20)">Debt Consolidation</div>
+      <div class="sb-item" onclick="show(21)">HSA Maximizer</div>
+      <div class="sb-item" onclick="show(22)">Net Worth Milestones</div>
+    </div>
+  </nav>
+</div>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ─── MAIN ─────────────── -->
+<div id="main">
+  <div class="main-topbar">
+    <button id="hamburger" onclick="toggleSidebar()">
+      <svg width="14" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="0" y1="1" x2="14" y2="1"/><line x1="0" y1="6" x2="14" y2="6"/><line x1="0" y1="11" x2="14" y2="11"/></svg>
+    </button>
+    <div class="topbar-breadcrumb">Premium Suite &rsaquo; <span id="breadcrumb">Tax Bracket Optimizer</span></div>
+    <div class="topbar-right">
+      <div class="topbar-pro">★ Premium</div>
+      <div class="topbar-count" id="calc-counter">1 / 22</div>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+
+<!-- ════════════════════════════════════════════
+     1. TAX BRACKET OPTIMIZER
+════════════════════════════════════════════ -->
+<div class="calc-panel active" id="panel-1">
+  <div class="panel-header">
+    <div class="panel-tag">Pro Tools · 1 of 22</div>
+    <div class="panel-title">Tax Bracket Optimizer</div>
+    <div class="panel-desc">See exactly how close you are to the next bracket, how much more income you can earn at your current rate, and your optimal Roth conversion amount.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Filing Status</label>
+      <select id="tb-status">
+        <option value="single">Single</option>
+        <option value="mfj" selected>Married Filing Jointly</option>
+        <option value="hoh">Head of Household</option>
+      </select>
+    </div>
+    <div class="field"><label>Gross Annual Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tb-income" class="has-p" value="120000"></div></div>
+    <div class="field"><label>401(k) / Pre-Tax Deductions</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tb-pretax" class="has-p" value="22500"></div></div>
+    <div class="field"><label>Other Deductions (itemized or standard)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tb-deduct" class="has-p" value="0"><span class="helper" style="position:absolute;right:0;bottom:-18px;font-size:8px;color:var(--muted2)">0 = use standard</span></div></div>
+    <div class="field"><label>Capital Gains Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tb-capgains" class="has-p" value="0"></div></div>
+    <div class="field"><label>Tax Year</label>
+      <select id="tb-year">
+        <option value="2024" selected>2024</option>
+        <option value="2025">2025</option>
+      </select>
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calc1()">Optimize Tax Bracket</button>
+  <div class="results" id="r1">
+    <div class="results-title">Tax Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Marginal Bracket</div><div class="r-val" id="tb-bracket">—</div></div>
+      <div class="r-card"><div class="r-lbl">Effective Tax Rate</div><div class="r-val" id="tb-effective">—</div></div>
+      <div class="r-card"><div class="r-lbl">Federal Tax Owed</div><div class="r-val" id="tb-tax">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Room in Current Bracket</div><div class="r-val" id="tb-room">—</div></div>
+    </div>
+    <div class="bbar-wrap">
+      <div class="bbar-lbl">Income Allocation</div>
+      <div class="bbar-track">
+        <div class="bbar-seg bbar-s1" id="tb-b1" style="width:20%"></div>
+        <div class="bbar-seg bbar-s2" id="tb-b2" style="width:30%"></div>
+        <div class="bbar-seg bbar-s3" id="tb-b3" style="width:30%"></div>
+        <div class="bbar-seg bbar-s4" id="tb-b4" style="width:20%"></div>
+      </div>
+      <div class="bbar-leg">
+        <div class="leg-it"><div class="leg-dot" style="background:var(--gem)"></div><span>10–12%</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--teal)"></div><span>22%</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--amber)"></div><span>24%</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--red)"></div><span>32%+</span></div>
+      </div>
+    </div>
+    <div id="tb-roth-note"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     2. SOCIAL SECURITY OPTIMIZATION
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-2">
+  <div class="panel-header">
+    <div class="panel-tag">Pro Tools · 2 of 22</div>
+    <div class="panel-title">Social Security Optimization</div>
+    <div class="panel-desc">Compare claiming at 62, 67 (full retirement age), or 70. Find your break-even age and lifetime benefit under each strategy.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current Age</label><input type="number" id="ss-age" value="55"></div>
+    <div class="field"><label>Full Retirement Age (FRA)</label>
+      <select id="ss-fra">
+        <option value="66">66 (born 1943–1954)</option>
+        <option value="66.5">66½ (born 1955–1959)</option>
+        <option value="67" selected>67 (born 1960+)</option>
+      </select>
+    </div>
+    <div class="field full"><label>Estimated Monthly Benefit at FRA</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ss-fra-benefit" class="has-p" value="2200"><p class="helper">Find this on your Social Security statement at ssa.gov</p></div></div>
+    <div class="field"><label>Life Expectancy</label><input type="number" id="ss-life" value="85"></div>
+    <div class="field"><label>Annual COLA Increase</label><div class="input-wrap"><input type="number" id="ss-cola" class="has-s" value="2.5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Discount Rate (investment return)</label><div class="input-wrap"><input type="number" id="ss-discount" class="has-s" value="5"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc2()">Compare Strategies</button>
+  <div class="results" id="r2">
+    <div class="results-title">Claiming Strategy Comparison</div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Claim at 62 (monthly)</div><div class="r-val" id="ss-62-mo">—</div><div class="r-sub" id="ss-62-life">Lifetime: —</div></div>
+      <div class="r-card hi"><div class="r-lbl">Claim at FRA (monthly)</div><div class="r-val" id="ss-fra-mo">—</div><div class="r-sub" id="ss-fra-life">Lifetime: —</div></div>
+      <div class="r-card"><div class="r-lbl">Claim at 70 (monthly)</div><div class="r-val" id="ss-70-mo">—</div><div class="r-sub" id="ss-70-life">Lifetime: —</div></div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Break-Even Age (62→FRA)</div><div class="r-val" id="ss-be1">—</div></div>
+      <div class="r-card"><div class="r-lbl">Break-Even Age (FRA→70)</div><div class="r-val" id="ss-be2">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Optimal Strategy</div><div class="r-val" id="ss-optimal">—</div></div>
+    </div>
+    <div id="ss-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     3. FIRE CALCULATOR
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-3">
+  <div class="panel-header">
+    <div class="panel-tag">Pro Tools · 3 of 22</div>
+    <div class="panel-title">FIRE Calculator</div>
+    <div class="panel-desc">Financial Independence, Retire Early. Compare Lean FIRE, Regular FIRE, and Fat FIRE targets based on your savings rate and expenses.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current Age</label><input type="number" id="fi-age" value="30"></div>
+    <div class="field"><label>Annual Take-Home Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="fi-income" class="has-p" value="90000"></div></div>
+    <div class="field"><label>Annual Expenses (current)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="fi-expenses" class="has-p" value="55000"></div></div>
+    <div class="field"><label>Current Invested Assets</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="fi-assets" class="has-p" value="80000"></div></div>
+    <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="fi-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Annual Inflation</label><div class="input-wrap"><input type="number" id="fi-inf" class="has-s" value="3"><span class="sfx">%</span></div></div>
+    <div class="field full"><label>Lean FIRE Annual Expenses</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="fi-lean" class="has-p" value="35000"></div></div>
+    <div class="field full"><label>Fat FIRE Annual Expenses</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="fi-fat" class="has-p" value="100000"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc3()">Calculate FIRE Targets</button>
+  <div class="results" id="r3">
+    <div class="results-title">FIRE Analysis</div>
+    <div class="fire-bands">
+      <div class="fire-band"><div class="fire-band-label">☕ Lean FIRE</div><div class="fire-band-val fb-lean" id="fi-lean-target">—</div><div class="r-sub" id="fi-lean-yrs" style="margin-top:6px">— years away</div></div>
+      <div class="fire-band"><div class="fire-band-label">🏡 Regular FIRE</div><div class="fire-band-val fb-reg" id="fi-reg-target">—</div><div class="r-sub" id="fi-reg-yrs" style="margin-top:6px">— years away</div></div>
+      <div class="fire-band"><div class="fire-band-label">🥂 Fat FIRE</div><div class="fire-band-val fb-fat" id="fi-fat-target">—</div><div class="r-sub" id="fi-fat-yrs" style="margin-top:6px">— years away</div></div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Annual Savings</div><div class="r-val" id="fi-savings">—</div></div>
+      <div class="r-card"><div class="r-lbl">Savings Rate</div><div class="r-val" id="fi-srate">—</div></div>
+      <div class="r-card"><div class="r-lbl">Coast FIRE Number</div><div class="r-val" id="fi-coast">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">FIRE Progress</div><div class="r-val" id="fi-progress">—</div></div>
+    </div>
+    <div id="fi-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     4. LIFE INSURANCE NEEDS
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-4">
+  <div class="panel-header">
+    <div class="panel-tag">Pro Tools · 4 of 22</div>
+    <div class="panel-title">Life Insurance Needs Calculator</div>
+    <div class="panel-desc">Use the DIME method (Debt, Income, Mortgage, Education) to calculate exactly how much life insurance coverage your family needs.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Income Replacement</div></div>
+    <div class="field"><label>Annual Income to Replace</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-income" class="has-p" value="80000"></div></div>
+    <div class="field"><label>Years of Income Needed</label><input type="number" id="li-years" value="20"></div>
+    <div class="field full"><div class="section-head">Debts to Pay Off</div></div>
+    <div class="field"><label>Mortgage Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-mortgage" class="has-p" value="280000"></div></div>
+    <div class="field"><label>Other Debts (car, credit, student)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-debts" class="has-p" value="25000"></div></div>
+    <div class="field full"><div class="section-head">Future Obligations</div></div>
+    <div class="field"><label>Children's Education Costs</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-edu" class="has-p" value="150000"></div></div>
+    <div class="field"><label>Final Expenses</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-final" class="has-p" value="15000"></div></div>
+    <div class="field full"><div class="section-head">Existing Assets</div></div>
+    <div class="field"><label>Existing Life Insurance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-existing" class="has-p" value="0"></div></div>
+    <div class="field"><label>Savings / Investments</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="li-savings" class="has-p" value="50000"></div></div>
+    <div class="field"><label>Discount Rate</label><div class="input-wrap"><input type="number" id="li-rate" class="has-s" value="5"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc4()">Calculate Coverage Needed</button>
+  <div class="results" id="r4">
+    <div class="results-title">Insurance Need Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Total Coverage Needed</div><div class="r-val" id="li-total">—</div></div>
+      <div class="r-card"><div class="r-lbl">Income Replacement (PV)</div><div class="r-val" id="li-inc-pv">—</div></div>
+      <div class="r-card"><div class="r-lbl">Debt Coverage</div><div class="r-val" id="li-debt-cover">—</div></div>
+      <div class="r-card"><div class="r-lbl">Education + Final Exp.</div><div class="r-val" id="li-other">—</div></div>
+    </div>
+    <div class="bbar-wrap">
+      <div class="bbar-lbl">Coverage Breakdown</div>
+      <div class="bbar-track">
+        <div class="bbar-seg bbar-s1" id="li-b1" style="width:40%"></div>
+        <div class="bbar-seg bbar-s2" id="li-b2" style="width:30%"></div>
+        <div class="bbar-seg bbar-s3" id="li-b3" style="width:20%"></div>
+        <div class="bbar-seg bbar-s4" id="li-b4" style="width:10%"></div>
+      </div>
+      <div class="bbar-leg">
+        <div class="leg-it"><div class="leg-dot" style="background:var(--gem)"></div><span>Income Rep.</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--teal)"></div><span>Mortgage</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--amber)"></div><span>Education</span></div>
+        <div class="leg-it"><div class="leg-dot" style="background:var(--red)"></div><span>Debt+Final</span></div>
+      </div>
+    </div>
+    <div id="li-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     5. COLLEGE SAVINGS (529)
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-5">
+  <div class="panel-header">
+    <div class="panel-tag">Pro Tools · 5 of 22</div>
+    <div class="panel-title">College Savings Calculator (529)</div>
+    <div class="panel-desc">Project total tuition costs with inflation, calculate required monthly contributions, and model 529 growth against actual college costs.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Child's Current Age</label><input type="number" id="cs-age" value="5"></div>
+    <div class="field"><label>College Start Age</label><input type="number" id="cs-start" value="18"></div>
+    <div class="field"><label>Current Annual College Cost</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cs-cost" class="has-p" value="30000"></div></div>
+    <div class="field"><label>Years in College</label><input type="number" id="cs-years" value="4"></div>
+    <div class="field"><label>Tuition Inflation Rate</label><div class="input-wrap"><input type="number" id="cs-inf" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>529 Expected Return</label><div class="input-wrap"><input type="number" id="cs-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Current 529 Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cs-balance" class="has-p" value="5000"></div></div>
+    <div class="field"><label>State Tax Deduction Rate</label><div class="input-wrap"><input type="number" id="cs-state-tax" class="has-s" value="5"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc5()">Calculate 529 Plan</button>
+  <div class="results" id="r5">
+    <div class="results-title">529 Plan Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Projected Total Cost</div><div class="r-val" id="cs-total-cost">—</div></div>
+      <div class="r-card"><div class="r-lbl">Monthly Contribution</div><div class="r-val" id="cs-monthly">—</div></div>
+      <div class="r-card"><div class="r-lbl">Annual State Tax Savings</div><div class="r-val" id="cs-tax-save">—</div></div>
+      <div class="r-card"><div class="r-lbl">Years Until College</div><div class="r-val" id="cs-yrs">—</div></div>
+    </div>
+    <div id="cs-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     6. QUARTERLY ESTIMATED TAX
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-6">
+  <div class="panel-header">
+    <div class="panel-tag">Business · 6 of 22</div>
+    <div class="panel-title">Quarterly Estimated Tax Calculator</div>
+    <div class="panel-desc">Self-employed, freelancer, or investor? Calculate your quarterly estimated tax payments to avoid penalties and underpayment.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Expected Annual Self-Employed Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="et-se-income" class="has-p" value="85000"></div></div>
+    <div class="field"><label>Other Income (W-2, dividends, etc.)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="et-other" class="has-p" value="0"></div></div>
+    <div class="field"><label>Business Expenses (deductible)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="et-expenses" class="has-p" value="15000"></div></div>
+    <div class="field"><label>Filing Status</label>
+      <select id="et-status">
+        <option value="single" selected>Single</option>
+        <option value="mfj">Married Filing Jointly</option>
+      </select>
+    </div>
+    <div class="field"><label>State Tax Rate</label><div class="input-wrap"><input type="number" id="et-state" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Prior Year Tax (for safe harbor)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="et-prior" class="has-p" value="18000"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc6()">Calculate Quarterly Payments</button>
+  <div class="results" id="r6">
+    <div class="results-title">Quarterly Tax Schedule</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Total Annual Tax</div><div class="r-val" id="et-annual">—</div></div>
+      <div class="r-card"><div class="r-lbl">Self-Employment Tax</div><div class="r-val" id="et-se-tax">—</div></div>
+      <div class="r-card"><div class="r-lbl">Federal Income Tax</div><div class="r-val" id="et-fed">—</div></div>
+      <div class="r-card"><div class="r-lbl">State Tax</div><div class="r-val" id="et-state-tax">—</div></div>
+    </div>
+    <div class="sched-wrap">
+      <div class="sched-head">Payment Schedule</div>
+      <table>
+        <thead><tr><th>Quarter</th><th>Due Date</th><th>Payment</th><th>Safe Harbor</th></tr></thead>
+        <tbody id="et-tbody"></tbody>
+      </table>
+    </div>
+    <div id="et-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     7. BUSINESS VALUATION
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-7">
+  <div class="panel-header">
+    <div class="panel-tag">Business · 7 of 22</div>
+    <div class="panel-title">Business Valuation Calculator</div>
+    <div class="panel-desc">Estimate business value using three methods: revenue multiple, EBITDA multiple, and Discounted Cash Flow (DCF). See the range and average.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Annual Revenue</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bv-revenue" class="has-p" value="500000"></div></div>
+    <div class="field"><label>EBITDA (Earnings before interest/tax/depreciation)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bv-ebitda" class="has-p" value="120000"></div></div>
+    <div class="field"><label>Revenue Multiple (industry average)</label><div class="input-wrap"><input type="number" id="bv-rev-mult" class="has-s" value="1.5"><span class="sfx">x</span></div></div>
+    <div class="field"><label>EBITDA Multiple</label><div class="input-wrap"><input type="number" id="bv-ebitda-mult" class="has-s" value="4"><span class="sfx">x</span></div></div>
+    <div class="field"><label>Annual Free Cash Flow</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bv-fcf" class="has-p" value="90000"></div></div>
+    <div class="field"><label>Expected Annual Growth Rate</label><div class="input-wrap"><input type="number" id="bv-growth" class="has-s" value="8"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Discount Rate (WACC)</label><div class="input-wrap"><input type="number" id="bv-wacc" class="has-s" value="12"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Projection Period</label><div class="input-wrap"><input type="number" id="bv-years" class="has-s" value="5"><span class="sfx">years</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc7()">Value This Business</button>
+  <div class="results" id="r7">
+    <div class="results-title">Valuation Summary</div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Revenue Multiple Method</div><div class="r-val" id="bv-rev-val">—</div></div>
+      <div class="r-card"><div class="r-lbl">EBITDA Multiple Method</div><div class="r-val" id="bv-ebitda-val">—</div></div>
+      <div class="r-card"><div class="r-lbl">DCF Method</div><div class="r-val" id="bv-dcf-val">—</div></div>
+      <div class="r-card hi"><div class="r-lbl">Average Valuation</div><div class="r-val" id="bv-avg">—</div></div>
+      <div class="r-card"><div class="r-lbl">Valuation Range</div><div class="r-val" id="bv-range">—</div><div class="r-sub">low — high</div></div>
+      <div class="r-card"><div class="r-lbl">Price/Earnings Ratio</div><div class="r-val" id="bv-pe">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     8. BREAK-EVEN ANALYSIS
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-8">
+  <div class="panel-header">
+    <div class="panel-tag">Business · 8 of 22</div>
+    <div class="panel-title">Break-Even Analysis</div>
+    <div class="panel-desc">Find the exact unit volume and revenue at which your business breaks even, plus margin of safety and target profit analysis.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Selling Price per Unit</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="be-price" class="has-p" value="50"></div></div>
+    <div class="field"><label>Variable Cost per Unit</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="be-varunit" class="has-p" value="20"></div></div>
+    <div class="field full"><label>Total Fixed Costs (monthly)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="be-fixed" class="has-p" value="15000"></div></div>
+    <div class="field"><label>Current Monthly Units Sold</label><input type="number" id="be-units" value="600"></div>
+    <div class="field"><label>Profit Target (monthly)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="be-target" class="has-p" value="5000"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc8()">Analyze Break-Even</button>
+  <div class="results" id="r8">
+    <div class="results-title">Break-Even Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Break-Even Units</div><div class="r-val" id="be-beu">—</div></div>
+      <div class="r-card"><div class="r-lbl">Break-Even Revenue</div><div class="r-val" id="be-ber">—</div></div>
+      <div class="r-card"><div class="r-lbl">Contribution Margin</div><div class="r-val" id="be-cm">—</div></div>
+      <div class="r-card"><div class="r-lbl">CM Ratio</div><div class="r-val" id="be-cmr">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Current Monthly Profit</div><div class="r-val" id="be-profit">—</div></div>
+      <div class="r-card"><div class="r-lbl">Units for Target Profit</div><div class="r-val" id="be-target-units">—</div></div>
+      <div class="r-card"><div class="r-lbl">Margin of Safety</div><div class="r-val" id="be-mos">—</div></div>
+      <div class="r-card"><div class="r-lbl">Operating Leverage</div><div class="r-val" id="be-ol">—</div></div>
+    </div>
+    <div id="be-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     9. PAYROLL TAX CALCULATOR
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-9">
+  <div class="panel-header">
+    <div class="panel-tag">Business · 9 of 22</div>
+    <div class="panel-title">Payroll Tax Calculator</div>
+    <div class="panel-desc">Compare the true cost of hiring a W-2 employee vs. a 1099 contractor, and model the S-Corp salary optimization strategy for self-employed income.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><label>Annual Compensation / Self-Employment Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="pt-income" class="has-p" value="120000"></div></div>
+    <div class="field full"><div class="section-head">W-2 Employee</div></div>
+    <div class="field"><label>Employee Federal Income Tax</label><div class="input-wrap"><input type="number" id="pt-fed" class="has-s" value="22"><span class="sfx">%</span></div></div>
+    <div class="field"><label>State Tax</label><div class="input-wrap"><input type="number" id="pt-state" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field full"><div class="section-head">S-Corp Optimization</div></div>
+    <div class="field full"><label>Reasonable Salary (S-Corp officer)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="pt-scorp-salary" class="has-p" value="60000"><p class="helper">IRS requires reasonable compensation before distributions</p></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc9()">Compare Structures</button>
+  <div class="results" id="r9">
+    <div class="results-title">Tax Structure Comparison</div>
+    <div class="two-col">
+      <div class="compare-card" id="pt-1099-card">
+        <div class="compare-label">📋 Sole Prop / 1099</div>
+        <div class="compare-val" id="pt-1099-take">—</div>
+        <div class="r-sub">After-tax take-home</div>
+        <div id="pt-1099-badge" style="margin-top:8px"></div>
+      </div>
+      <div class="compare-card" id="pt-scorp-card">
+        <div class="compare-label">🏢 S-Corporation</div>
+        <div class="compare-val" id="pt-scorp-take">—</div>
+        <div class="r-sub">After-tax take-home</div>
+        <div id="pt-scorp-badge" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">SE Tax (1099)</div><div class="r-val" id="pt-se">—</div></div>
+      <div class="r-card"><div class="r-lbl">SE Tax (S-Corp)</div><div class="r-val" id="pt-scorp-se">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">S-Corp Tax Savings</div><div class="r-val" id="pt-savings">—</div></div>
+    </div>
+    <div id="pt-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     10. HOUSE VS. RENT
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-10">
+  <div class="panel-header">
+    <div class="panel-tag">Real Estate · 10 of 22</div>
+    <div class="panel-title">House vs. Rent Comparison</div>
+    <div class="panel-desc">The true cost of buying includes opportunity cost of down payment, maintenance, taxes, and transaction costs. Find your break-even horizon.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Buying</div></div>
+    <div class="field"><label>Home Purchase Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hr-price" class="has-p" value="450000"></div></div>
+    <div class="field"><label>Down Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hr-down" class="has-p" value="90000"></div></div>
+    <div class="field"><label>Mortgage Rate</label><div class="input-wrap"><input type="number" id="hr-rate" class="has-s" value="6.75"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Loan Term (years)</label><input type="number" id="hr-term" value="30"></div>
+    <div class="field"><label>Annual Home Appreciation</label><div class="input-wrap"><input type="number" id="hr-appreciation" class="has-s" value="4"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Annual Maintenance Rate</label><div class="input-wrap"><input type="number" id="hr-maint" class="has-s" value="1"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Property Tax Rate (annual)</label><div class="input-wrap"><input type="number" id="hr-prop-tax" class="has-s" value="1.2"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Closing Costs</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hr-closing" class="has-p" value="12000"></div></div>
+    <div class="field full"><div class="section-head">Renting</div></div>
+    <div class="field"><label>Current Monthly Rent</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hr-rent" class="has-p" value="2200"></div></div>
+    <div class="field"><label>Annual Rent Increase</label><div class="input-wrap"><input type="number" id="hr-rent-inc" class="has-s" value="3"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Investment Return on Down Payment</label><div class="input-wrap"><input type="number" id="hr-invest-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Analysis Period</label><div class="input-wrap"><input type="number" id="hr-period" class="has-s" value="10"><span class="sfx">years</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc10()">Compare Options</button>
+  <div class="results" id="r10">
+    <div class="results-title">Buy vs. Rent Analysis</div>
+    <div class="two-col">
+      <div class="compare-card" id="hr-buy-card">
+        <div class="compare-label">🏠 Buying</div>
+        <div class="compare-val" id="hr-buy-val">—</div>
+        <div class="r-sub">Net position after period</div>
+        <div id="hr-buy-badge" style="margin-top:8px"></div>
+      </div>
+      <div class="compare-card" id="hr-rent-card">
+        <div class="compare-label">🏢 Renting</div>
+        <div class="compare-val" id="hr-rent-val">—</div>
+        <div class="r-sub">Investment portfolio value</div>
+        <div id="hr-rent-badge" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Break-Even Year</div><div class="r-val" id="hr-breakeven">—</div></div>
+      <div class="r-card"><div class="r-lbl">Monthly Mortgage (P&I)</div><div class="r-val" id="hr-mortgage">—</div></div>
+      <div class="r-card"><div class="r-lbl">True Monthly Cost to Own</div><div class="r-val" id="hr-true-cost">—</div></div>
+    </div>
+    <div id="hr-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     11. BRRRR STRATEGY
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-11">
+  <div class="panel-header">
+    <div class="panel-tag">Real Estate · 11 of 22</div>
+    <div class="panel-title">BRRRR Strategy Calculator</div>
+    <div class="panel-desc">Buy, Rehab, Rent, Refinance, Repeat. Model the full BRRRR cycle to see how much capital you can recycle into the next deal.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Buy &amp; Rehab</div></div>
+    <div class="field"><label>Purchase Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-purchase" class="has-p" value="120000"></div></div>
+    <div class="field"><label>Rehab Cost</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-rehab" class="has-p" value="40000"></div></div>
+    <div class="field"><label>Closing Costs (purchase)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-closing" class="has-p" value="3000"></div></div>
+    <div class="field"><label>Carrying Costs (total during rehab)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-carrying" class="has-p" value="4000"></div></div>
+    <div class="field full"><div class="section-head">After Repair Value &amp; Rent</div></div>
+    <div class="field"><label>After Repair Value (ARV)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-arv" class="has-p" value="220000"></div></div>
+    <div class="field"><label>Monthly Gross Rent</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-rent" class="has-p" value="1800"></div></div>
+    <div class="field full"><div class="section-head">Refinance</div></div>
+    <div class="field"><label>Refinance LTV</label><div class="input-wrap"><input type="number" id="br-ltv" class="has-s" value="75"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Refinance Rate</label><div class="input-wrap"><input type="number" id="br-refi-rate" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Refinance Term</label><div class="input-wrap"><input type="number" id="br-refi-term" class="has-s" value="30"><span class="sfx">years</span></div></div>
+    <div class="field"><label>Monthly Operating Expenses</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="br-opex" class="has-p" value="450"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc11()">Analyze BRRRR Deal</button>
+  <div class="results" id="r11">
+    <div class="results-title">BRRRR Deal Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Total Capital Invested</div><div class="r-val" id="br-total-inv">—</div></div>
+      <div class="r-card"><div class="r-lbl">Refinance Proceeds</div><div class="r-val" id="br-refi-proc">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Capital Recycled</div><div class="r-val" id="br-recycled">—</div></div>
+      <div class="r-card"><div class="r-lbl">Capital Left in Deal</div><div class="r-val" id="br-left-in">—</div></div>
+      <div class="r-card"><div class="r-lbl">Monthly Cash Flow</div><div class="r-val" id="br-cf">—</div></div>
+      <div class="r-card"><div class="r-lbl">Cash-on-Cash Return</div><div class="r-val" id="br-coc">—</div></div>
+      <div class="r-card"><div class="r-lbl">Equity Created</div><div class="r-val" id="br-equity">—</div></div>
+      <div class="r-card"><div class="r-lbl">Refinance Monthly Pmt</div><div class="r-val" id="br-refi-pmt">—</div></div>
+    </div>
+    <div id="br-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     12. 1031 EXCHANGE
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-12">
+  <div class="panel-header">
+    <div class="panel-tag">Real Estate · 12 of 22</div>
+    <div class="panel-title">1031 Exchange Calculator</div>
+    <div class="panel-desc">A 1031 exchange defers capital gains tax when selling investment property. See your tax deferral, boot exposure, and replacement property requirements.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Relinquished Property (Selling)</div></div>
+    <div class="field"><label>Original Purchase Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-basis" class="has-p" value="200000"></div></div>
+    <div class="field"><label>Sale Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-sale" class="has-p" value="450000"></div></div>
+    <div class="field"><label>Accumulated Depreciation</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-depreciation" class="has-p" value="30000"></div></div>
+    <div class="field"><label>Selling Costs (commissions, fees)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-costs" class="has-p" value="27000"></div></div>
+    <div class="field"><label>Capital Gains Tax Rate</label><div class="input-wrap"><input type="number" id="x31-lt-rate" class="has-s" value="20"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Depreciation Recapture Rate</label><div class="input-wrap"><input type="number" id="x31-dep-rate" class="has-s" value="25"><span class="sfx">%</span></div></div>
+    <div class="field full"><div class="section-head">Replacement Property (Buying)</div></div>
+    <div class="field"><label>Replacement Property Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-replace" class="has-p" value="500000"></div></div>
+    <div class="field"><label>New Mortgage Amount</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="x31-new-loan" class="has-p" value="300000"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc12()">Calculate Exchange</button>
+  <div class="results" id="r12">
+    <div class="results-title">1031 Exchange Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Tax Deferred</div><div class="r-val" id="x31-tax-deferred">—</div></div>
+      <div class="r-card"><div class="r-lbl">Capital Gain</div><div class="r-val" id="x31-gain">—</div></div>
+      <div class="r-card"><div class="r-lbl">Net Equity (Proceeds)</div><div class="r-val" id="x31-net-equity">—</div></div>
+      <div class="r-card amber"><div class="r-lbl">Boot (Taxable Amount)</div><div class="r-val" id="x31-boot">—</div></div>
+      <div class="r-card"><div class="r-lbl">Min. Replacement Value</div><div class="r-val" id="x31-min-replace">—</div></div>
+      <div class="r-card"><div class="r-lbl">Min. New Debt Required</div><div class="r-val" id="x31-min-debt">—</div></div>
+    </div>
+    <div id="x31-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     13. FIX & FLIP
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-13">
+  <div class="panel-header">
+    <div class="panel-tag">Real Estate · 13 of 22</div>
+    <div class="panel-title">Fix &amp; Flip Profit Calculator</div>
+    <div class="panel-desc">Model a complete fix-and-flip project including acquisition, rehab, holding costs, financing, and selling expenses to determine your net profit.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Acquisition</div></div>
+    <div class="field"><label>After Repair Value (ARV)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-arv" class="has-p" value="300000"></div></div>
+    <div class="field"><label>Purchase Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-purchase" class="has-p" value="160000"></div></div>
+    <div class="field"><label>Acquisition Closing Costs</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-buy-close" class="has-p" value="5000"></div></div>
+    <div class="field full"><div class="section-head">Rehab</div></div>
+    <div class="field"><label>Rehab Budget</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-rehab" class="has-p" value="45000"></div></div>
+    <div class="field"><label>Contingency (%)</label><div class="input-wrap"><input type="number" id="ff-contingency" class="has-s" value="10"><span class="sfx">%</span></div></div>
+    <div class="field full"><div class="section-head">Holding &amp; Financing</div></div>
+    <div class="field"><label>Hard Money Loan Amount</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-loan" class="has-p" value="150000"></div></div>
+    <div class="field"><label>Hard Money Rate (annual)</label><div class="input-wrap"><input type="number" id="ff-loan-rate" class="has-s" value="12"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Hold Period</label><div class="input-wrap"><input type="number" id="ff-hold" class="has-s" value="6"><span class="sfx">months</span></div></div>
+    <div class="field"><label>Monthly Holding Costs (utilities, insurance)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-monthly-hold" class="has-p" value="800"></div></div>
+    <div class="field full"><div class="section-head">Selling</div></div>
+    <div class="field"><label>Agent Commission</label><div class="input-wrap"><input type="number" id="ff-commission" class="has-s" value="6"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Seller Closing Costs</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-sell-close" class="has-p" value="3000"></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc13()">Calculate Flip Profit</button>
+  <div class="results" id="r13">
+    <div class="results-title">Flip Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Net Profit</div><div class="r-val" id="ff-profit">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Project Cost</div><div class="r-val" id="ff-total-cost">—</div></div>
+      <div class="r-card"><div class="r-lbl">ROI on Investment</div><div class="r-val" id="ff-roi">—</div></div>
+      <div class="r-card"><div class="r-lbl">Annualized ROI</div><div class="r-val" id="ff-ann-roi">—</div></div>
+      <div class="r-card"><div class="r-lbl">70% ARV Rule Check</div><div class="r-val" id="ff-70-rule">—</div></div>
+      <div class="r-card"><div class="r-lbl">Max Allowable Offer</div><div class="r-val" id="ff-mao">—</div></div>
+    </div>
+    <div id="ff-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     14. TAX-LOSS HARVESTING
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-14">
+  <div class="panel-header">
+    <div class="panel-tag">Portfolio &amp; Tax · 14 of 22</div>
+    <div class="panel-title">Tax-Loss Harvesting Calculator</div>
+    <div class="panel-desc">Realize investment losses to offset capital gains and reduce your tax bill, while maintaining market exposure through similar (but not identical) assets.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current Value of Position</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tlh-current" class="has-p" value="35000"></div></div>
+    <div class="field"><label>Original Cost Basis</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tlh-basis" class="has-p" value="50000"></div></div>
+    <div class="field"><label>Capital Gains to Offset</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="tlh-gains" class="has-p" value="8000"></div></div>
+    <div class="field"><label>Short-Term Gains?</label>
+      <select id="tlh-type">
+        <option value="long">Long-term (held 1+ year)</option>
+        <option value="short">Short-term (held &lt; 1 year)</option>
+      </select>
+    </div>
+    <div class="field"><label>Long-Term Capital Gains Rate</label><div class="input-wrap"><input type="number" id="tlh-lt-rate" class="has-s" value="15"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Short-Term / Ordinary Income Rate</label><div class="input-wrap"><input type="number" id="tlh-st-rate" class="has-s" value="24"><span class="sfx">%</span></div></div>
+    <div class="field"><label>State Tax Rate</label><div class="input-wrap"><input type="number" id="tlh-state" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Expected Future Return (annual)</label><div class="input-wrap"><input type="number" id="tlh-future-ret" class="has-s" value="8"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc14()">Analyze Harvest</button>
+  <div class="results" id="r14">
+    <div class="results-title">Tax-Loss Harvest Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Harvestable Loss</div><div class="r-val" id="tlh-loss">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Tax Savings This Year</div><div class="r-val" id="tlh-tax-save">—</div></div>
+      <div class="r-card"><div class="r-lbl">Deferred Tax Liability</div><div class="r-val" id="tlh-deferred">—</div></div>
+      <div class="r-card"><div class="r-lbl">Net Present Benefit</div><div class="r-val" id="tlh-npb">—</div></div>
+    </div>
+    <div id="tlh-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     15. ASSET LOCATION OPTIMIZER
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-15">
+  <div class="panel-header">
+    <div class="panel-tag">Portfolio &amp; Tax · 15 of 22</div>
+    <div class="panel-title">Asset Location Optimizer</div>
+    <div class="panel-desc">Holding the right assets in the right accounts can save thousands in taxes annually. See which assets belong in taxable vs. tax-advantaged accounts.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Taxable Account Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="al-taxable" class="has-p" value="100000"></div></div>
+    <div class="field"><label>Tax-Deferred (Traditional 401k/IRA)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="al-deferred" class="has-p" value="150000"></div></div>
+    <div class="field"><label>Tax-Free (Roth IRA/401k)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="al-roth" class="has-p" value="50000"></div></div>
+    <div class="field full"><div class="section-head">Target Allocation</div></div>
+    <div class="field"><label>US Stocks</label><div class="input-wrap"><input type="number" id="al-us" class="has-s" value="50"><span class="sfx">%</span></div></div>
+    <div class="field"><label>International Stocks</label><div class="input-wrap"><input type="number" id="al-intl" class="has-s" value="20"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Bonds / Fixed Income</label><div class="input-wrap"><input type="number" id="al-bonds" class="has-s" value="20"><span class="sfx">%</span></div></div>
+    <div class="field"><label>REITs</label><div class="input-wrap"><input type="number" id="al-reits" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Cash / Money Market</label><div class="input-wrap"><input type="number" id="al-cash" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Marginal Tax Rate</label><div class="input-wrap"><input type="number" id="al-tax" class="has-s" value="24"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc15()">Optimize Location</button>
+  <div class="results" id="r15">
+    <div class="results-title">Asset Location Recommendations</div>
+    <div id="al-table-wrap" style="margin-bottom:14px"></div>
+    <div id="al-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     16. DRIP CALCULATOR
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-16">
+  <div class="panel-header">
+    <div class="panel-tag">Portfolio &amp; Tax · 16 of 22</div>
+    <div class="panel-title">Dividend Reinvestment (DRIP) Calculator</div>
+    <div class="panel-desc">Model how automatic dividend reinvestment accelerates wealth through additional compounding — the dividend snowball effect.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Initial Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dr-init" class="has-p" value="25000"></div></div>
+    <div class="field"><label>Share Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dr-price" class="has-p" value="50"></div></div>
+    <div class="field"><label>Annual Dividend Yield</label><div class="input-wrap"><input type="number" id="dr-yield" class="has-s" value="3.5"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Annual Dividend Growth Rate</label><div class="input-wrap"><input type="number" id="dr-div-growth" class="has-s" value="6"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Annual Share Price Appreciation</label><div class="input-wrap"><input type="number" id="dr-appreciation" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Additional Monthly Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dr-monthly" class="has-p" value="200"></div></div>
+    <div class="field full">
+      <label>Investment Period</label>
+      <div class="range-group">
+        <input type="range" id="dr-yr-r" min="1" max="40" step="1" value="20" oninput="syncR('dr-yr','dr-yr-r')">
+        <div class="input-wrap" style="width:110px"><input type="number" id="dr-yr" class="has-s" value="20" oninput="syncR('dr-yr','dr-yr-r')"><span class="sfx">years</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="calc-btn" onclick="calc16()">Calculate DRIP Growth</button>
+  <div class="results" id="r16">
+    <div class="results-title">DRIP Summary</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Portfolio Value</div><div class="r-val" id="dr-fv">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Shares</div><div class="r-val" id="dr-shares">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Annual Dividend Income</div><div class="r-val" id="dr-annual-div">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Dividends Reinvested</div><div class="r-val" id="dr-total-div">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Invested (cash)</div><div class="r-val" id="dr-total-inv">—</div></div>
+      <div class="r-card"><div class="r-lbl">DRIP Bonus vs. No Reinvest</div><div class="r-val" id="dr-bonus">—</div></div>
+    </div>
+    <div class="sched-wrap"><div class="sched-head">Year-by-Year Growth<button class="sched-toggle" id="dr-st-btn" onclick="togSched('dr-st','dr-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="dr-st"><table><thead><tr><th>Year</th><th>Shares</th><th>Share Price</th><th>Portfolio Value</th><th>Annual Dividends</th></tr></thead><tbody id="dr-tbody"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     17. OPTIONS PRICING (BLACK-SCHOLES)
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-17">
+  <div class="panel-header">
+    <div class="panel-tag">Portfolio &amp; Tax · 17 of 22</div>
+    <div class="panel-title">Options Pricing (Black-Scholes)</div>
+    <div class="panel-desc">Price European call and put options using the Black-Scholes model. Includes all Greeks: Delta, Gamma, Theta, Vega, and Rho.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current Stock Price (S)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bs-s" class="has-p" value="100"></div></div>
+    <div class="field"><label>Strike Price (K)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bs-k" class="has-p" value="105"></div></div>
+    <div class="field"><label>Time to Expiration</label><div class="input-wrap"><input type="number" id="bs-t" class="has-s" value="90"><span class="sfx">days</span></div></div>
+    <div class="field"><label>Risk-Free Rate</label><div class="input-wrap"><input type="number" id="bs-r" class="has-s" value="5"><span class="sfx">%</span></div></div>
+    <div class="field full"><label>Implied Volatility (IV)</label><div class="input-wrap"><input type="number" id="bs-vol" class="has-s" value="25"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc17()">Price Options</button>
+  <div class="results" id="r17">
+    <div class="results-title">Black-Scholes Output</div>
+    <div class="two-col">
+      <div class="compare-card" id="bs-call-card">
+        <div class="compare-label">📈 Call Option</div>
+        <div class="compare-val" id="bs-call">—</div>
+        <div class="r-sub">theoretical price</div>
+      </div>
+      <div class="compare-card" id="bs-put-card">
+        <div class="compare-label">📉 Put Option</div>
+        <div class="compare-val" id="bs-put">—</div>
+        <div class="r-sub">theoretical price</div>
+      </div>
+    </div>
+    <div class="results-title" style="margin-top:0">Option Greeks</div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Call Delta</div><div class="r-val" id="bs-call-delta">—</div><div class="r-sub">Put Delta: <span id="bs-put-delta">—</span></div></div>
+      <div class="r-card"><div class="r-lbl">Gamma (both)</div><div class="r-val" id="bs-gamma">—</div></div>
+      <div class="r-card"><div class="r-lbl">Theta (call/day)</div><div class="r-val" id="bs-theta">—</div></div>
+      <div class="r-card"><div class="r-lbl">Vega (per 1% IV)</div><div class="r-val" id="bs-vega">—</div></div>
+    </div>
+    <div id="bs-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     18. SALARY NEGOTIATION
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-18">
+  <div class="panel-header">
+    <div class="panel-tag">Life Planning · 18 of 22</div>
+    <div class="panel-title">Salary Negotiation Calculator</div>
+    <div class="panel-desc">See the true lifetime financial impact of negotiating a higher salary — including compounding raises, retirement contributions, and benefits value.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current / Offered Salary</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sn-current" class="has-p" value="75000"></div></div>
+    <div class="field"><label>Counter-Offer / Target Salary</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sn-target" class="has-p" value="85000"></div></div>
+    <div class="field"><label>Years Until Retirement</label><input type="number" id="sn-years" value="30"></div>
+    <div class="field"><label>Annual Raise Rate</label><div class="input-wrap"><input type="number" id="sn-raise" class="has-s" value="3"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Investment Return on 401k</label><div class="input-wrap"><input type="number" id="sn-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>401k Contribution Rate</label><div class="input-wrap"><input type="number" id="sn-401k" class="has-s" value="10"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Marginal Tax Rate</label><div class="input-wrap"><input type="number" id="sn-tax" class="has-s" value="22"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc18()">Calculate Lifetime Impact</button>
+  <div class="results" id="r18">
+    <div class="results-title">Negotiation Impact</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Lifetime Earnings Difference</div><div class="r-val" id="sn-lifetime">—</div></div>
+      <div class="r-card"><div class="r-lbl">After-Tax Lifetime Gain</div><div class="r-val" id="sn-after-tax">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Additional 401k at Retirement</div><div class="r-val" id="sn-401k-val">—</div></div>
+      <div class="r-card"><div class="r-lbl">Monthly Take-Home Gain</div><div class="r-val" id="sn-monthly">—</div></div>
+      <div class="r-card"><div class="r-lbl">10-Year Cumulative Gain</div><div class="r-val" id="sn-10yr">—</div></div>
+      <div class="r-card"><div class="r-lbl">Hourly Rate Increase</div><div class="r-val" id="sn-hourly">—</div></div>
+    </div>
+    <div id="sn-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     19. BUY VS. LEASE (CAR)
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-19">
+  <div class="panel-header">
+    <div class="panel-tag">Life Planning · 19 of 22</div>
+    <div class="panel-title">Buy vs. Lease (Car) Calculator</div>
+    <div class="panel-desc">Compare the true total cost of buying vs. leasing over 5 years, accounting for depreciation, financing, opportunity cost, and residual value.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Vehicle Details</div></div>
+    <div class="field"><label>Vehicle MSRP</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bl-msrp" class="has-p" value="35000"></div></div>
+    <div class="field"><label>Annual Depreciation Rate</label><div class="input-wrap"><input type="number" id="bl-depr" class="has-s" value="15"><span class="sfx">%</span></div></div>
+    <div class="field full"><div class="section-head">Buy Option</div></div>
+    <div class="field"><label>Down Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bl-down" class="has-p" value="5000"></div></div>
+    <div class="field"><label>Loan Rate (APR)</label><div class="input-wrap"><input type="number" id="bl-apr" class="has-s" value="6"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Loan Term</label><div class="input-wrap"><input type="number" id="bl-loan-term" class="has-s" value="60"><span class="sfx">months</span></div></div>
+    <div class="field full"><div class="section-head">Lease Option</div></div>
+    <div class="field"><label>Monthly Lease Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bl-lease-pmt" class="has-p" value="399"></div></div>
+    <div class="field"><label>Lease Term</label><div class="input-wrap"><input type="number" id="bl-lease-term" class="has-s" value="36"><span class="sfx">months</span></div></div>
+    <div class="field"><label>Lease Down Payment / Cap Cost Reduction</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bl-lease-down" class="has-p" value="2000"></div></div>
+    <div class="field"><label>Mileage Overage Cost (per mile)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="bl-overage" class="has-p" value="0.20"></div></div>
+    <div class="field full"><div class="section-head">Opportunity Cost</div></div>
+    <div class="field"><label>Analysis Period</label><div class="input-wrap"><input type="number" id="bl-period" class="has-s" value="5"><span class="sfx">years</span></div></div>
+    <div class="field"><label>Investment Return</label><div class="input-wrap"><input type="number" id="bl-invest-ret" class="has-s" value="7"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc19()">Compare Options</button>
+  <div class="results" id="r19">
+    <div class="results-title">Buy vs. Lease Comparison</div>
+    <div class="two-col">
+      <div class="compare-card" id="bl-buy-card">
+        <div class="compare-label">🔑 Buying</div>
+        <div class="compare-val" id="bl-buy-val">—</div>
+        <div class="r-sub">Total 5-yr cost (net of resale)</div>
+        <div id="bl-buy-badge" style="margin-top:8px"></div>
+      </div>
+      <div class="compare-card" id="bl-lease-card">
+        <div class="compare-label">📋 Leasing</div>
+        <div class="compare-val" id="bl-lease-val">—</div>
+        <div class="r-sub">Total 5-yr cost (no asset)</div>
+        <div id="bl-lease-badge" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card"><div class="r-lbl">Buy Monthly Payment</div><div class="r-val" id="bl-buy-mo">—</div></div>
+      <div class="r-card"><div class="r-lbl">Residual Value (buy)</div><div class="r-val" id="bl-residual">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Lease Cost</div><div class="r-val" id="bl-lease-total">—</div></div>
+    </div>
+    <div id="bl-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     20. DEBT CONSOLIDATION
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-20">
+  <div class="panel-header">
+    <div class="panel-tag">Life Planning · 20 of 22</div>
+    <div class="panel-title">Debt Consolidation Analyzer</div>
+    <div class="panel-desc">Should you consolidate your debts into a single lower-rate loan? Compare your current situation against consolidation and find the break-even point.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field full"><div class="section-head">Current Debts</div></div>
+    <div class="field"><label>Debt 1 — Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dc-b1" class="has-p" value="8000"></div></div>
+    <div class="field"><label>Debt 1 — APR</label><div class="input-wrap"><input type="number" id="dc-r1" class="has-s" value="22"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Debt 2 — Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dc-b2" class="has-p" value="5000"></div></div>
+    <div class="field"><label>Debt 2 — APR</label><div class="input-wrap"><input type="number" id="dc-r2" class="has-s" value="18"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Debt 3 — Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dc-b3" class="has-p" value="3000"></div></div>
+    <div class="field"><label>Debt 3 — APR</label><div class="input-wrap"><input type="number" id="dc-r3" class="has-s" value="15"><span class="sfx">%</span></div></div>
+    <div class="field full"><div class="section-head">Consolidation Loan</div></div>
+    <div class="field"><label>Consolidation Loan APR</label><div class="input-wrap"><input type="number" id="dc-new-rate" class="has-s" value="9"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Loan Term</label><div class="input-wrap"><input type="number" id="dc-term" class="has-s" value="48"><span class="sfx">months</span></div></div>
+    <div class="field"><label>Origination Fee</label><div class="input-wrap"><input type="number" id="dc-fee" class="has-s" value="1"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc20()">Analyze Consolidation</button>
+  <div class="results" id="r20">
+    <div class="results-title">Consolidation Analysis</div>
+    <div class="two-col">
+      <div class="compare-card" id="dc-curr-card">
+        <div class="compare-label">Current Debts</div>
+        <div class="compare-val" id="dc-curr-int">—</div>
+        <div class="r-sub">Total interest paid</div>
+      </div>
+      <div class="compare-card" id="dc-new-card">
+        <div class="compare-label">Consolidation Loan</div>
+        <div class="compare-val" id="dc-new-int">—</div>
+        <div class="r-sub">Total interest paid</div>
+      </div>
+    </div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Total Debt</div><div class="r-val" id="dc-total">—</div></div>
+      <div class="r-card"><div class="r-lbl">Weighted Avg Rate</div><div class="r-val" id="dc-wavg">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Interest Saved</div><div class="r-val" id="dc-saved">—</div></div>
+      <div class="r-card"><div class="r-lbl">New Monthly Payment</div><div class="r-val" id="dc-new-pmt">—</div></div>
+    </div>
+    <div id="dc-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     21. HSA MAXIMIZER
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-21">
+  <div class="panel-header">
+    <div class="panel-tag">Life Planning · 21 of 22</div>
+    <div class="panel-title">HSA Maximizer</div>
+    <div class="panel-desc">The HSA is the only account with triple tax advantages. Model how investing your HSA (vs. spending it) builds a powerful healthcare nest egg.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Coverage Type</label>
+      <select id="hsa-type" onchange="updateHSALimit()">
+        <option value="individual">Individual (2024: $4,150)</option>
+        <option value="family">Family (2024: $8,300)</option>
+      </select>
+    </div>
+    <div class="field"><label>Annual HSA Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hsa-contrib" class="has-p" value="4150"></div></div>
+    <div class="field"><label>Current HSA Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hsa-balance" class="has-p" value="5000"></div></div>
+    <div class="field"><label>Annual Medical Expenses (out-of-pocket)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="hsa-expenses" class="has-p" value="1500"></div></div>
+    <div class="field"><label>Years Until Age 65</label><input type="number" id="hsa-years" value="25"></div>
+    <div class="field"><label>Investment Return</label><div class="input-wrap"><input type="number" id="hsa-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Marginal Tax Rate</label><div class="input-wrap"><input type="number" id="hsa-tax" class="has-s" value="24"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc21()">Maximize HSA</button>
+  <div class="results" id="r21">
+    <div class="results-title">HSA Analysis</div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">HSA Balance at 65 (invested)</div><div class="r-val" id="hsa-fv">—</div></div>
+      <div class="r-card"><div class="r-lbl">vs. Spending on Medical</div><div class="r-val" id="hsa-spend-fv">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Benefit of Investing HSA</div><div class="r-val" id="hsa-benefit">—</div></div>
+      <div class="r-card"><div class="r-lbl">Annual Tax Savings</div><div class="r-val" id="hsa-tax-save">—</div></div>
+      <div class="r-card"><div class="r-lbl">Total Tax Savings (lifetime)</div><div class="r-val" id="hsa-total-tax">—</div></div>
+      <div class="r-card"><div class="r-lbl">Effective After-Tax Return</div><div class="r-val" id="hsa-eff-return">—</div></div>
+    </div>
+    <div id="hsa-note" class="note-box"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     22. NET WORTH MILESTONES
+════════════════════════════════════════════ -->
+<div class="calc-panel" id="panel-22">
+  <div class="panel-header">
+    <div class="panel-tag">Life Planning · 22 of 22</div>
+    <div class="panel-title">Net Worth Milestone Tracker</div>
+    <div class="panel-desc">Track your progress toward key wealth milestones ($100K, $250K, $500K, $1M, $2M) and project when you'll hit each one.</div>
+  </div>
+  <div class="calc-grid">
+    <div class="field"><label>Current Net Worth</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nm-current" class="has-p" value="85000"></div></div>
+    <div class="field"><label>Annual Savings / Investments</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nm-annual" class="has-p" value="18000"></div></div>
+    <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="nm-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+    <div class="field"><label>Annual Savings Growth Rate</label><div class="input-wrap"><input type="number" id="nm-savings-growth" class="has-s" value="3"><span class="sfx">%</span></div></div>
+  </div>
+  <button class="calc-btn" onclick="calc22()">Track Milestones</button>
+  <div class="results" id="r22">
+    <div class="results-title">Milestone Progress</div>
+    <div id="nm-milestones" style="margin-bottom:14px"></div>
+    <div class="r-grid">
+      <div class="r-card hi"><div class="r-lbl">Next Milestone</div><div class="r-val" id="nm-next">—</div><div class="r-sub" id="nm-next-sub"></div></div>
+      <div class="r-card"><div class="r-lbl">Years to $1M</div><div class="r-val" id="nm-1m-yrs">—</div></div>
+      <div class="r-card pos"><div class="r-lbl">Net Worth in 10 Years</div><div class="r-val" id="nm-10yr">—</div></div>
+    </div>
+    <div class="sched-wrap"><div class="sched-head">Milestone Timeline<button class="sched-toggle" id="nm-st-btn" onclick="togSched('nm-st','nm-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="nm-st"><table><thead><tr><th>Year</th><th>Net Worth</th><th>Annual Addition</th><th>Growth</th></tr></thead><tbody id="nm-tbody"></tbody></table></div></div>
+  </div>
+</div>
+
+  </div><!-- /content-wrap -->
+</div><!-- /main -->
+</div><!-- /layout-row -->
+
+<script>
+const $=id=>document.getElementById(id);
+const val=id=>parseFloat($(id)?.value)||0;
+const intval=id=>parseInt($(id)?.value)||0;
+const strval=id=>$(id)?.value||'';
+const fmt=n=>'$'+Math.round(Math.abs(n)).toLocaleString();
+const fmtD=n=>'$'+Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtPct=n=>n.toFixed(1)+'%';
+const fmtM=n=>{const y=Math.floor(Math.abs(n)/12),m=Math.abs(n)%12;return y>0?`${y}y ${m}m`:`${m}m`};
+const setVal=(id,v)=>{const el=$(id);if(el)el.textContent=v};
+const showR=id=>{const el=$(id);if(el)el.classList.add('show')};
+
+function syncR(inputId,rangeId){
+  const inp=$(inputId),rng=$(rangeId);if(!inp||!rng)return;
+  if(document.activeElement===inp)rng.value=inp.value;else inp.value=rng.value;
+  const min=+rng.min,max=+rng.max,v=+rng.value;
+  rng.style.setProperty('--pct',((v-min)/(max-min)*100)+'%');
+}
+function togSched(tblId,btnId){const tbl=$(tblId),btn=$(btnId);const s=tbl.classList.toggle('show');btn.textContent=s?'Hide Table':'Show Table'}
+
+
+// ── Accordion + Nav ────────────────────────────────────────────────
+const PANEL_CAT={1:0,2:0,3:0,4:0,5:0,6:1,7:1,8:1,9:1,10:2,11:2,12:2,13:2,14:3,15:3,16:3,17:3,18:4,19:4,20:4,21:4,22:4};
+function toggleCat(catEl){
+  const items=catEl.nextElementSibling;
+  const isOpen=catEl.classList.contains('open');
+  catEl.classList.toggle('open',!isOpen);
+  items.classList.toggle('open',!isOpen);
+}
+function openCatForPanel(n){
+  const catIdx=PANEL_CAT[n];
+  document.querySelectorAll('.sb-cat').forEach((cat,i)=>{
+    const items=cat.nextElementSibling;
+    if(!items||!items.classList.contains('sb-items'))return;
+    cat.classList.toggle('open',i===catIdx);
+    items.classList.toggle('open',i===catIdx);
+  });
+}
+(function(){
+  const u=JSON.parse(localStorage.getItem('ia_user')||'{}');
+  const el=document.getElementById('sn-username');
+  if(el&&(u.name||u.email)){el.textContent='★ '+(u.name||u.email).split(' ')[0];el.style.display='';}
+})();
+function snSignOut(){
+  fetch('/api/auth/logout',{method:'POST',credentials:'include'}).finally(()=>{
+    localStorage.removeItem('ia_user');
+    window.location.href='premium-login.html';
+  });
+}
+function show(n){
+  openCatForPanel(n);
+  document.querySelectorAll('.calc-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach((it,i)=>it.classList.toggle('active',i===n-1));
+  $('panel-'+n).classList.add('active');
+  $('breadcrumb').textContent=document.querySelectorAll('.sb-item')[n-1].textContent;
+  $('calc-counter').textContent=n+' / 22';
+  window.scrollTo(0,0);
+  if(window.innerWidth<768)closeSidebar();
+}
+function toggleSidebar(){$('sidebar').classList.toggle('open');$('overlay').classList.toggle('show')}
+function closeSidebar(){$('sidebar').classList.remove('open');$('overlay').classList.remove('show')}
+function updateHSALimit(){const t=strval('hsa-type');$('hsa-contrib').value=t==='family'?8300:4150}
+
+// ─── Normal distribution helpers for Black-Scholes ───
+function normCDF(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);const t=1/(1+p*x);const y=1-(((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));return 0.5*(1+sign*y)}
+function normPDF(x){return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI)}
+
+// ─── Tax brackets 2024 ───
+const BRACKETS={
+  single:[{min:0,max:11600,rate:0.10},{min:11600,max:47150,rate:0.12},{min:47150,max:100525,rate:0.22},{min:100525,max:191950,rate:0.24},{min:191950,max:243725,rate:0.32},{min:243725,max:609350,rate:0.35},{min:609350,max:Infinity,rate:0.37}],
+  mfj:[{min:0,max:23200,rate:0.10},{min:23200,max:94300,rate:0.12},{min:94300,max:201050,rate:0.22},{min:201050,max:383900,rate:0.24},{min:383900,max:487450,rate:0.32},{min:487450,max:731200,rate:0.35},{min:731200,max:Infinity,rate:0.37}],
+  hoh:[{min:0,max:16550,rate:0.10},{min:16550,max:63100,rate:0.12},{min:63100,max:100500,rate:0.22},{min:100500,max:191950,rate:0.24},{min:191950,max:243700,rate:0.32},{min:243700,max:609350,rate:0.35},{min:609350,max:Infinity,rate:0.37}]
+};
+const STD_DEDUCT={single:14600,mfj:29200,hoh:21900};
+
+function calcTax(taxableIncome,status){
+  const brackets=BRACKETS[status];
+  let tax=0,marginal=0.10;
+  for(const b of brackets){
+    if(taxableIncome<=b.min)break;
+    const taxable=Math.min(taxableIncome,b.max)-b.min;
+    tax+=taxable*b.rate;
+    if(taxableIncome>b.min)marginal=b.rate;
+  }
+  return{tax,marginal};
+}
+
+function pmtCalc(r,n,pv){if(r===0)return pv/n;return pv*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1)}
+
+// ════ CALC 1: TAX BRACKET OPTIMIZER ════
+function calc1(){
+  const gross=val('tb-income'),pretax=val('tb-pretax'),status=strval('tb-status');
+  const stdDeduct=STD_DEDUCT[status]||14600;
+  const itemized=val('tb-deduct');
+  const deduction=itemized>0?itemized:stdDeduct;
+  const agi=gross-pretax;
+  const taxableIncome=Math.max(0,agi-deduction);
+  const {tax,marginal}=calcTax(taxableIncome,status);
+  const effective=gross>0?tax/gross*100:0;
+  // room in current bracket
+  const brackets=BRACKETS[status];
+  let room=0;
+  for(const b of brackets){if(marginal===b.rate){room=b.max-taxableIncome;break}}
+
+  setVal('tb-bracket',fmtPct(marginal*100));
+  setVal('tb-effective',fmtPct(effective));
+  setVal('tb-tax',fmt(tax));
+  setVal('tb-room',room===Infinity?'No cap':fmt(room));
+
+  // bar
+  const totalByBracket=[0,0,0,0];
+  let rem=taxableIncome;
+  const bs=BRACKETS[status];
+  const groups=[[bs[0],bs[1]],[bs[2]],[bs[3]],[bs[4],bs[5],bs[6]]];
+  groups.forEach((grp,i)=>{grp.forEach(b=>{if(rem>0){const t=Math.min(rem,b.max-b.min);totalByBracket[i]+=t;rem-=t}})});
+  const t=taxableIncome||1;
+  $('tb-b1').style.width=(totalByBracket[0]/t*100)+'%';
+  $('tb-b2').style.width=(totalByBracket[1]/t*100)+'%';
+  $('tb-b3').style.width=(totalByBracket[2]/t*100)+'%';
+  $('tb-b4').style.width=(totalByBracket[3]/t*100)+'%';
+
+  const rothAmount=room===Infinity?0:Math.min(room,6500);
+  $('tb-roth-note').innerHTML=room>100&&room!==Infinity?`<div class="alert-green">✓ You have ${fmt(room)} of room in your ${fmtPct(marginal*100)} bracket. Consider a Roth conversion of up to ${fmt(rothAmount)} to fill this bracket at current rates.</div>`:'<div class="note-box">💡 You are near the top of your current bracket. Review deductions and pre-tax contributions to stay in the lower bracket.</div>';
+  showR('r1');
+}
+
+// ════ CALC 2: SOCIAL SECURITY ════
+function calc2(){
+  const age=val('ss-age'),fra=parseFloat(strval('ss-fra'))||67;
+  const fraBenefit=val('ss-fra-benefit'),life=val('ss-life');
+  const cola=val('ss-cola')/100,discount=val('ss-discount')/100;
+  const benefit62=fraBenefit*(1-0.30*(fra-62)/5);
+  const benefit70=fraBenefit*(1+0.08*(70-fra));
+
+  function lifetime(claimAge,monthlyBenefit){
+    let total=0;
+    for(let y=claimAge;y<life;y++){
+      const annual=monthlyBenefit*12*Math.pow(1+cola,y-claimAge);
+      total+=annual/Math.pow(1+discount,y-claimAge);
+    }
+    return total;
+  }
+
+  const lt62=lifetime(62,benefit62),ltFRA=lifetime(fra,fraBenefit),lt70=lifetime(70,benefit70);
+
+  // break-even ages
+  let be1=62,be2=fra;
+  for(let a=62;a<life;a++){
+    if(lifetime(62,benefit62)<=lifetime(fra,fraBenefit)){be1=a;break}
+  }
+  // simplified break-even
+  const beAge1=62+(fraBenefit-benefit62)*12/((fraBenefit-benefit62));
+  // simple monthly diff
+  const mo_diff1=fraBenefit-benefit62,mo_diff2=benefit70-fraBenefit;
+  const be1Approx=fra+Math.ceil((fraBenefit-benefit62)*fra*12/mo_diff1/12);
+  const be2Approx=70+Math.ceil((benefit70-fraBenefit)*70*12/mo_diff2/12);
+
+  setVal('ss-62-mo',fmtD(benefit62));
+  setVal('ss-fra-mo',fmtD(fraBenefit));
+  setVal('ss-70-mo',fmtD(benefit70));
+  setVal('ss-62-life',`Lifetime PV: ${fmt(lt62)}`);
+  setVal('ss-fra-life',`Lifetime PV: ${fmt(ltFRA)}`);
+  setVal('ss-70-life',`Lifetime PV: ${fmt(lt70)}`);
+
+  const breakEven1=Math.round(62+(fraBenefit*12*fra-benefit62*12*62)/(fraBenefit*12-benefit62*12));
+  const breakEven2=Math.round(fra+(benefit70*12*70-fraBenefit*12*fra)/(benefit70*12-fraBenefit*12));
+  setVal('ss-be1','Age '+(isFinite(breakEven1)?breakEven1:'N/A'));
+  setVal('ss-be2','Age '+(isFinite(breakEven2)?breakEven2:'N/A'));
+
+  const best=[{label:'62',val:lt62},{label:'FRA ('+fra+')',val:ltFRA},{label:'70',val:lt70}].sort((a,b)=>b.val-a.val)[0];
+  setVal('ss-optimal','Claim at '+best.label);
+  $('ss-note').textContent=`Based on your life expectancy of ${life}, claiming at ${best.label} maximizes your lifetime benefit. If you expect to live past age ${Math.max(breakEven1,breakEven2)}, delaying benefits is advantageous. Consider your health, other income, and spouse benefits.`;
+  showR('r2');
+}
+
+// ════ CALC 3: FIRE ════
+function calc3(){
+  const age=val('fi-age'),income=val('fi-income'),expenses=val('fi-expenses');
+  const assets=val('fi-assets'),ret=val('fi-return')/100,inf=val('fi-inf')/100;
+  const lean=val('fi-lean'),fat=val('fi-fat');
+  const savings=income-expenses,srate=income>0?savings/income*100:0;
+  const realReturn=(1+ret)/(1+inf)-1;
+
+  function yearsToFIRE(target){
+    let bal=assets,yr=0;
+    while(bal<target&&yr<100){bal=bal*(1+realReturn)+savings;yr++}
+    return bal>=target?yr:'>50';
+  }
+
+  const leanTarget=lean/0.04,regTarget=expenses/0.04,fatTarget=fat/0.04;
+  const coastTarget=expenses/0.04;
+  const coastFIRE=coastTarget/Math.pow(1+ret,65-age);
+
+  const y1=yearsToFIRE(leanTarget),y2=yearsToFIRE(regTarget),y3=yearsToFIRE(fatTarget);
+
+  setVal('fi-lean-target',fmt(leanTarget));setVal('fi-lean-yrs',typeof y1==='number'?`${y1} years (age ${age+y1})`:'50+ years');
+  setVal('fi-reg-target',fmt(regTarget));setVal('fi-reg-yrs',typeof y2==='number'?`${y2} years (age ${age+y2})`:'50+ years');
+  setVal('fi-fat-target',fmt(fatTarget));setVal('fi-fat-yrs',typeof y3==='number'?`${y3} years (age ${age+y3})`:'50+ years');
+  setVal('fi-savings',fmt(savings));
+  setVal('fi-srate',fmtPct(srate));
+  setVal('fi-coast',fmt(coastFIRE));
+  const progress=Math.min(100,assets/regTarget*100);
+  setVal('fi-progress',fmtPct(progress));
+  $('fi-note').textContent=`Your savings rate of ${fmtPct(srate)} is ${srate>=50?'excellent for FIRE':srate>=30?'solid — on track for early retirement':'below the 50%+ recommended for most FIRE strategies'}. The 4% rule targets are based on a 25x annual expenses portfolio. Coast FIRE (${fmt(coastFIRE)}) is the amount where you can stop contributing and still retire at 65.`;
+  showR('r3');
+}
+
+// ════ CALC 4: LIFE INSURANCE ════
+function calc4(){
+  const income=val('li-income'),years=val('li-years'),r=val('li-rate')/100;
+  const mortgage=val('li-mortgage'),debts=val('li-debts');
+  const edu=val('li-edu'),final=val('li-final');
+  const existing=val('li-existing'),savings=val('li-savings');
+  const pvIncome=r>0?income*(1-Math.pow(1+r,-years))/r:income*years;
+  const debtCover=mortgage+debts,other=edu+final;
+  const gross=pvIncome+debtCover+other;
+  const needed=Math.max(0,gross-existing-savings);
+  const total=needed;
+  const t=gross||1;
+
+  setVal('li-total',fmt(needed));setVal('li-inc-pv',fmt(pvIncome));setVal('li-debt-cover',fmt(debtCover));setVal('li-other',fmt(other));
+  $('li-b1').style.width=(pvIncome/t*100)+'%';$('li-b2').style.width=(mortgage/t*100)+'%';$('li-b3').style.width=(edu/t*100)+'%';$('li-b4').style.width=((debts+final)/t*100)+'%';
+  $('li-note').textContent=`Your recommended coverage is ${fmt(needed)}. This accounts for ${years} years of income replacement at a ${fmtPct(r*100)} discount rate, your mortgage, other debts, education costs, and final expenses, less existing insurance and savings. A term life policy for this amount is typically the most cost-effective choice.`;
+  showR('r4');
+}
+
+// ════ CALC 5: 529 PLAN ════
+function calc5(){
+  const childAge=val('cs-age'),startAge=val('cs-start'),years=val('cs-years');
+  const cost=val('cs-cost'),inf=val('cs-inf')/100,ret=val('cs-return')/100;
+  const balance=val('cs-balance'),stateTax=val('cs-state-tax')/100;
+  const yrs=startAge-childAge;
+  let totalCost=0;
+  for(let y=0;y<years;y++)totalCost+=cost*Math.pow(1+inf,yrs+y);
+  const n=yrs*12,r=ret/12;
+  const pvCost=totalCost;
+  const balFV=balance*Math.pow(1+r,n);
+  const needed=Math.max(0,pvCost-balFV);
+  const monthly=n>0&&r>0?needed*r/(Math.pow(1+r,n)-1):needed/n;
+  const annualTaxSave=monthly*12*stateTax;
+
+  setVal('cs-total-cost',fmt(totalCost));setVal('cs-monthly',fmtD(monthly));setVal('cs-tax-save',fmt(annualTaxSave));setVal('cs-yrs',yrs+' years');
+  $('cs-note').textContent=`At ${fmtPct(inf*100)} annual tuition inflation, ${years} years of college at ${fmt(cost)}/year will cost ${fmt(totalCost)} by the time your child enrolls at age ${startAge}. Contributing ${fmtD(monthly)}/month to a 529 plan earning ${fmtPct(ret*100)} should cover this goal. Your state deduction saves approximately ${fmt(annualTaxSave)}/year on taxes.`;
+  showR('r5');
+}
+
+// ════ CALC 6: QUARTERLY ESTIMATED TAX ════
+function calc6(){
+  const seIncome=val('et-se-income'),other=val('et-other'),expenses=val('et-expenses');
+  const status=strval('et-status'),stateRate=val('et-state')/100,prior=val('et-prior');
+  const netSE=Math.max(0,seIncome-expenses);
+  const seTax=netSE*0.9235*0.1530;
+  const seDeduct=seTax/2;
+  const agi=netSE+other-seDeduct;
+  const stdDeduct=STD_DEDUCT[status]||14600;
+  const taxable=Math.max(0,agi-stdDeduct);
+  const {tax:fedTax}=calcTax(taxable,status);
+  const stateTax=agi*stateRate;
+  const totalTax=seTax+fedTax+stateTax;
+  const quarterly=totalTax/4;
+  const safeHarbor=prior/4;
+
+  setVal('et-annual',fmt(totalTax));setVal('et-se-tax',fmt(seTax));setVal('et-fed',fmt(fedTax));setVal('et-state-tax',fmt(stateTax));
+
+  const dates=['April 15','June 15','September 15','January 15 (next yr)'];
+  $('et-tbody').innerHTML=dates.map((d,i)=>`<tr><td>Q${i+1}</td><td>${d}</td><td>${fmtD(quarterly)}</td><td>${fmtD(safeHarbor)}</td></tr>`).join('');
+  $('et-note').textContent=`Pay the lesser of ${fmtD(quarterly)}/quarter (100% of current estimate) or ${fmtD(safeHarbor)}/quarter (safe harbor = 100% of prior year tax) to avoid underpayment penalties. High earners (AGI>${status==='mfj'?'$150K':'$75K'}) must pay 110% of prior year tax for safe harbor.`;
+  showR('r6');
+}
+
+// ════ CALC 7: BUSINESS VALUATION ════
+function calc7(){
+  const revenue=val('bv-revenue'),ebitda=val('bv-ebitda');
+  const revMult=val('bv-rev-mult'),ebitdaMult=val('bv-ebitda-mult');
+  const fcf=val('bv-fcf'),growth=val('bv-growth')/100,wacc=val('bv-wacc')/100,years=val('bv-years');
+  const revVal=revenue*revMult,ebitdaVal=ebitda*ebitdaMult;
+  let dcf=0;
+  for(let y=1;y<=years;y++)dcf+=fcf*Math.pow(1+growth,y)/Math.pow(1+wacc,y);
+  const terminal=dcf+(fcf*Math.pow(1+growth,years)*(1+growth/2))/((wacc-growth/2)*Math.pow(1+wacc,years));
+  const avg=(revVal+ebitdaVal+terminal)/3;
+  const low=Math.min(revVal,ebitdaVal,terminal),high=Math.max(revVal,ebitdaVal,terminal);
+  const pe=ebitda>0?avg/ebitda:0;
+
+  setVal('bv-rev-val',fmt(revVal));setVal('bv-ebitda-val',fmt(ebitdaVal));setVal('bv-dcf-val',fmt(terminal));setVal('bv-avg',fmt(avg));setVal('bv-range',fmt(low)+' — '+fmt(high));setVal('bv-pe',pe.toFixed(1)+'x');
+  showR('r7');
+}
+
+// ════ CALC 8: BREAK-EVEN ════
+function calc8(){
+  const price=val('be-price'),varUnit=val('be-varunit'),fixed=val('be-fixed');
+  const units=val('be-units'),target=val('be-target');
+  const cm=price-varUnit,cmr=price>0?cm/price:0;
+  const beu=cm>0?Math.ceil(fixed/cm):Infinity;
+  const ber=beu*price;
+  const profit=(units-beu)*cm;
+  const targetUnits=cm>0?Math.ceil((fixed+target)/cm):Infinity;
+  const mos=units>0?(units-beu)/units*100:0;
+  const ol=profit>0?(units*cm)/(profit):0;
+
+  setVal('be-beu',beu===Infinity?'N/A':Math.round(beu).toLocaleString()+' units');
+  setVal('be-ber',beu===Infinity?'N/A':fmt(ber));
+  setVal('be-cm',fmtD(cm));setVal('be-cmr',fmtPct(cmr*100));
+  setVal('be-profit',fmt(profit));setVal('be-target-units',targetUnits===Infinity?'N/A':Math.round(targetUnits).toLocaleString()+' units');
+  setVal('be-mos',fmtPct(Math.max(0,mos)));setVal('be-ol',ol.toFixed(2)+'x');
+  $('be-note').textContent=`At ${units.toLocaleString()} units/month, you generate ${fmt(profit)} profit. Margin of safety: ${fmtPct(Math.max(0,mos))} — revenue can drop ${fmtPct(Math.max(0,mos))} before you reach break-even. Operating leverage of ${ol.toFixed(2)}x means a 10% revenue increase boosts profit by ${fmtPct(ol*10)}.`;
+  showR('r8');
+}
+
+// ════ CALC 9: PAYROLL TAX ════
+function calc9(){
+  const income=val('pt-income'),fedRate=val('pt-fed')/100,stateRate=val('pt-state')/100;
+  const scSalary=val('pt-scorp-salary');
+  // Sole Prop / 1099
+  const netSE=income*0.9235,seTax1099=netSE*0.1530;
+  const agi1099=income-seTax1099/2,std=14600,taxable1099=Math.max(0,agi1099-std);
+  const {tax:fed1099}=calcTax(taxable1099,'single');
+  const state1099=agi1099*stateRate;
+  const take1099=income-seTax1099-fed1099-state1099;
+  // S-Corp
+  const distribution=income-scSalary;
+  const seTaxScorp=scSalary*0.9235*0.1530;
+  const agiScorp=income-seTaxScorp/2,taxableScorp=Math.max(0,agiScorp-std);
+  const {tax:fedScorp}=calcTax(taxableScorp,'single');
+  const stateScorp=agiScorp*stateRate;
+  const takeScorp=income-seTaxScorp-fedScorp-stateScorp;
+  const savings=takeScorp-take1099;
+
+  setVal('pt-1099-take',fmt(take1099));setVal('pt-scorp-take',fmt(takeScorp));
+  setVal('pt-se',fmt(seTax1099));setVal('pt-scorp-se',fmt(seTaxScorp));setVal('pt-savings',fmt(savings));
+
+  const sCorpWins=takeScorp>take1099;
+  $('pt-1099-card').className='compare-card'+(sCorpWins?' loser':' winner');
+  $('pt-scorp-card').className='compare-card'+(sCorpWins?' winner':' loser');
+  $('pt-1099-badge').innerHTML=!sCorpWins?'<span class="compare-badge">Current Best</span>':'';
+  $('pt-scorp-badge').innerHTML=sCorpWins?'<span class="compare-badge">Recommended</span>':'';
+  $('pt-note').textContent=`S-Corp election saves ${fmt(savings)}/year by splitting income into salary (subject to SE tax) and distributions (exempt from SE tax). S-Corp setup costs $500–$2,000 and has annual compliance costs. It becomes worthwhile typically above $40K–$50K net self-employment income.`;
+  showR('r9');
+}
+
+// ════ CALC 10: HOUSE VS RENT ════
+function calc10(){
+  const price=val('hr-price'),down=val('hr-down'),rate=val('hr-rate')/100/12;
+  const term=val('hr-term')*12,appreciation=val('hr-appreciation')/100;
+  const maint=val('hr-maint')/100,propTax=val('hr-prop-tax')/100;
+  const closing=val('hr-closing'),years=val('hr-period');
+  const rent=val('hr-rent'),rentInc=val('hr-rent-inc')/100,investRet=val('hr-invest-return')/100;
+  const loan=price-down,pmt=pmtCalc(rate,term,loan);
+  const annualPropTax=price*propTax,annualMaint=price*maint;
+  const trueMonthly=pmt+(annualPropTax+annualMaint)/12;
+  // Buying net position
+  const homeValue=price*Math.pow(1+appreciation,years);
+  let mortgageBal=loan;
+  for(let m=0;m<years*12;m++){const i=mortgageBal*rate;mortgageBal=mortgageBal+i-pmt;}
+  const equity=homeValue-Math.max(0,mortgageBal)-closing*1.5;// selling costs ~1.5x closing
+  const totalBuyCost=(pmt*years*12)+(annualPropTax+annualMaint)*years+closing;
+  const buyNet=homeValue-Math.max(0,mortgageBal)-closing*1.5;
+  // Renting net position
+  let rentPortfolio=down+closing;
+  let currentRent=rent;
+  for(let y=0;y<years;y++){
+    const rentCost=currentRent*12;
+    const buyCost=(pmt*12)+(annualPropTax+annualMaint);
+    const monthlySavings=Math.max(0,(buyCost-rentCost)/12);
+    rentPortfolio=(rentPortfolio+monthlySavings*12)*(1+investRet);
+    currentRent*=(1+rentInc);
+  }
+  const buyWins=buyNet>rentPortfolio;
+  setVal('hr-buy-val',fmt(buyNet));setVal('hr-rent-val',fmt(rentPortfolio));
+  setVal('hr-mortgage',fmtD(pmt));setVal('hr-true-cost',fmtD(trueMonthly));
+  $('hr-buy-card').className='compare-card'+(buyWins?' winner':' loser');
+  $('hr-rent-card').className='compare-card'+(buyWins?' loser':' winner');
+  $('hr-buy-badge').innerHTML=buyWins?'<span class="compare-badge">Better Option</span>':'';
+  $('hr-rent-badge').innerHTML=!buyWins?'<span class="compare-badge">Better Option</span>':'';
+  // break-even
+  let beBuyNet=price-loan-closing,beRentPF=down+closing,beYear=0,beFound=false,yr=0;
+  let beCurrentRent=rent,beMortBal=loan;
+  while(yr<40&&!beFound){
+    yr++;
+    const bHV=price*Math.pow(1+appreciation,yr);
+    for(let m=0;m<12;m++){const i=beMortBal*rate;beMortBal=beMortBal+i-pmt;}
+    const bBuy=bHV-Math.max(0,beMortBal)-closing*1.5;
+    const rentCostYr=beCurrentRent*12,buyCostYr=(pmt*12)+(annualPropTax+annualMaint);
+    const bSave=Math.max(0,(buyCostYr-rentCostYr)/12);
+    beRentPF=(beRentPF+bSave*12)*(1+investRet);
+    beCurrentRent*=(1+rentInc);
+    if(bBuy>=beRentPF&&!beFound){beYear=yr;beFound=true;}
+  }
+  setVal('hr-breakeven',beFound?'Year '+beYear:'Never in 40yrs');
+  $('hr-note').textContent=`Over ${years} years, ${buyWins?'buying':'renting+investing'} comes out ${fmt(Math.abs(buyNet-rentPortfolio))} ahead. The break-even point where buying overtakes renting is approximately ${beFound?'year '+beYear:'beyond 40 years'}. True monthly cost to own: ${fmtD(trueMonthly)} vs. current rent: ${fmtD(rent)}.`;
+  showR('r10');
+}
+
+// ════ CALC 11: BRRRR ════
+function calc11(){
+  const purchase=val('br-purchase'),rehab=val('br-rehab'),closing=val('br-closing'),carrying=val('br-carrying');
+  const arv=val('br-arv'),rent=val('br-rent'),ltv=val('br-ltv')/100;
+  const refiRate=val('br-refi-rate')/100/12,refiTerm=val('br-refi-term')*12,opex=val('br-opex');
+  const totalIn=purchase+rehab+closing+carrying;
+  const refiProceeds=arv*ltv;
+  const refiPmt=pmtCalc(refiRate,refiTerm,refiProceeds);
+  const leftIn=Math.max(0,totalIn-refiProceeds);
+  const cf=rent-opex-refiPmt;
+  const coc=leftIn>0?cf*12/leftIn*100:Infinity;
+  const equity=arv-refiProceeds;
+  const recycled=Math.min(refiProceeds,totalIn);
+
+  setVal('br-total-inv',fmt(totalIn));setVal('br-refi-proc',fmt(refiProceeds));setVal('br-recycled',fmt(recycled));
+  setVal('br-left-in',fmt(leftIn));setVal('br-cf',fmtD(cf));setVal('br-coc',coc===Infinity?'∞':fmtPct(coc));
+  setVal('br-equity',fmt(equity));setVal('br-refi-pmt',fmtD(refiPmt));
+  const recycledPct=totalIn>0?recycled/totalIn*100:0;
+  $('br-note').textContent=`You recycled ${fmtPct(recycledPct)} of your invested capital (${fmt(recycled)}) through the refinance, leaving only ${fmt(leftIn)} in the deal. This freed-up capital can be deployed into your next BRRRR deal. Equity created: ${fmt(equity)} (difference between ARV and refinance balance).`;
+  showR('r11');
+}
+
+// ════ CALC 12: 1031 EXCHANGE ════
+function calc12(){
+  const basis=val('x31-basis'),sale=val('x31-sale'),depreciation=val('x31-depreciation'),costs=val('x31-costs');
+  const ltRate=val('x31-lt-rate')/100,depRate=val('x31-dep-rate')/100;
+  const replace=val('x31-replace'),newLoan=val('x31-new-loan');
+  const adjBasis=basis-depreciation,gain=sale-costs-adjBasis;
+  const depRecapture=Math.min(depreciation,gain)*depRate;
+  const ltGain=Math.max(0,gain-depreciation)*ltRate;
+  const totalTax=depRecapture+ltGain;
+  const netEquity=sale-costs-basis;
+  const oldLoan=sale-costs-netEquity;
+  const boot=Math.max(0,netEquity-(replace-newLoan));
+  const minReplace=sale-costs;
+  const minDebt=Math.max(0,sale-costs-netEquity);
+
+  setVal('x31-tax-deferred',fmt(totalTax));setVal('x31-gain',fmt(gain));setVal('x31-net-equity',fmt(netEquity));
+  setVal('x31-boot',boot>100?fmt(boot):'None ✓');setVal('x31-min-replace',fmt(minReplace));setVal('x31-min-debt',fmt(minDebt));
+  $('x31-note').textContent=boot>100?`⚠️ You have ${fmt(boot)} in taxable "boot" because your net equity exceeds what's going into the replacement property. To eliminate boot, your replacement property must be worth at least ${fmt(minReplace)} and you must take on at least ${fmt(minDebt)} in new debt.`:`✓ Clean exchange! No boot — your replacement property covers all requirements. You've deferred ${fmt(totalTax)} in capital gains and depreciation recapture taxes.`;
+  showR('r12');
+}
+
+// ════ CALC 13: FIX & FLIP ════
+function calc13(){
+  const arv=val('ff-arv'),purchase=val('ff-purchase'),buyCosts=val('ff-buy-close');
+  const rehab=val('ff-rehab'),contingency=val('ff-contingency')/100;
+  const loan=val('ff-loan'),loanRate=val('ff-loan-rate')/100,hold=val('ff-hold');
+  const monthlyHold=val('ff-monthly-hold'),commission=val('ff-commission')/100,sellClose=val('ff-sell-close');
+  const totalRehab=rehab*(1+contingency);
+  const financingCost=loan*(loanRate/12)*hold;
+  const holdingCost=monthlyHold*hold;
+  const sellingCost=arv*commission+sellClose;
+  const totalCost=purchase+buyCosts+totalRehab+financingCost+holdingCost+sellingCost;
+  const profit=arv-totalCost;
+  const roi=totalCost>0?profit/totalCost*100:0;
+  const annRoi=hold>0?((1+roi/100)**(12/hold)-1)*100:0;
+  const mao=arv*0.70-totalRehab;
+  const passes70=purchase<=mao;
+
+  setVal('ff-profit',(profit>=0?'':'-')+fmt(Math.abs(profit)));setVal('ff-total-cost',fmt(totalCost));
+  setVal('ff-roi',fmtPct(roi));setVal('ff-ann-roi',fmtPct(annRoi));
+  setVal('ff-70-rule',passes70?'✓ Pass ('+fmt(purchase)+' ≤ '+fmt(mao)+')':'✗ Fail (overpaid by '+fmt(purchase-mao)+')');
+  setVal('ff-mao',fmt(mao));
+  $('ff-note').textContent=profit>=0?`✓ This flip projects ${fmt(profit)} profit (${fmtPct(roi)} ROI, ${fmtPct(annRoi)} annualized). ${passes70?'Meets the 70% ARV rule.':'Warning: purchase price exceeds 70% ARV rule — higher risk.'} Key metric: your profit margin should be at least 20% of ARV (${fmt(arv*0.2)}) to account for unexpected costs.`:`⚠️ At current numbers this deal loses ${fmt(-profit)}. Reduce purchase price by ${fmt(-profit)} or find ways to cut rehab/holding costs.`;
+  showR('r13');
+}
+
+// ════ CALC 14: TAX-LOSS HARVESTING ════
+function calc14(){
+  const current=val('tlh-current'),basis=val('tlh-basis'),gains=val('tlh-gains');
+  const type=strval('tlh-type'),ltRate=val('tlh-lt-rate')/100,stRate=val('tlh-st-rate')/100,stateRate=val('tlh-state')/100;
+  const futureRet=val('tlh-future-ret')/100;
+  const harvestLoss=Math.max(0,basis-current);
+  const gainRate=type==='short'?stRate:ltRate;
+  const totalRate=gainRate+stateRate;
+  const gainsOffset=Math.min(harvestLoss,gains),additionalDeduct=Math.max(0,harvestLoss-gains);
+  const taxSave=(gainsOffset*totalRate)+(Math.min(additionalDeduct,3000)*(stRate+stateRate));
+  const newBasis=current;
+  const futureGain=current*Math.pow(1+futureRet,5)-newBasis;
+  const deferredTax=futureGain*(ltRate+stateRate);
+  const npb=taxSave-deferredTax/Math.pow(1+futureRet,5);
+
+  setVal('tlh-loss',fmt(harvestLoss));setVal('tlh-tax-save',fmt(taxSave));setVal('tlh-deferred',fmt(deferredTax));setVal('tlh-npb',fmt(npb));
+  $('tlh-note').textContent=`By harvesting this ${fmt(harvestLoss)} loss now, you save ${fmt(taxSave)} in taxes this year. In exchange, your new cost basis is ${fmt(newBasis)} — meaning you'll owe approximately ${fmt(deferredTax)} more in future taxes (assuming 5-year hold). Net present benefit: ${fmt(npb)}. ⚠️ Wash-sale rule: don't repurchase the same or "substantially identical" security within 30 days.`;
+  showR('r14');
+}
+
+// ════ CALC 15: ASSET LOCATION ════
+function calc15(){
+  const taxable=val('al-taxable'),deferred=val('al-deferred'),roth=val('al-roth');
+  const us=val('al-us'),intl=val('al-intl'),bonds=val('al-bonds'),reits=val('al-reits'),cash=val('al-cash');
+  const tax=val('al-tax')/100;
+  const total=taxable+deferred+roth;
+  const assets=[
+    {name:'US Stocks',pct:us,taxEff:'High',location:'Taxable',reason:'Tax-efficient via qualified dividends & LTCG rates',color:'var(--gem)'},
+    {name:'Intl Stocks',pct:intl,taxEff:'High',location:'Taxable',reason:'Foreign tax credit only available in taxable accounts',color:'var(--teal)'},
+    {name:'Bonds',pct:bonds,taxEff:'Low',location:'Tax-Deferred',reason:'Interest taxed as ordinary income — shelter it',color:'var(--amber)'},
+    {name:'REITs',pct:reits,taxEff:'Low',location:'Roth',reason:'High dividends taxed as ordinary income — Roth is ideal',color:'var(--red)'},
+    {name:'Cash/MM',pct:cash,taxEff:'Low',location:'Taxable',reason:'Needed for liquidity; keep in HYSA or money market',color:'var(--muted)'},
+  ];
+  let html=`<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 80px 110px 1fr;gap:8px;padding:10px 16px;background:rgba(124,106,245,.07);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2)">
+      <div>Asset Class</div><div style="text-align:center">Target %</div><div style="text-align:center">Best Account</div><div>Reason</div>
+    </div>`;
+  assets.forEach(a=>{
+    html+=`<div style="display:grid;grid-template-columns:1fr 80px 110px 1fr;gap:8px;padding:9px 16px;border-bottom:1px solid var(--border2);align-items:center">
+      <div style="font-size:11px;color:var(--text);display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:${a.color};display:inline-block;flex-shrink:0"></span>${a.name}</div>
+      <div style="text-align:center;font-size:11px;color:var(--gem-l)">${a.pct}%</div>
+      <div style="text-align:center;font-size:10px;color:var(--teal);font-weight:500">${a.location}</div>
+      <div style="font-size:9px;color:var(--muted);line-height:1.4">${a.reason}</div>
+    </div>`;
+  });
+  html+='</div>';
+  $('al-table-wrap').innerHTML=html;
+  $('al-note').textContent=`Asset location can save ${fmtPct(tax*2)} or more in annual tax drag on a ${fmt(total)} portfolio — potentially ${fmt(total*tax*0.02)} per year. Priority order: (1) Tax-inefficient assets in Roth first, (2) then tax-deferred, (3) tax-efficient equities in taxable.`;
+  showR('r15');
+}
+
+// ════ CALC 16: DRIP ════
+function calc16(){
+  const init=val('dr-init'),price=val('dr-price'),divYield=val('dr-yield')/100;
+  const divGrowth=val('dr-div-growth')/100,appreciation=val('dr-appreciation')/100,monthly=val('dr-monthly');
+  const years=val('dr-yr');
+  let shares=init/price,sharePrice=price,annualDiv=init*divYield,totalDivReinvested=0,totalInvested=init,tbody='';
+  for(let y=1;y<=years;y++){
+    const divPerShare=sharePrice*divYield;
+    const divIncome=shares*divPerShare;
+    totalDivReinvested+=divIncome;
+    const newSharesFromDiv=divIncome/sharePrice;
+    const newSharesFromCash=monthly*12/sharePrice;
+    shares+=newSharesFromDiv+newSharesFromCash;
+    sharePrice*=(1+appreciation);
+    annualDiv=shares*(sharePrice*divYield*Math.pow(1+divGrowth,y));
+    totalInvested+=monthly*12;
+    tbody+=`<tr><td>${y}</td><td>${shares.toFixed(2)}</td><td>${fmtD(sharePrice)}</td><td>${fmt(shares*sharePrice)}</td><td>${fmt(shares*(sharePrice*divYield))}</td></tr>`;
+  }
+  const fv=shares*sharePrice;
+  const noDripFV=(init+monthly*12*years)*(1+appreciation)**years;
+  const bonus=fv-noDripFV;
+
+  setVal('dr-fv',fmt(fv));setVal('dr-shares',Math.round(shares).toLocaleString());setVal('dr-annual-div',fmt(annualDiv));
+  setVal('dr-total-div',fmt(totalDivReinvested));setVal('dr-total-inv',fmt(totalInvested));setVal('dr-bonus',fmt(bonus));
+  $('dr-tbody').innerHTML=tbody;
+  showR('r16');
+}
+
+// ════ CALC 17: BLACK-SCHOLES ════
+function calc17(){
+  const S=val('bs-s'),K=val('bs-k'),T=val('bs-t')/365,r=val('bs-r')/100,sigma=val('bs-vol')/100;
+  if(T<=0||S<=0||K<=0||sigma<=0)return;
+  const d1=(Math.log(S/K)+(r+0.5*sigma*sigma)*T)/(sigma*Math.sqrt(T));
+  const d2=d1-sigma*Math.sqrt(T);
+  const callPrice=S*normCDF(d1)-K*Math.exp(-r*T)*normCDF(d2);
+  const putPrice=K*Math.exp(-r*T)*normCDF(-d2)-S*normCDF(-d1);
+  const callDelta=normCDF(d1),putDelta=normCDF(d1)-1;
+  const gamma=normPDF(d1)/(S*sigma*Math.sqrt(T));
+  const theta=-(S*normPDF(d1)*sigma/(2*Math.sqrt(T))+r*K*Math.exp(-r*T)*normCDF(d2))/365;
+  const vega=S*normPDF(d1)*Math.sqrt(T)*0.01;
+
+  setVal('bs-call',fmtD(callPrice));setVal('bs-put',fmtD(putPrice));
+  setVal('bs-call-delta',callDelta.toFixed(4));setVal('bs-put-delta',putDelta.toFixed(4));
+  setVal('bs-gamma',gamma.toFixed(6));setVal('bs-theta',fmtD(theta));setVal('bs-vega',fmtD(vega));
+  $('bs-call-card').className='compare-card'+(callPrice>putPrice?' winner':'');
+  $('bs-put-card').className='compare-card'+(putPrice>callPrice?' winner':'');
+  $('bs-note').textContent=`d1=${d1.toFixed(4)}, d2=${d2.toFixed(4)}. The call has a ${fmtPct(callDelta*100)} probability of expiring in-the-money. Theta of ${fmtD(Math.abs(theta))}/day represents time decay. Vega of ${fmtD(vega)} shows the option value change per 1% move in implied volatility.`;
+  showR('r17');
+}
+
+// ════ CALC 18: SALARY NEGOTIATION ════
+function calc18(){
+  const curr=val('sn-current'),target=val('sn-target'),years=val('sn-years');
+  const raise=val('sn-raise')/100,ret=val('sn-return')/100,contrib=val('sn-401k')/100,tax=val('sn-tax')/100;
+  const diff=target-curr;
+  let lifetimeDiff=0,retire401k=0,tenYr=0;
+  let c401k=0,t401k=0;
+  for(let y=1;y<=years;y++){
+    const scale=Math.pow(1+raise,y-1);
+    const annDiff=diff*scale;
+    lifetimeDiff+=annDiff;
+    if(y<=10)tenYr+=annDiff;
+    c401k=(c401k+curr*scale*contrib)*( 1+ret);
+    t401k=(t401k+target*scale*contrib)*(1+ret);
+  }
+  retire401k=t401k-c401k;
+  const afterTax=lifetimeDiff*(1-tax);
+  const monthly=(diff*(1-tax))/12;
+  const hourly=diff/2080;
+
+  setVal('sn-lifetime',fmt(lifetimeDiff));setVal('sn-after-tax',fmt(afterTax));setVal('sn-401k-val',fmt(retire401k));
+  setVal('sn-monthly',fmtD(monthly));setVal('sn-10yr',fmt(tenYr*(1-tax)));setVal('sn-hourly',fmtD(hourly)+'/hr');
+  $('sn-note').textContent=`Negotiating ${fmt(diff)} more (${fmtPct(diff/curr*100)} increase) results in ${fmt(lifetimeDiff)} more lifetime earnings before taxes, or ${fmt(afterTax)} after taxes. Plus, higher salary compounds into ${fmt(retire401k)} more in your 401(k) at retirement. Every raise compounds forward — always negotiate.`;
+  showR('r18');
+}
+
+// ════ CALC 19: BUY VS LEASE (CAR) ════
+function calc19(){
+  const msrp=val('bl-msrp'),depr=val('bl-depr')/100,down=val('bl-down'),apr=val('bl-apr')/100/12;
+  const loanTerm=val('bl-loan-term'),leasePmt=val('bl-lease-pmt'),leaseTerm=val('bl-lease-term');
+  const leaseDown=val('bl-lease-down'),overage=val('bl-overage'),period=val('bl-period');
+  const investRet=val('bl-invest-return')/100;
+  const buyPmt=pmtCalc(apr,loanTerm,msrp-down);
+  const residual=msrp*Math.pow(1-depr,period);
+  const totalBuyPmts=buyPmt*loanTerm+down;
+  const buyNetCost=totalBuyPmts-residual;
+  const numLeaseTerms=Math.ceil(period*12/leaseTerm);
+  const totalLease=leasePmt*leaseTerm*numLeaseTerms+leaseDown*numLeaseTerms;
+  const buyWins=buyNetCost<totalLease;
+
+  setVal('bl-buy-val',fmt(buyNetCost));setVal('bl-lease-val',fmt(totalLease));
+  setVal('bl-buy-mo',fmtD(buyPmt));setVal('bl-residual',fmt(residual));setVal('bl-lease-total',fmt(totalLease));
+  $('bl-buy-card').className='compare-card'+(buyWins?' winner':' loser');
+  $('bl-lease-card').className='compare-card'+(buyWins?' loser':' winner');
+  $('bl-buy-badge').innerHTML=buyWins?'<span class="compare-badge">Lower Net Cost</span>':'';
+  $('bl-lease-badge').innerHTML=!buyWins?'<span class="compare-badge">Lower Cost</span>':'';
+  $('bl-note').textContent=`Over ${period} years, ${buyWins?'buying':'leasing'} is cheaper by ${fmt(Math.abs(buyNetCost-totalLease))}. Buying cost net of resale: ${fmt(buyNetCost)}. Leasing total: ${fmt(totalLease)} with nothing owned at end. Buying builds equity but requires more capital upfront. Leasing offers flexibility but no asset.`;
+  showR('r19');
+}
+
+// ════ CALC 20: DEBT CONSOLIDATION ════
+function calc20(){
+  const debts=[1,2,3].map(i=>({b:val('dc-b'+i),r:val('dc-r'+i)/100/12})).filter(d=>d.b>0);
+  const total=debts.reduce((s,d)=>s+d.b,0);
+  if(!total)return;
+  const wavg=debts.reduce((s,d)=>s+d.b*d.r,0)/total;
+  let currInt=0;
+  debts.forEach(d=>{
+    const n=Math.log(d.b*d.r/(d.b*d.r-d.b*0.02+d.b*0.01))||36;
+    const p=pmtCalc(d.r,36,d.b);
+    currInt+=p*36-d.b;
+  });
+  currInt=total*wavg*24;// approximate
+  const newRate=val('dc-new-rate')/100/12,term=val('dc-term'),fee=val('dc-fee')/100;
+  const loanAmt=total*(1+fee);
+  const newPmt=pmtCalc(newRate,term,loanAmt);
+  const newInt=newPmt*term-total;
+  const saved=currInt-newInt;
+
+  setVal('dc-total',fmt(total));setVal('dc-wavg',fmtPct(wavg*12*100));
+  setVal('dc-curr-int',fmt(currInt));setVal('dc-new-int',fmt(newInt));setVal('dc-saved',fmt(saved));setVal('dc-new-pmt',fmtD(newPmt));
+  $('dc-curr-card').className='compare-card'+(saved>0?' loser':' winner');
+  $('dc-new-card').className='compare-card'+(saved>0?' winner':' loser');
+  $('dc-note').textContent=saved>0?`✓ Consolidation saves ${fmt(saved)} in interest. Your weighted average rate drops from ${fmtPct(wavg*12*100)} to ${fmtPct(val('dc-new-rate'))}. New monthly payment: ${fmtD(newPmt)} over ${term} months. Make sure not to accumulate new debt on the cards after consolidating.`:`⚠️ The consolidation loan rate (${fmtPct(val('dc-new-rate'))}%) may not save money vs. aggressively paying down your highest-rate debt first. Consider the Avalanche method instead.`;
+  showR('r20');
+}
+
+// ════ CALC 21: HSA MAXIMIZER ════
+function calc21(){
+  const contrib=val('hsa-contrib'),balance=val('hsa-balance'),expenses=val('hsa-expenses');
+  const years=val('hsa-years'),ret=val('hsa-return')/100,tax=val('hsa-tax')/100;
+  const r=ret/12,n=years*12;
+  // Strategy 1: invest all, pay medical from other funds
+  const monthlyAdd=(contrib-expenses)/12;// net into HSA after medical
+  const investedFV=balance*Math.pow(1+r,n)+Math.max(0,contrib-expenses)*(Math.pow(1+r,n)-1)/r;
+  // Strategy 2: use HSA to pay medical
+  const spendFV=balance*Math.pow(1+r,n)+(contrib-expenses)*(Math.pow(1+r,n)-1)/r;// same simplified
+  const hsaFV=balance*Math.pow(1+r,n)+contrib*(Math.pow(1+r,n)-1)/r;
+  const spendHSA=hsaFV-expenses*(Math.pow(1+r,n)-1)/r;
+  const benefit=hsaFV-spendHSA;
+  const annualTaxSave=contrib*tax;
+  const totalTax=annualTaxSave*years*(1+ret/2);// rough compounded value
+  const effReturn=ret+tax;
+
+  setVal('hsa-fv',fmt(hsaFV));setVal('hsa-spend-fv',fmt(spendHSA));setVal('hsa-benefit',fmt(benefit));
+  setVal('hsa-tax-save',fmt(annualTaxSave));setVal('hsa-total-tax',fmt(totalTaxes=annualTaxSave*years));setVal('hsa-eff-return',fmtPct(effReturn*100));
+  $('hsa-note').textContent=`By paying medical expenses out-of-pocket (saving receipts!) and investing your HSA, you maximize the triple tax advantage: contributions are pre-tax, growth is tax-free, and withdrawals for medical expenses are tax-free. After 65, HSA funds can be used for any purpose (taxed as ordinary income — just like a Traditional IRA). Your effective after-tax return is ${fmtPct(effReturn*100)} vs. ${fmtPct(ret*100)} in a taxable account.`;
+  showR('r21');
+}
+
+// ════ CALC 22: NET WORTH MILESTONES ════
+function calc22(){
+  const current=val('nm-current'),annual=val('nm-annual'),ret=val('nm-return')/100;
+  const savingsGrowth=val('nm-savings-growth')/100;
+  const milestones=[100000,250000,500000,1000000,2000000,5000000];
+  const labels=['$100K','$250K','$500K','$1M','$2M','$5M'];
+  let bal=current,totalAnnual=annual,tbody='',milestoneYears={};
+  for(let y=1;y<=50;y++){
+    const growth=bal*ret;
+    bal=bal+growth+totalAnnual;
+    totalAnnual*=(1+savingsGrowth);
+    milestones.forEach((m,i)=>{if(!milestoneYears[m]&&bal>=m)milestoneYears[m]=y});
+    tbody+=`<tr><td>${y}</td><td>${fmt(bal)}</td><td>${fmt(totalAnnual)}</td><td>${fmt(growth)}</td></tr>`;
+  }
+  const nextM=milestones.find(m=>m>current)||milestones[milestones.length-1];
+  const nextLabel=labels[milestones.indexOf(nextM)];
+  const nextYrs=milestoneYears[nextM];
+  const tenYrBal=milestones.reduce(()=>{},0)||0;
+  let b10=current;let a10=annual;
+  for(let y=1;y<=10;y++){b10=b10*(1+ret)+a10;a10*=(1+savingsGrowth);}
+
+  setVal('nm-next',nextLabel);setVal('nm-next-sub',nextYrs?`In ${nextYrs} years`:'Already reached!');
+  setVal('nm-1m-yrs',milestoneYears[1000000]?milestoneYears[1000000]+' years':'50+ years');
+  setVal('nm-10yr',fmt(b10));
+  $('nm-tbody').innerHTML=tbody;
+
+  let milestonesHTML='';
+  milestones.slice(0,5).forEach((m,i)=>{
+    const pct=Math.min(100,current/m*100);
+    const reached=current>=m;
+    const yrs=milestoneYears[m];
+    milestonesHTML+=`<div class="milestone-row">
+      <div class="milestone-name">${labels[i]}</div>
+      <div class="milestone-track"><div class="milestone-fill" style="width:${pct}%"></div></div>
+      <div class="milestone-pct">${reached?'✓ Done':yrs?'~'+yrs+'y':'>50y'}</div>
+    </div>`;
+  });
+  $('nm-milestones').innerHTML=milestonesHTML;
+  showR('r22');
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.sb-item')[0].classList.add('active');
+  document.querySelectorAll('input[type=range]').forEach(r=>{
+    const min=+r.min,max=+r.max,v=+r.value;
+    r.style.setProperty('--pct',((v-min)/(max-min)*100)+'%');
+  });
+  calc1();
+});
+</script>
+</body>
+</html>

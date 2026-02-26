@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>25 Financial Calculators — Book Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c1628;--surface:#0f1e35;--card:#152540;--card2:#1a2d4e;
+  --border:#1e3558;--border2:#172e4d;
+  --gold:#6FA8D4;--gold-l:#9DC4E8;--gold-d:rgba(111,168,212,.15);--gold-dd:rgba(111,168,212,.07);
+  --text:#e8edf5;--muted:#7d94b0;--muted2:#3d5475;
+  --blue:#5B9BD5;--green:#4ECB71;--red:#e07878;
+  --sidebar:260px;
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth}
+.layout-row{display:flex;flex:1;min-height:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(91,155,213,.08) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(111,168,212,.05) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* ─── SIDEBAR ─────────────────────────────────── */
+#sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);height:calc(100vh - var(--nav-h));position:sticky;top:var(--nav-h);
+  background:var(--surface);border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;overflow:hidden;z-index:10;transition:transform .3s ease;
+}
+.sb-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border2)}
+.sb-logo-eye{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.sb-logo-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;background:linear-gradient(135deg,var(--text),var(--gold-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 0 24px}
+.sb-nav::-webkit-scrollbar{width:3px}
+.sb-nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* sb-cat: see accordion CSS */
+/* sb-cat span: see accordion CSS */
+/* sb-item: see accordion CSS */
+/* sb-item hover: see accordion CSS */
+/* sb-item active: see accordion CSS */
+
+/* ─── MAIN ─────────────────────────────────── */
+#main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;z-index:1}
+.main-topbar{
+  display:flex;align-items:center;gap:16px;padding:16px 32px;
+  border-bottom:1px solid var(--border2);background:rgba(8,16,30,.88);backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:5;
+}
+#hamburger{display:none;background:none;border:1px solid var(--border);border-radius:4px;padding:7px 9px;cursor:pointer;color:var(--muted)}
+#hamburger:hover{border-color:var(--gold);color:var(--gold)}
+.topbar-breadcrumb{font-size:14px;color:var(--muted);letter-spacing:.1em}
+.topbar-breadcrumb span{color:var(--gold-l)}
+.topbar-count{margin-left:auto;font-size:15px;letter-spacing:.2em;color:var(--muted2);background:var(--card);border:1px solid var(--border2);border-radius:3px;padding:4px 10px}
+
+.content-wrap{flex:1;padding:40px 48px 90px;max-width:880px;}
+
+/* ─── PANEL ─────────────────────────────────── */
+.calc-panel{display:none;animation:fadeUp .3s ease forwards}
+.calc-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel-header{margin-bottom:28px}
+.panel-tag{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.panel-title{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:700;color:var(--text);line-height:1.15;margin-bottom:10px;letter-spacing:-.02em;}
+.panel-desc{font-size:15px;color:var(--muted);line-height:1.7;max-width:600px}
+
+/* ─── INPUTS ─────────────────────────────────── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field.third{grid-column:span 1}
+label,.field-label{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.input-wrap{position:relative}
+.pfx,.sfx{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);pointer-events:none}
+.pfx{left:12px}.sfx{right:12px}
+input[type=number],input[type=text],select,textarea{
+  width:100%;background:var(--card);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:'DM Mono',monospace;font-size:15px;
+  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none;
+}
+input[type=number],input[type=text],select{padding:11px 12px}
+textarea{padding:11px 12px;resize:vertical;min-height:80px}
+input.has-p{padding-left:26px}
+input.has-s{padding-right:32px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-d)}
+select{cursor:pointer}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:4px;padding:0;border:none;flex:1;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--gold) var(--pct,50%),var(--border) var(--pct,50%));border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);margin-top:-6.5px;border:2px solid var(--bg);box-shadow:0 0 6px rgba(111,168,212,.4);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.range-group{display:flex;align-items:center;gap:10px}
+.range-val{min-width:70px;text-align:right;font-size:14px;color:var(--gold-l)}
+
+/* ─── SECTION HEADERS ─────────────────────────────────── */
+.section-head{font-size:15px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted2);grid-column:1/-1;padding-top:4px;display:flex;align-items:center;gap:10px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* ─── BUTTON ─────────────────────────────────── */
+.calc-btn{
+  width:100%;padding:15px;margin-top:6px;
+  background:linear-gradient(135deg,#3d7eaa,var(--gold),#3d7eaa);background-size:200%;
+  border:none;border-radius:4px;color:#0c1628;
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;
+  cursor:pointer;transition:background-position .4s,transform .15s;
+}
+.calc-btn:hover{background-position:100%;transform:translateY(-1px)}
+.calc-btn:active{transform:translateY(0)}
+.btn-row{display:flex;gap:10px;margin-top:6px}
+.calc-btn-outline{flex:1;padding:15px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'DM Mono',monospace;font-size:14px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.calc-btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ─── RESULTS ─────────────────────────────────── */
+.results{display:none;margin-top:26px;animation:fadeUp .3s ease forwards}
+.results.show{display:block}
+.results-title{font-size:15px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.results-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+.r-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.r-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;position:relative;overflow:hidden}
+.r-card.hi{border-color:rgba(111,168,212,.3);background:linear-gradient(135deg,var(--card),rgba(111,168,212,.05))}
+.r-card.hi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.r-card.pos{border-color:rgba(76,173,126,.25)}
+.r-card.neg{border-color:rgba(220,100,100,.25)}
+.r-lbl{font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.r-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--text);line-height:1;}
+.r-card.hi .r-val{color:var(--gold-l)}
+.r-card.pos .r-val{color:var(--green)}
+.r-card.neg .r-val{color:var(--red)}
+.r-sub{font-size:15px;color:var(--muted);margin-top:5px}
+
+/* ─── BAR ─────────────────────────────────── */
+.bbar-wrap{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:14px}
+.bbar-lbl{font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.bbar-track{height:9px;border-radius:5px;background:var(--border);overflow:hidden;display:flex;margin-bottom:10px}
+.bbar-seg{height:100%;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.bbar-seg1{background:var(--gold)}
+.bbar-seg2{background:var(--blue)}
+.bbar-seg3{background:var(--green)}
+.bbar-leg{display:flex;flex-wrap:wrap;gap:14px}
+.leg-it{display:flex;align-items:center;gap:5px;font-size:15px;color:var(--muted)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ─── SCHEDULE TABLE ─────────────────────────────────── */
+.sched-wrap{border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:14px}
+.sched-head{background:var(--card);padding:12px 16px;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border2)}
+.sched-toggle{background:none;border:1px solid var(--border);border-radius:3px;color:var(--muted);font-family:'DM Mono',monospace;font-size:15px;letter-spacing:.1em;padding:5px 10px;cursor:pointer;transition:all .2s}
+.sched-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.sched-tbl-wrap{display:none;max-height:280px;overflow-y:auto}
+.sched-tbl-wrap.show{display:block}
+.sched-tbl-wrap::-webkit-scrollbar{width:4px}
+.sched-tbl-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+thead th{background:rgba(111,168,212,.07);padding:9px 14px;text-align:right;font-size:14px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);position:sticky;top:0}
+thead th:first-child{text-align:center}
+tbody td{padding:8px 14px;text-align:right;border-bottom:1px solid rgba(42,42,50,.5);color:var(--text)}
+tbody td:first-child{text-align:center;color:var(--muted)}
+tbody tr:hover td{background:rgba(111,168,212,.03)}
+
+/* ─── SPECIAL COMPONENTS ─────────────────────────────────── */
+.debt-entry{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:12px}
+.debt-entry-title{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.two-col-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.compare-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;text-align:center}
+.compare-card.winner{border-color:rgba(76,173,126,.4);background:linear-gradient(135deg,var(--card),rgba(76,173,126,.06))}
+.compare-card.loser{opacity:.7}
+.compare-label{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.compare-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.compare-card.winner .compare-val{color:var(--green)}
+.compare-badge{display:inline-block;padding:3px 8px;border-radius:3px;font-size:15px;letter-spacing:.1em;background:rgba(76,173,126,.15);color:var(--green)}
+.mc-bands{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.mc-band{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center}
+.mc-pct{font-size:15px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.mc-val{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600}
+.mc-val.p10{color:var(--red)}.mc-val.p50{color:var(--gold-l)}.mc-val.p90{color:var(--green)}
+.alloc-visual{display:flex;border-radius:6px;overflow:hidden;height:40px;margin-bottom:12px}
+.alloc-seg{display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(0,0,0,.7);font-weight:500;transition:width .8s cubic-bezier(.16,1,.3,1);overflow:hidden;white-space:nowrap}
+.note-box{background:var(--gold-dd);border:1px solid rgba(111,168,212,.15);border-radius:5px;padding:12px 14px;font-size:14px;color:var(--muted);line-height:1.6;margin-top:14px}
+.alert-green{background:rgba(76,173,126,.08);border:1px solid rgba(76,173,126,.2);border-radius:5px;padding:10px 14px;font-size:14px;color:var(--green);margin-top:10px}
+.alert-red{background:rgba(220,100,100,.08);border:1px solid rgba(220,100,100,.2);border-radius:5px;padding:10px 14px;font-size:14px;color:var(--red);margin-top:10px}
+.divider{border:none;border-top:1px solid var(--border2);margin:20px 0}
+.helper{font-size:15px;color:var(--muted2);margin-top:3px}
+
+/* ─── REBALANCE TABLE ─────────────────────────────────── */
+.reb-row{display:grid;grid-template-columns:1fr 90px 90px 100px 100px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)}
+.reb-row.header .reb-cell{font-size:14px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2)}
+.reb-cell{font-size:15px;color:var(--text)}
+.reb-cell.buy{color:var(--green)}.reb-cell.sell{color:var(--red)}.reb-cell.neutral{color:var(--muted)}
+
+/* ─── MOBILE ─────────────────────────────────── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9}
+@media(max-width:768px){
+  body{display:block}
+  #sidebar{position:fixed;top:var(--nav-h);left:0;height:calc(100% - var(--nav-h));transform:translateX(-100%);z-index:20}
+  #sidebar.open{transform:translateX(0)}
+  #main{width:100%}
+  #hamburger{display:flex}
+  .content-wrap{padding:24px 20px 60px}
+  .calc-grid{grid-template-columns:1fr}
+  .field.full{grid-column:1}
+  .r-grid{grid-template-columns:1fr 1fr}
+  .two-col-compare,.mc-bands{grid-template-columns:1fr}
+  .main-topbar{padding:14px 20px}
+  #overlay.show{display:block}
+}
+
+/* ─── SITE NAV ─────────────────────────────────── */
+.site-nav{height:var(--nav-h);background:rgba(9,18,36,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(111,168,212,.15);position:sticky;top:0;z-index:50;flex-shrink:0;}
+.sn-inner{height:100%;display:flex;align-items:center;padding:0 28px;gap:0;}
+.sn-logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold-l);text-decoration:none;letter-spacing:-.01em;margin-right:32px;white-space:nowrap;}
+.sn-logo span{color:rgba(232,237,245,.6);}
+.sn-links{display:flex;align-items:center;gap:2px;flex:1;}
+.sn-link{padding:7px 14px;border-radius:6px;font-size:14px;font-weight:500;color:rgba(232,237,245,.55);cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none;}
+.sn-link:hover{background:rgba(255,255,255,.07);color:var(--text);}
+.sn-link.active{background:rgba(111,168,212,.12);color:var(--gold-l);}
+.sn-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.sn-user{font-size:12px;color:var(--gold-l);background:rgba(111,168,212,.1);border:1px solid rgba(111,168,212,.2);border-radius:20px;padding:4px 12px;white-space:nowrap;}
+.sn-signout{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.sn-signout:hover{border-color:var(--red);color:var(--red);}
+.sn-tier-badge{font-size:10px;font-weight:600;letter-spacing:.08em;padding:2px 7px;border-radius:3px;background:rgba(111,168,212,.15);border:1px solid rgba(111,168,212,.3);color:var(--gold-l);margin-left:4px;vertical-align:middle;}
+@media(max-width:768px){.sn-links{display:none;}.sn-right{gap:8px;}}
+
+/* ─── ACCORDION SIDEBAR ─────────────────────────── */
+.sb-cat{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 8px;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);
+  cursor:pointer;user-select:none;transition:color .15s;
+  border-top:1px solid rgba(30,53,88,.5);margin-top:2px;
+}
+.sb-cat:first-child,.sb-cat:nth-child(2){border-top:none;margin-top:0;}
+.sb-cat:hover{color:var(--muted);}
+.sb-cat.open{color:var(--gold);}
+.sb-cat-left{display:flex;align-items:center;gap:7px;}
+.sb-cat-chevron{font-size:9px;transition:transform .25s cubic-bezier(.16,1,.3,1);display:inline-block;opacity:.5;margin-left:4px;}
+.sb-cat.open .sb-cat-chevron{transform:rotate(90deg);opacity:1;}
+.sb-items{overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.16,1,.3,1);}
+.sb-items.open{max-height:600px;}
+.sb-item{
+  display:block;padding:7px 16px 7px 30px;
+  font-size:13px;color:var(--muted);cursor:pointer;
+  transition:all .12s;border-left:2px solid transparent;
+  line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sb-item:hover{color:var(--text);background:var(--gold-dd);}
+.sb-item.active{color:var(--gold-l);border-left-color:var(--gold);background:var(--gold-d);}
+
+</style>
+</head>
+<body>
+
+<!-- ─── SITE NAV ───────────────────────────────── -->
+<nav class="site-nav">
+  <div class="sn-inner">
+    <a class="sn-logo" href="index.html"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:48px;display:block;"></a>
+    <div class="sn-links">
+      <a class="sn-link" href="index.html">&#8962; Home</a>
+      <a class="sn-link" href="premium-hub.html">&#9733; Premium Hub</a>
+      <a class="sn-link active" href="financial-calculators.html">&#x1F9EE; 25 Calculators <span class="sn-tier-badge">Book</span></a>
+    </div>
+    <div class="sn-right">
+      <span class="sn-user" id="sn-username"></span>
+      <button class="sn-signout" onclick="snSignOut()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+<div class="layout-row">
+<!-- ─── SIDEBAR ─────────────────────────────────── -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-eye"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:40px;display:block;"></div>
+    <div class="sb-logo-title">25 Calculators</div>
+    <div style="font-size:10px;color:rgba(111,168,212,.6);margin-top:4px;letter-spacing:.12em;text-transform:uppercase;">Book Edition</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-cat open" onclick="toggleCat(this)"><span class="sb-cat-left">📊 <span>Budgeting</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items open">
+      <div class="sb-item" onclick="show(1)">Monthly Budget</div>
+      <div class="sb-item" onclick="show(2)">Zero-Based Budget</div>
+      <div class="sb-item" onclick="show(3)">50/30/20 Budget</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">💰 <span>Savings &amp; Debt</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(4)">Debt Payoff</div>
+      <div class="sb-item" onclick="show(5)">Net Worth</div>
+      <div class="sb-item" onclick="show(6)">Emergency Fund</div>
+      <div class="sb-item" onclick="show(7)">Savings Goal</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">📈 <span>Investing</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(8)">Compound Interest</div>
+      <div class="sb-item" onclick="show(9)">Investment Growth</div>
+      <div class="sb-item" onclick="show(10)">Dollar-Cost Averaging</div>
+      <div class="sb-item" onclick="show(11)">Retirement Savings</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">🏦 <span>Retirement</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(12)">401(k) / IRA Contribution</div>
+      <div class="sb-item" onclick="show(13)">Roth vs. Traditional IRA</div>
+      <div class="sb-item" onclick="show(14)">Required Minimum Dist.</div>
+      <div class="sb-item" onclick="show(15)">Safe Withdrawal Rate</div>
+      <div class="sb-item" onclick="show(16)">Portfolio Allocation</div>
+      <div class="sb-item" onclick="show(17)">Portfolio Rebalancing</div>
+      <div class="sb-item" onclick="show(18)">Monte Carlo Simulation</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">🏠 <span>Real Estate</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(19)">Cash Flow (Rental)</div>
+      <div class="sb-item" onclick="show(20)">Mortgage Payment</div>
+      <div class="sb-item" onclick="show(21)">Amortization Schedule</div>
+      <div class="sb-item" onclick="show(22)">Cap Rate</div>
+    </div>
+
+    <div class="sb-cat" onclick="toggleCat(this)"><span class="sb-cat-left">📐 <span>Analysis</span></span><span class="sb-cat-chevron">&#9658;</span></div>
+    <div class="sb-items">
+      <div class="sb-item" onclick="show(23)">Internal Rate of Return</div>
+      <div class="sb-item" onclick="show(24)">Net Present Value</div>
+      <div class="sb-item" onclick="show(25)">Return on Investment</div>
+    </div>
+  </nav>
+</div>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ─── MAIN ─────────────────────────────────── -->
+<div id="main">
+  <div class="main-topbar">
+    <button id="hamburger" onclick="toggleSidebar()">
+      <svg width="14" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="0" y1="1" x2="14" y2="1"/><line x1="0" y1="6" x2="14" y2="6"/><line x1="0" y1="11" x2="14" y2="11"/></svg>
+    </button>
+    <div class="topbar-breadcrumb">Finance Suite &rsaquo; <span id="breadcrumb">Monthly Budget Calculator</span></div>
+    <div class="topbar-count" id="calc-counter">1 / 25</div>
+  </div>
+
+  <div class="content-wrap">
+
+    <!-- ══════════════════════════════════════════════════════
+         1. MONTHLY BUDGET CALCULATOR
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel active" id="panel-1">
+      <div class="panel-header">
+        <div class="panel-tag">Budgeting · 1 of 25</div>
+        <div class="panel-title">Monthly Budget Calculator</div>
+        <div class="panel-desc">Track your monthly income against all spending categories to see your surplus or deficit and identify where your money goes.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><div class="section-head">Income</div></div>
+        <div class="field"><label>Monthly Take-Home Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-income" class="has-p" value="5000"></div></div>
+        <div class="field"><label>Other Income (side, rental, etc.)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-other" class="has-p" value="0"></div></div>
+        <div class="field full"><div class="section-head">Expenses</div></div>
+        <div class="field"><label>Housing (rent/mortgage)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-housing" class="has-p" value="1400"></div></div>
+        <div class="field"><label>Utilities &amp; Internet</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-utilities" class="has-p" value="180"></div></div>
+        <div class="field"><label>Groceries</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-food" class="has-p" value="400"></div></div>
+        <div class="field"><label>Dining Out</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-dining" class="has-p" value="200"></div></div>
+        <div class="field"><label>Transportation</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-transport" class="has-p" value="350"></div></div>
+        <div class="field"><label>Healthcare</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-health" class="has-p" value="100"></div></div>
+        <div class="field"><label>Entertainment &amp; Subscriptions</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-ent" class="has-p" value="150"></div></div>
+        <div class="field"><label>Clothing &amp; Personal</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-clothing" class="has-p" value="100"></div></div>
+        <div class="field"><label>Savings / Investments</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-savings" class="has-p" value="500"></div></div>
+        <div class="field"><label>Other / Miscellaneous</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mb-misc" class="has-p" value="100"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc1()">Analyze Budget</button>
+      <div class="results" id="r1">
+        <div class="results-title">Budget Summary</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Total Income</div><div class="r-val" id="mb-total-inc">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Expenses</div><div class="r-val" id="mb-total-exp">—</div></div>
+          <div class="r-card" id="mb-surplus-card"><div class="r-lbl">Monthly Surplus</div><div class="r-val" id="mb-surplus">—</div></div>
+          <div class="r-card"><div class="r-lbl">Savings Rate</div><div class="r-val" id="mb-srate">—</div></div>
+        </div>
+        <div class="bbar-wrap">
+          <div class="bbar-lbl">Spending Breakdown</div>
+          <div class="bbar-track">
+            <div class="bbar-seg bbar-seg1" id="mb-b1" style="width:30%"></div>
+            <div class="bbar-seg bbar-seg2" id="mb-b2" style="width:20%"></div>
+            <div class="bbar-seg bbar-seg3" id="mb-b3" style="width:20%"></div>
+            <div class="bbar-seg" style="background:#8a6fc9" id="mb-b4" style="width:15%"></div>
+            <div class="bbar-seg" style="background:var(--muted2)" id="mb-b5" style="width:15%"></div>
+          </div>
+          <div class="bbar-leg">
+            <div class="leg-it"><div class="leg-dot" style="background:var(--gold)"></div><span id="mb-l1">Housing</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--blue)"></div><span id="mb-l2">Food</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--green)"></div><span id="mb-l3">Transport</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:#8a6fc9"></div><span id="mb-l4">Lifestyle</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--muted2)"></div><span id="mb-l5">Other</span></div>
+          </div>
+        </div>
+        <div id="mb-alert"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         2. ZERO-BASED BUDGET
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-2">
+      <div class="panel-header">
+        <div class="panel-tag">Budgeting · 2 of 25</div>
+        <div class="panel-title">Zero-Based Budget Calculator</div>
+        <div class="panel-desc">Assign every dollar a job. Your income minus all allocations should equal exactly zero — no dollar left unplanned.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><label>Monthly Take-Home Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-income" class="has-p" value="5000" oninput="calc2live()"></div></div>
+        <div class="field full"><div class="section-head">Allocations</div></div>
+        <div class="field"><label>Housing</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a1" class="has-p" value="1400" oninput="calc2live()"></div></div>
+        <div class="field"><label>Utilities</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a2" class="has-p" value="180" oninput="calc2live()"></div></div>
+        <div class="field"><label>Groceries</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a3" class="has-p" value="400" oninput="calc2live()"></div></div>
+        <div class="field"><label>Transportation</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a4" class="has-p" value="350" oninput="calc2live()"></div></div>
+        <div class="field"><label>Healthcare</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a5" class="has-p" value="100" oninput="calc2live()"></div></div>
+        <div class="field"><label>Entertainment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a6" class="has-p" value="150" oninput="calc2live()"></div></div>
+        <div class="field"><label>Clothing &amp; Personal</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a7" class="has-p" value="100" oninput="calc2live()"></div></div>
+        <div class="field"><label>Debt Payments</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a8" class="has-p" value="300" oninput="calc2live()"></div></div>
+        <div class="field"><label>Emergency Fund</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a9" class="has-p" value="200" oninput="calc2live()"></div></div>
+        <div class="field"><label>Investments / Retirement</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a10" class="has-p" value="300" oninput="calc2live()"></div></div>
+        <div class="field"><label>Savings Goals</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a11" class="has-p" value="0" oninput="calc2live()"></div></div>
+        <div class="field"><label>Giving / Charity</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="zb-a12" class="has-p" value="0" oninput="calc2live()"></div></div>
+      </div>
+      <div class="results show" id="r2">
+        <div class="results-title">Live Tracking</div>
+        <div class="r-grid">
+          <div class="r-card"><div class="r-lbl">Total Allocated</div><div class="r-val" id="zb-alloc">—</div></div>
+          <div class="r-card hi"><div class="r-lbl">Remaining to Assign</div><div class="r-val" id="zb-remain">—</div></div>
+          <div class="r-card"><div class="r-lbl">Allocated %</div><div class="r-val" id="zb-pct">—</div></div>
+        </div>
+        <div id="zb-status"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         3. 50/30/20
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-3">
+      <div class="panel-header">
+        <div class="panel-tag">Budgeting · 3 of 25</div>
+        <div class="panel-title">50/30/20 Budget Calculator</div>
+        <div class="panel-desc">The 50/30/20 rule allocates 50% of after-tax income to needs, 30% to wants, and 20% to savings and debt repayment.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Annual Gross Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-gross" class="has-p" value="70000"></div></div>
+        <div class="field"><label>Effective Tax Rate</label><div class="input-wrap"><input type="number" id="ff-tax" class="has-s" value="22"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Your Actual Spending (Monthly)</div></div>
+        <div class="field"><label>Needs (housing, food, utilities…)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-needs-act" class="has-p" value="2100"></div></div>
+        <div class="field"><label>Wants (dining, entertainment…)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-wants-act" class="has-p" value="1200"></div></div>
+        <div class="field"><label>Savings &amp; Debt Repayment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ff-save-act" class="has-p" value="400"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc3()">Analyze Split</button>
+      <div class="results" id="r3">
+        <div class="results-title">50/30/20 Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">After-Tax Monthly</div><div class="r-val" id="ff-net">—</div></div>
+          <div class="r-card"><div class="r-lbl">Needs Target (50%)</div><div class="r-val" id="ff-nt">—</div><div class="r-sub" id="ff-ns">Actual: —</div></div>
+          <div class="r-card"><div class="r-lbl">Wants Target (30%)</div><div class="r-val" id="ff-wt">—</div><div class="r-sub" id="ff-ws">Actual: —</div></div>
+          <div class="r-card"><div class="r-lbl">Savings Target (20%)</div><div class="r-val" id="ff-st">—</div><div class="r-sub" id="ff-ss">Actual: —</div></div>
+        </div>
+        <div class="bbar-wrap">
+          <div class="bbar-lbl">Target vs. Actual Allocation</div>
+          <div class="bbar-track">
+            <div class="bbar-seg bbar-seg1" id="ff-b1" style="width:50%"></div>
+            <div class="bbar-seg bbar-seg2" id="ff-b2" style="width:30%"></div>
+            <div class="bbar-seg bbar-seg3" id="ff-b3" style="width:20%"></div>
+          </div>
+          <div class="bbar-leg">
+            <div class="leg-it"><div class="leg-dot" style="background:var(--gold)"></div><span id="ff-l1">Needs 50%</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--blue)"></div><span id="ff-l2">Wants 30%</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--green)"></div><span id="ff-l3">Savings 20%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         4. DEBT PAYOFF
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-4">
+      <div class="panel-header">
+        <div class="panel-tag">Savings &amp; Debt · 4 of 25</div>
+        <div class="panel-title">Debt Payoff Calculator</div>
+        <div class="panel-desc">Compare the Snowball (lowest balance first) and Avalanche (highest interest first) methods. Enter up to 4 debts.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><label>Extra Monthly Payment (beyond minimums)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-extra" class="has-p" value="200"></div></div>
+        <div class="field full"><div class="section-head">Debt 1</div></div>
+        <div class="field"><label>Name</label><input type="text" id="dp-n1" value="Credit Card"></div>
+        <div class="field"><label>Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-b1" class="has-p" value="5000"></div></div>
+        <div class="field"><label>APR</label><div class="input-wrap"><input type="number" id="dp-r1" class="has-s" value="20"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Min. Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-m1" class="has-p" value="100"></div></div>
+        <div class="field full"><div class="section-head">Debt 2</div></div>
+        <div class="field"><label>Name</label><input type="text" id="dp-n2" value="Car Loan"></div>
+        <div class="field"><label>Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-b2" class="has-p" value="12000"></div></div>
+        <div class="field"><label>APR</label><div class="input-wrap"><input type="number" id="dp-r2" class="has-s" value="6.5"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Min. Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-m2" class="has-p" value="250"></div></div>
+        <div class="field full"><div class="section-head">Debt 3 (optional)</div></div>
+        <div class="field"><label>Name</label><input type="text" id="dp-n3" value="Student Loan"></div>
+        <div class="field"><label>Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-b3" class="has-p" value="20000"></div></div>
+        <div class="field"><label>APR</label><div class="input-wrap"><input type="number" id="dp-r3" class="has-s" value="5"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Min. Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="dp-m3" class="has-p" value="220"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc4()">Compare Methods</button>
+      <div class="results" id="r4">
+        <div class="results-title">Method Comparison</div>
+        <div class="two-col-compare">
+          <div class="compare-card" id="dp-snow-card">
+            <div class="compare-label">❄️ Snowball Method</div>
+            <div class="compare-val" id="dp-snow-months">—</div>
+            <div class="r-sub" id="dp-snow-int">Interest: —</div>
+          </div>
+          <div class="compare-card" id="dp-aval-card">
+            <div class="compare-label">🏔 Avalanche Method</div>
+            <div class="compare-val" id="dp-aval-months">—</div>
+            <div class="r-sub" id="dp-aval-int">Interest: —</div>
+          </div>
+        </div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Total Debt</div><div class="r-val" id="dp-total-debt">—</div></div>
+          <div class="r-card"><div class="r-lbl">Min-Only Payoff</div><div class="r-val" id="dp-min-months">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Interest Saved</div><div class="r-val" id="dp-int-saved">—</div></div>
+        </div>
+        <div id="dp-winner-note"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         5. NET WORTH
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-5">
+      <div class="panel-header">
+        <div class="panel-tag">Savings &amp; Debt · 5 of 25</div>
+        <div class="panel-title">Net Worth Calculator</div>
+        <div class="panel-desc">Your net worth is the foundation of financial health. Assets minus liabilities equals your true financial position.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><div class="section-head">Assets</div></div>
+        <div class="field"><label>Checking &amp; Savings</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a1" class="has-p" value="15000"></div></div>
+        <div class="field"><label>Investments (brokerage)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a2" class="has-p" value="40000"></div></div>
+        <div class="field"><label>Retirement Accounts</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a3" class="has-p" value="55000"></div></div>
+        <div class="field"><label>Home Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a4" class="has-p" value="320000"></div></div>
+        <div class="field"><label>Vehicles</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a5" class="has-p" value="18000"></div></div>
+        <div class="field"><label>Other Assets</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-a6" class="has-p" value="5000"></div></div>
+        <div class="field full"><div class="section-head">Liabilities</div></div>
+        <div class="field"><label>Mortgage Balance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-l1" class="has-p" value="250000"></div></div>
+        <div class="field"><label>Car Loans</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-l2" class="has-p" value="10000"></div></div>
+        <div class="field"><label>Student Loans</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-l3" class="has-p" value="25000"></div></div>
+        <div class="field"><label>Credit Card Debt</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-l4" class="has-p" value="3000"></div></div>
+        <div class="field"><label>Other Liabilities</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="nw-l5" class="has-p" value="0"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc5()">Calculate Net Worth</button>
+      <div class="results" id="r5">
+        <div class="results-title">Financial Position</div>
+        <div class="r-grid">
+          <div class="r-card"><div class="r-lbl">Total Assets</div><div class="r-val" id="nw-assets">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Liabilities</div><div class="r-val" id="nw-liab">—</div></div>
+          <div class="r-card hi"><div class="r-lbl">Net Worth</div><div class="r-val" id="nw-net">—</div></div>
+          <div class="r-card"><div class="r-lbl">Debt-to-Asset Ratio</div><div class="r-val" id="nw-dtar">—</div></div>
+        </div>
+        <div class="bbar-wrap">
+          <div class="bbar-lbl">Asset Mix</div>
+          <div class="bbar-track">
+            <div class="bbar-seg bbar-seg1" id="nw-b1" style="width:10%"></div>
+            <div class="bbar-seg bbar-seg2" id="nw-b2" style="width:30%"></div>
+            <div class="bbar-seg bbar-seg3" id="nw-b3" style="width:30%"></div>
+            <div class="bbar-seg" style="background:#8a6fc9;transition:width .8s cubic-bezier(.16,1,.3,1)" id="nw-b4" style="width:20%"></div>
+            <div class="bbar-seg" style="background:var(--muted2);transition:width .8s cubic-bezier(.16,1,.3,1)" id="nw-b5" style="width:10%"></div>
+          </div>
+          <div class="bbar-leg">
+            <div class="leg-it"><div class="leg-dot" style="background:var(--gold)"></div><span>Cash</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--blue)"></div><span>Investments</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--green)"></div><span>Real Estate</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:#8a6fc9"></div><span>Retirement</span></div>
+            <div class="leg-it"><div class="leg-dot" style="background:var(--muted2)"></div><span>Other</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         6. EMERGENCY FUND
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-6">
+      <div class="panel-header">
+        <div class="panel-tag">Savings &amp; Debt · 6 of 25</div>
+        <div class="panel-title">Emergency Fund Calculator</div>
+        <div class="panel-desc">Financial experts recommend 3–6 months of expenses. See your target, your gap, and how long it will take to get there.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Monthly Essential Expenses</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ef-expenses" class="has-p" value="3200"></div></div>
+        <div class="field"><label>Target Coverage (months)</label>
+          <div class="range-group">
+            <input type="range" id="ef-months-r" min="1" max="12" step="1" value="6" oninput="syncR('ef-months','ef-months-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="ef-months" class="has-s" value="6" oninput="syncR('ef-months','ef-months-r')"><span class="sfx">months</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Current Emergency Savings</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ef-current" class="has-p" value="5000"></div></div>
+        <div class="field"><label>Monthly Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ef-monthly" class="has-p" value="300"></div></div>
+        <div class="field"><label>Savings Account APY</label><div class="input-wrap"><input type="number" id="ef-apy" class="has-s" value="4.5"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc6()">Calculate Goal</button>
+      <div class="results" id="r6">
+        <div class="results-title">Emergency Fund Status</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Target Amount</div><div class="r-val" id="ef-target">—</div></div>
+          <div class="r-card"><div class="r-lbl">Current Savings</div><div class="r-val" id="ef-cur-v">—</div></div>
+          <div class="r-card"><div class="r-lbl">Gap Remaining</div><div class="r-val" id="ef-gap">—</div></div>
+          <div class="r-card"><div class="r-lbl">Months to Goal</div><div class="r-val" id="ef-time">—</div></div>
+        </div>
+        <div id="ef-status"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         7. SAVINGS GOAL
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-7">
+      <div class="panel-header">
+        <div class="panel-tag">Savings &amp; Debt · 7 of 25</div>
+        <div class="panel-title">Savings Goal Calculator</div>
+        <div class="panel-desc">Whether you're saving for a vacation, car, home, or wedding — calculate the monthly amount you need to hit your target on time.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Goal Amount</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sg-goal" class="has-p" value="20000"></div></div>
+        <div class="field"><label>Current Savings</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sg-current" class="has-p" value="2000"></div></div>
+        <div class="field full">
+          <label>Time to Goal</label>
+          <div class="range-group">
+            <input type="range" id="sg-years-r" min="1" max="30" step="1" value="3" oninput="syncR('sg-years','sg-years-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="sg-years" class="has-s" value="3" oninput="syncR('sg-years','sg-years-r')"><span class="sfx">years</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Annual Interest Rate (APY)</label><div class="input-wrap"><input type="number" id="sg-rate" class="has-s" value="4.5"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Contribution Frequency</label>
+          <select id="sg-freq">
+            <option value="12">Monthly</option>
+            <option value="52">Weekly</option>
+            <option value="26">Bi-weekly</option>
+            <option value="4">Quarterly</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calc7()">Calculate</button>
+      <div class="results" id="r7">
+        <div class="results-title">Savings Plan</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Required Payment</div><div class="r-val" id="sg-pmt">—</div><div class="r-sub" id="sg-pmt-sub">per period</div></div>
+          <div class="r-card"><div class="r-lbl">Total Contributions</div><div class="r-val" id="sg-total-c">—</div></div>
+          <div class="r-card"><div class="r-lbl">Interest Earned</div><div class="r-val" id="sg-int">—</div></div>
+          <div class="r-card"><div class="r-lbl">Final Balance</div><div class="r-val" id="sg-fv">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         8. COMPOUND INTEREST
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-8">
+      <div class="panel-header">
+        <div class="panel-tag">Investing · 8 of 25</div>
+        <div class="panel-title">Compound Interest Calculator</div>
+        <div class="panel-desc">The eighth wonder of the world. See how time and compounding frequency dramatically multiply your money.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Principal (Initial Investment)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ci-p" class="has-p" value="10000"></div></div>
+        <div class="field"><label>Monthly Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ci-pmt" class="has-p" value="500"></div></div>
+        <div class="field full">
+          <label>Annual Interest Rate</label>
+          <div class="range-group">
+            <input type="range" id="ci-rate-r" min="1" max="20" step="0.1" value="8" oninput="syncR('ci-rate','ci-rate-r')">
+            <div class="input-wrap" style="width:90px"><input type="number" id="ci-rate" class="has-s" value="8" oninput="syncR('ci-rate','ci-rate-r')"><span class="sfx">%</span></div>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Investment Period</label>
+          <div class="range-group">
+            <input type="range" id="ci-yr-r" min="1" max="50" step="1" value="20" oninput="syncR('ci-yr','ci-yr-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="ci-yr" class="has-s" value="20" oninput="syncR('ci-yr','ci-yr-r')"><span class="sfx">years</span></div>
+          </div>
+        </div>
+        <div class="field full"><label>Compounding Frequency</label>
+          <select id="ci-freq">
+            <option value="12">Monthly</option>
+            <option value="365">Daily</option>
+            <option value="4">Quarterly</option>
+            <option value="2">Semi-Annually</option>
+            <option value="1">Annually</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calc8()">Calculate Growth</button>
+      <div class="results" id="r8">
+        <div class="results-title">Investment Summary</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Future Value</div><div class="r-val" id="ci-fv">—</div><div class="r-sub" id="ci-fv-sub"></div></div>
+          <div class="r-card"><div class="r-lbl">Total Contributions</div><div class="r-val" id="ci-contrib">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Interest Earned</div><div class="r-val" id="ci-int">—</div></div>
+          <div class="r-card"><div class="r-lbl">ROI</div><div class="r-val" id="ci-roi">—</div></div>
+        </div>
+        <div class="bbar-wrap">
+          <div class="bbar-lbl">Contributions vs. Growth</div>
+          <div class="bbar-track"><div class="bbar-seg bbar-seg1" id="ci-b1" style="width:50%"></div><div class="bbar-seg bbar-seg2" id="ci-b2" style="width:50%"></div></div>
+          <div class="bbar-leg"><div class="leg-it"><div class="leg-dot" style="background:var(--gold)"></div><span id="ci-l1">Contributions</span></div><div class="leg-it"><div class="leg-dot" style="background:var(--blue)"></div><span id="ci-l2">Growth</span></div></div>
+        </div>
+        <div class="sched-wrap"><div class="sched-head">Year-by-Year<button class="sched-toggle" id="ci-st-btn" onclick="togSched('ci-st','ci-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="ci-st"><table><thead><tr><th>Year</th><th>Balance</th><th>Contributions</th><th>Interest</th></tr></thead><tbody id="ci-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         9. INVESTMENT GROWTH
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-9">
+      <div class="panel-header">
+        <div class="panel-tag">Investing · 9 of 25</div>
+        <div class="panel-title">Investment Growth Calculator</div>
+        <div class="panel-desc">Model how a lump sum investment plus regular contributions grows at different expected rates of return over time.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Initial Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ig-p" class="has-p" value="25000"></div></div>
+        <div class="field"><label>Annual Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ig-ann" class="has-p" value="6000"></div></div>
+        <div class="field full">
+          <label>Expected Annual Return</label>
+          <div class="range-group">
+            <input type="range" id="ig-rate-r" min="1" max="20" step="0.5" value="8" oninput="syncR('ig-rate','ig-rate-r')">
+            <div class="input-wrap" style="width:90px"><input type="number" id="ig-rate" class="has-s" value="8" oninput="syncR('ig-rate','ig-rate-r')"><span class="sfx">%</span></div>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Investment Period</label>
+          <div class="range-group">
+            <input type="range" id="ig-yr-r" min="1" max="50" step="1" value="25" oninput="syncR('ig-yr','ig-yr-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="ig-yr" class="has-s" value="25" oninput="syncR('ig-yr','ig-yr-r')"><span class="sfx">years</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Annual Inflation Rate</label><div class="input-wrap"><input type="number" id="ig-inf" class="has-s" value="3"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc9()">Project Growth</button>
+      <div class="results" id="r9">
+        <div class="results-title">Growth Projection</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Nominal Future Value</div><div class="r-val" id="ig-fv">—</div></div>
+          <div class="r-card"><div class="r-lbl">Inflation-Adj. Value</div><div class="r-val" id="ig-real">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Invested</div><div class="r-val" id="ig-inv">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Total Gains</div><div class="r-val" id="ig-gain">—</div></div>
+        </div>
+        <div class="sched-wrap"><div class="sched-head">Milestone Years<button class="sched-toggle" id="ig-st-btn" onclick="togSched('ig-st','ig-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="ig-st"><table><thead><tr><th>Year</th><th>Balance</th><th>Real Value</th><th>Total Gain</th></tr></thead><tbody id="ig-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         10. DOLLAR-COST AVERAGING
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-10">
+      <div class="panel-header">
+        <div class="panel-tag">Investing · 10 of 25</div>
+        <div class="panel-title">Dollar-Cost Averaging Calculator</div>
+        <div class="panel-desc">Invest a fixed amount at regular intervals to reduce the impact of volatility. DCA smooths out entry price over time.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Periodic Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="da-pmt" class="has-p" value="500"></div></div>
+        <div class="field"><label>Frequency</label>
+          <select id="da-freq">
+            <option value="12">Monthly</option>
+            <option value="52">Weekly</option>
+            <option value="26">Bi-weekly</option>
+            <option value="4">Quarterly</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Investment Period</label>
+          <div class="range-group">
+            <input type="range" id="da-yr-r" min="1" max="40" step="1" value="10" oninput="syncR('da-yr','da-yr-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="da-yr" class="has-s" value="10" oninput="syncR('da-yr','da-yr-r')"><span class="sfx">years</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="da-ret" class="has-s" value="10"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Annual Volatility (Std Dev)</label><div class="input-wrap"><input type="number" id="da-vol" class="has-s" value="15"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc10()">Calculate DCA</button>
+      <div class="results" id="r10">
+        <div class="results-title">DCA Summary</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Projected Value</div><div class="r-val" id="da-fv">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Invested</div><div class="r-val" id="da-total">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Estimated Gain</div><div class="r-val" id="da-gain">—</div></div>
+          <div class="r-card"><div class="r-lbl">Annualized Return</div><div class="r-val" id="da-cagr">—</div></div>
+        </div>
+        <div class="note-box">💡 DCA reduces the risk of investing a large sum at a market peak. By spreading purchases over time, you buy more shares when prices are low and fewer when prices are high, resulting in a lower average cost per share.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         11. RETIREMENT SAVINGS
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-11">
+      <div class="panel-header">
+        <div class="panel-tag">Investing · 11 of 25</div>
+        <div class="panel-title">Retirement Savings Calculator</div>
+        <div class="panel-desc">Are you on track to retire comfortably? Model your projected nest egg and see if it covers your retirement income needs.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Current Age</label><input type="number" id="rs-age" value="35"></div>
+        <div class="field"><label>Retirement Age</label><input type="number" id="rs-ret-age" value="65"></div>
+        <div class="field"><label>Current Retirement Savings</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rs-savings" class="has-p" value="80000"></div></div>
+        <div class="field"><label>Monthly Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rs-monthly" class="has-p" value="1000"></div></div>
+        <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="rs-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Annual Inflation Rate</label><div class="input-wrap"><input type="number" id="rs-inf" class="has-s" value="3"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Monthly Income Needed in Retirement</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rs-need" class="has-p" value="5000"></div></div>
+        <div class="field"><label>Expected Social Security (Monthly)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rs-ss" class="has-p" value="1500"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc11()">Analyze Retirement</button>
+      <div class="results" id="r11">
+        <div class="results-title">Retirement Projection</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Projected Nest Egg</div><div class="r-val" id="rs-nest">—</div></div>
+          <div class="r-card"><div class="r-lbl">Monthly Income (4% rule)</div><div class="r-val" id="rs-inc">—</div></div>
+          <div class="r-card"><div class="r-lbl">Income Gap / Surplus</div><div class="r-val" id="rs-gap">—</div></div>
+          <div class="r-card"><div class="r-lbl">Years to Retirement</div><div class="r-val" id="rs-yrs">—</div></div>
+        </div>
+        <div id="rs-status"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         12. 401k / IRA CONTRIBUTION
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-12">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 12 of 25</div>
+        <div class="panel-title">401(k) / IRA Contribution Calculator</div>
+        <div class="panel-desc">See the real cost of contributing to your retirement account after employer match and tax savings are factored in.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Annual Gross Income</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ira-income" class="has-p" value="80000"></div></div>
+        <div class="field"><label>Marginal Tax Bracket</label>
+          <select id="ira-bracket">
+            <option value="10">10%</option>
+            <option value="12">12%</option>
+            <option value="22" selected>22%</option>
+            <option value="24">24%</option>
+            <option value="32">32%</option>
+            <option value="35">35%</option>
+            <option value="37">37%</option>
+          </select>
+        </div>
+        <div class="field"><label>Annual 401(k) Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="ira-contrib" class="has-p" value="10000"></div></div>
+        <div class="field"><label>Employer Match (%)</label><div class="input-wrap"><input type="number" id="ira-match-pct" class="has-s" value="50"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Employer Match Up To (% of salary)</label><div class="input-wrap"><input type="number" id="ira-match-cap" class="has-s" value="6"><span class="sfx">%</span></div></div>
+        <div class="field"><label>State Tax Rate</label><div class="input-wrap"><input type="number" id="ira-state" class="has-s" value="5"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc12()">Calculate Contribution Value</button>
+      <div class="results" id="r12">
+        <div class="results-title">Contribution Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Your Contribution</div><div class="r-val" id="ira-your">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Employer Match</div><div class="r-val" id="ira-emp">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Going to Work</div><div class="r-val" id="ira-total">—</div></div>
+          <div class="r-card"><div class="r-lbl">Tax Savings</div><div class="r-val" id="ira-tax-save">—</div></div>
+          <div class="r-card"><div class="r-lbl">Net Paycheck Reduction</div><div class="r-val" id="ira-net-cost">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Instant Return</div><div class="r-val" id="ira-instant">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         13. ROTH vs. TRADITIONAL IRA
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-13">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 13 of 25</div>
+        <div class="panel-title">Roth vs. Traditional IRA</div>
+        <div class="panel-desc">The best choice depends on whether your tax rate is higher now or in retirement. Model both scenarios side by side.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Annual Contribution</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rv-contrib" class="has-p" value="6500"></div></div>
+        <div class="field"><label>Years Until Retirement</label><input type="number" id="rv-years" value="30"></div>
+        <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="rv-return" class="has-s" value="7"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Current Tax Rate</label><div class="input-wrap"><input type="number" id="rv-tax-now" class="has-s" value="22"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Expected Retirement Tax Rate</label><div class="input-wrap"><input type="number" id="rv-tax-ret" class="has-s" value="18"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc13()">Compare Options</button>
+      <div class="results" id="r13">
+        <div class="results-title">IRA Comparison</div>
+        <div class="two-col-compare">
+          <div class="compare-card" id="rv-roth-card">
+            <div class="compare-label">🌱 Roth IRA</div>
+            <div class="compare-val" id="rv-roth-val">—</div>
+            <div class="r-sub">After-tax value</div>
+            <div id="rv-roth-badge" style="margin-top:8px"></div>
+          </div>
+          <div class="compare-card" id="rv-trad-card">
+            <div class="compare-label">🏛 Traditional IRA</div>
+            <div class="compare-val" id="rv-trad-val">—</div>
+            <div class="r-sub">After-tax value</div>
+            <div id="rv-trad-badge" style="margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="r-grid">
+          <div class="r-card"><div class="r-lbl">Future Account Value</div><div class="r-val" id="rv-gross">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Contributions</div><div class="r-val" id="rv-total-c">—</div></div>
+        </div>
+        <div id="rv-verdict" class="note-box"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         14. RMD CALCULATOR
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-14">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 14 of 25</div>
+        <div class="panel-title">Required Minimum Distribution (RMD)</div>
+        <div class="panel-desc">The IRS requires you to withdraw a minimum amount from tax-deferred retirement accounts starting at age 73. Calculate your RMD.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Account Balance (Dec 31 of prior year)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rmd-balance" class="has-p" value="500000"></div></div>
+        <div class="field"><label>Your Age</label><input type="number" id="rmd-age" value="73"></div>
+        <div class="field"><label>Account Type</label>
+          <select id="rmd-type">
+            <option value="trad">Traditional IRA</option>
+            <option value="401k">401(k) / 403(b)</option>
+            <option value="sep">SEP IRA</option>
+          </select>
+        </div>
+        <div class="field"><label>Marginal Tax Rate (in retirement)</label><div class="input-wrap"><input type="number" id="rmd-tax" class="has-s" value="22"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc14()">Calculate RMD</button>
+      <div class="results" id="r14">
+        <div class="results-title">RMD Calculation</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Required Withdrawal</div><div class="r-val" id="rmd-amount">—</div></div>
+          <div class="r-card"><div class="r-lbl">Monthly Equivalent</div><div class="r-val" id="rmd-monthly">—</div></div>
+          <div class="r-card"><div class="r-lbl">Est. Federal Tax</div><div class="r-val" id="rmd-tax-amount">—</div></div>
+          <div class="r-card"><div class="r-lbl">After-Tax Amount</div><div class="r-val" id="rmd-after-tax">—</div></div>
+          <div class="r-card"><div class="r-lbl">Life Expectancy Factor</div><div class="r-val" id="rmd-factor">—</div></div>
+          <div class="r-card"><div class="r-lbl">Withdrawal Rate</div><div class="r-val" id="rmd-rate">—</div></div>
+        </div>
+        <div class="note-box">⚠️ Failure to take your RMD results in a 25% excise tax on the amount not withdrawn. RMD amounts are based on IRS Uniform Lifetime Table. This is an estimate — consult a financial advisor for precise calculations.</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         15. SAFE WITHDRAWAL RATE
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-15">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 15 of 25</div>
+        <div class="panel-title">Safe Withdrawal Rate Calculator</div>
+        <div class="panel-desc">Based on the Trinity Study and "4% Rule." Determine how much you can withdraw annually without running out of money in retirement.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Portfolio Value at Retirement</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sw-portfolio" class="has-p" value="1000000"></div></div>
+        <div class="field"><label>Annual Expenses in Retirement</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="sw-expenses" class="has-p" value="45000"></div></div>
+        <div class="field full">
+          <label>Withdrawal Rate</label>
+          <div class="range-group">
+            <input type="range" id="sw-rate-r" min="1" max="10" step="0.1" value="4" oninput="syncR('sw-rate','sw-rate-r')">
+            <div class="input-wrap" style="width:90px"><input type="number" id="sw-rate" class="has-s" value="4" oninput="syncR('sw-rate','sw-rate-r')"><span class="sfx">%</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Expected Annual Return</label><div class="input-wrap"><input type="number" id="sw-return" class="has-s" value="6"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Annual Inflation Rate</label><div class="input-wrap"><input type="number" id="sw-inf" class="has-s" value="3"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc15()">Analyze Withdrawal</button>
+      <div class="results" id="r15">
+        <div class="results-title">Withdrawal Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Annual Withdrawal</div><div class="r-val" id="sw-annual">—</div></div>
+          <div class="r-card"><div class="r-lbl">Monthly Withdrawal</div><div class="r-val" id="sw-monthly">—</div></div>
+          <div class="r-card" id="sw-sustain-card"><div class="r-lbl">Portfolio Lasts</div><div class="r-val" id="sw-sustain">—</div></div>
+          <div class="r-card"><div class="r-lbl">Portfolio Needed (for expenses)</div><div class="r-val" id="sw-needed">—</div></div>
+        </div>
+        <div id="sw-status"></div>
+        <div class="sched-wrap"><div class="sched-head">Depletion Schedule<button class="sched-toggle" id="sw-st-btn" onclick="togSched('sw-st','sw-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="sw-st"><table><thead><tr><th>Year</th><th>Balance</th><th>Withdrawal</th><th>Return</th></tr></thead><tbody id="sw-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         16. PORTFOLIO ALLOCATION
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-16">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 16 of 25</div>
+        <div class="panel-title">Portfolio Allocation Calculator</div>
+        <div class="panel-desc">Get a recommended asset allocation based on your age, risk tolerance, and investment horizon using established guidelines.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Your Age</label><input type="number" id="pa-age" value="35"></div>
+        <div class="field"><label>Retirement Age</label><input type="number" id="pa-ret" value="65"></div>
+        <div class="field full"><label>Risk Tolerance</label>
+          <select id="pa-risk">
+            <option value="conservative">Conservative — I can't stomach big losses</option>
+            <option value="moderate" selected>Moderate — I accept some volatility for better returns</option>
+            <option value="aggressive">Aggressive — I want maximum long-term growth</option>
+          </select>
+        </div>
+        <div class="field full"><label>Investment Goal</label>
+          <select id="pa-goal">
+            <option value="retirement" selected>Retirement</option>
+            <option value="wealth">Long-term wealth building</option>
+            <option value="income">Income generation</option>
+            <option value="preservation">Capital preservation</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calc16()">Get Recommendation</button>
+      <div class="results" id="r16">
+        <div class="results-title">Recommended Allocation</div>
+        <div class="alloc-visual" id="pa-bar">
+          <div class="alloc-seg" style="background:var(--gold);width:60%">Stocks</div>
+          <div class="alloc-seg" style="background:var(--blue);width:30%">Bonds</div>
+          <div class="alloc-seg" style="background:var(--green);width:10%">Cash</div>
+        </div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Stocks / Equities</div><div class="r-val" id="pa-stocks">—</div><div class="r-sub" id="pa-stocks-sub"></div></div>
+          <div class="r-card"><div class="r-lbl">Bonds / Fixed Income</div><div class="r-val" id="pa-bonds">—</div><div class="r-sub" id="pa-bonds-sub"></div></div>
+          <div class="r-card"><div class="r-lbl">Cash / Alternatives</div><div class="r-val" id="pa-cash">—</div></div>
+          <div class="r-card"><div class="r-lbl">Est. Annual Return</div><div class="r-val" id="pa-ret-v">—</div></div>
+        </div>
+        <div class="note-box" id="pa-note"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         17. PORTFOLIO REBALANCING
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-17">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 17 of 25</div>
+        <div class="panel-title">Portfolio Rebalancing Calculator</div>
+        <div class="panel-desc">See how far your portfolio has drifted from your target allocation and get specific buy/sell amounts to rebalance.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><div class="section-head">Asset 1</div></div>
+        <div class="field"><label>Name</label><input type="text" id="rb-n1" value="US Stocks"></div>
+        <div class="field"><label>Current Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rb-v1" class="has-p" value="65000"></div></div>
+        <div class="field"><label>Target Allocation</label><div class="input-wrap"><input type="number" id="rb-t1" class="has-s" value="60"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Asset 2</div></div>
+        <div class="field"><label>Name</label><input type="text" id="rb-n2" value="International Stocks"></div>
+        <div class="field"><label>Current Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rb-v2" class="has-p" value="18000"></div></div>
+        <div class="field"><label>Target Allocation</label><div class="input-wrap"><input type="number" id="rb-t2" class="has-s" value="20"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Asset 3</div></div>
+        <div class="field"><label>Name</label><input type="text" id="rb-n3" value="Bonds"></div>
+        <div class="field"><label>Current Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rb-v3" class="has-p" value="12000"></div></div>
+        <div class="field"><label>Target Allocation</label><div class="input-wrap"><input type="number" id="rb-t3" class="has-s" value="15"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Asset 4 (optional)</div></div>
+        <div class="field"><label>Name</label><input type="text" id="rb-n4" value="Real Estate (REIT)"></div>
+        <div class="field"><label>Current Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="rb-v4" class="has-p" value="5000"></div></div>
+        <div class="field"><label>Target Allocation</label><div class="input-wrap"><input type="number" id="rb-t4" class="has-s" value="5"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc17()">Calculate Rebalance</button>
+      <div class="results" id="r17">
+        <div class="results-title">Rebalancing Actions</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Portfolio Total</div><div class="r-val" id="rb-total">—</div></div>
+          <div class="r-card"><div class="r-lbl">Target % Allocated</div><div class="r-val" id="rb-target-pct">—</div></div>
+        </div>
+        <div id="rb-table-wrap" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         18. MONTE CARLO SIMULATION
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-18">
+      <div class="panel-header">
+        <div class="panel-tag">Retirement · 18 of 25</div>
+        <div class="panel-title">Monte Carlo Retirement Simulation</div>
+        <div class="panel-desc">Runs 1,000 market simulations to estimate the probability your portfolio survives retirement through varying market conditions.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Portfolio Value at Retirement</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mc-port" class="has-p" value="1000000"></div></div>
+        <div class="field"><label>Annual Withdrawal</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mc-draw" class="has-p" value="45000"></div></div>
+        <div class="field"><label>Expected Annual Return (mean)</label><div class="input-wrap"><input type="number" id="mc-ret" class="has-s" value="6"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Annual Volatility (std dev)</label><div class="input-wrap"><input type="number" id="mc-vol" class="has-s" value="12"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Retirement Length (years)</label><input type="number" id="mc-yrs" value="30"></div>
+        <div class="field"><label>Annual Inflation</label><div class="input-wrap"><input type="number" id="mc-inf" class="has-s" value="3"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc18()">Run 1,000 Simulations</button>
+      <div class="results" id="r18">
+        <div class="results-title">Simulation Results</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Success Rate</div><div class="r-val" id="mc-success">—</div><div class="r-sub">Portfolio survives</div></div>
+          <div class="r-card"><div class="r-lbl">Median Outcome</div><div class="r-val" id="mc-median">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Best Case (90th %ile)</div><div class="r-val" id="mc-p90">—</div></div>
+          <div class="r-card neg"><div class="r-lbl">Worst Case (10th %ile)</div><div class="r-val" id="mc-p10">—</div></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="bbar-lbl" style="margin-bottom:8px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Outcome Range</div>
+          <div class="mc-bands">
+            <div class="mc-band"><div class="mc-pct">10th Percentile</div><div class="mc-val p10" id="mc-b10">—</div></div>
+            <div class="mc-band"><div class="mc-pct">50th Percentile</div><div class="mc-val p50" id="mc-b50">—</div></div>
+            <div class="mc-band"><div class="mc-pct">90th Percentile</div><div class="mc-val p90" id="mc-b90">—</div></div>
+          </div>
+        </div>
+        <div id="mc-note" class="note-box"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         19. REAL ESTATE CASH FLOW
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-19">
+      <div class="panel-header">
+        <div class="panel-tag">Real Estate · 19 of 25</div>
+        <div class="panel-title">Real Estate Cash Flow Calculator</div>
+        <div class="panel-desc">Analyze a rental property's monthly cash flow, cash-on-cash return, and cap rate before you invest.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><div class="section-head">Purchase</div></div>
+        <div class="field"><label>Purchase Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-price" class="has-p" value="350000"></div></div>
+        <div class="field"><label>Down Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-down" class="has-p" value="70000"></div></div>
+        <div class="field"><label>Mortgage Rate</label><div class="input-wrap"><input type="number" id="re-rate" class="has-s" value="7"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Loan Term</label><div class="input-wrap"><input type="number" id="re-term" class="has-s" value="30"><span class="sfx">years</span></div></div>
+        <div class="field full"><div class="section-head">Income</div></div>
+        <div class="field"><label>Monthly Gross Rent</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-rent" class="has-p" value="2400"></div></div>
+        <div class="field"><label>Vacancy Rate</label><div class="input-wrap"><input type="number" id="re-vacancy" class="has-s" value="5"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Monthly Operating Expenses</div></div>
+        <div class="field"><label>Property Tax</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-tax" class="has-p" value="350"></div></div>
+        <div class="field"><label>Insurance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-ins" class="has-p" value="120"></div></div>
+        <div class="field"><label>Maintenance &amp; Repairs (est.)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-maint" class="has-p" value="150"></div></div>
+        <div class="field"><label>Property Management (if any)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-mgmt" class="has-p" value="0"></div></div>
+        <div class="field"><label>HOA Fees</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="re-hoa" class="has-p" value="0"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc19()">Analyze Investment</button>
+      <div class="results" id="r19">
+        <div class="results-title">Investment Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Monthly Cash Flow</div><div class="r-val" id="re-cf">—</div></div>
+          <div class="r-card"><div class="r-lbl">Annual Cash Flow</div><div class="r-val" id="re-acf">—</div></div>
+          <div class="r-card"><div class="r-lbl">Cash-on-Cash Return</div><div class="r-val" id="re-coc">—</div></div>
+          <div class="r-card"><div class="r-lbl">Cap Rate</div><div class="r-val" id="re-cap">—</div></div>
+          <div class="r-card"><div class="r-lbl">Monthly Mortgage (P&I)</div><div class="r-val" id="re-mort">—</div></div>
+          <div class="r-card"><div class="r-lbl">Gross Rent Multiplier</div><div class="r-val" id="re-grm">—</div></div>
+        </div>
+        <div id="re-verdict"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         20. MORTGAGE PAYMENT
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-20">
+      <div class="panel-header">
+        <div class="panel-tag">Real Estate · 20 of 25</div>
+        <div class="panel-title">Mortgage Payment Calculator</div>
+        <div class="panel-desc">Calculate your full monthly mortgage payment including principal, interest, property tax, and insurance (PITI).</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Home Price</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mp-price" class="has-p" value="400000"></div></div>
+        <div class="field"><label>Down Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mp-down" class="has-p" value="80000"></div></div>
+        <div class="field full">
+          <label>Interest Rate (Annual)</label>
+          <div class="range-group">
+            <input type="range" id="mp-rate-r" min="1" max="15" step="0.1" value="6.5" oninput="syncR('mp-rate','mp-rate-r')">
+            <div class="input-wrap" style="width:90px"><input type="number" id="mp-rate" class="has-s" value="6.5" oninput="syncR('mp-rate','mp-rate-r')"><span class="sfx">%</span></div>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Loan Term</label>
+          <div class="range-group">
+            <input type="range" id="mp-term-r" min="5" max="30" step="5" value="30" oninput="syncR('mp-term','mp-term-r')">
+            <div class="input-wrap" style="width:110px"><input type="number" id="mp-term" class="has-s" value="30" oninput="syncR('mp-term','mp-term-r')"><span class="sfx">years</span></div>
+          </div>
+        </div>
+        <div class="field"><label>Property Tax (Annual)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mp-tax" class="has-p" value="4800"></div></div>
+        <div class="field"><label>Home Insurance (Annual)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="mp-ins" class="has-p" value="1200"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc20()">Calculate Payment</button>
+      <div class="results" id="r20">
+        <div class="results-title">Payment Breakdown</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Total Monthly Payment</div><div class="r-val" id="mp-total">—</div></div>
+          <div class="r-card"><div class="r-lbl">Principal &amp; Interest</div><div class="r-val" id="mp-pi">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Interest Paid</div><div class="r-val" id="mp-int">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Cost of Loan</div><div class="r-val" id="mp-cost">—</div></div>
+        </div>
+        <div class="bbar-wrap">
+          <div class="bbar-lbl">Principal vs. Interest Split</div>
+          <div class="bbar-track"><div class="bbar-seg bbar-seg1" id="mp-b1" style="width:50%"></div><div class="bbar-seg bbar-seg2" id="mp-b2" style="width:50%"></div></div>
+          <div class="bbar-leg"><div class="leg-it"><div class="leg-dot" style="background:var(--gold)"></div><span id="mp-l1">Principal</span></div><div class="leg-it"><div class="leg-dot" style="background:var(--blue)"></div><span id="mp-l2">Interest</span></div></div>
+        </div>
+        <div class="sched-wrap"><div class="sched-head">Amortization Schedule<button class="sched-toggle" id="mp-st-btn" onclick="togSched('mp-st','mp-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="mp-st"><table><thead><tr><th>#</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead><tbody id="mp-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         21. AMORTIZATION SCHEDULE (with extra payments)
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-21">
+      <div class="panel-header">
+        <div class="panel-tag">Real Estate · 21 of 25</div>
+        <div class="panel-title">Amortization Schedule Calculator</div>
+        <div class="panel-desc">See your full amortization schedule and discover how extra principal payments dramatically cut your total interest and payoff date.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Loan Amount</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="am-loan" class="has-p" value="320000"></div></div>
+        <div class="field"><label>Annual Interest Rate</label><div class="input-wrap"><input type="number" id="am-rate" class="has-s" value="6.5"><span class="sfx">%</span></div></div>
+        <div class="field"><label>Loan Term</label><div class="input-wrap"><input type="number" id="am-term" class="has-s" value="30"><span class="sfx">years</span></div></div>
+        <div class="field"><label>Extra Monthly Payment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="am-extra" class="has-p" value="0"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc21()">Generate Schedule</button>
+      <div class="results" id="r21">
+        <div class="results-title">Loan Summary</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Monthly Payment</div><div class="r-val" id="am-pmt">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Interest (standard)</div><div class="r-val" id="am-int-std">—</div></div>
+          <div class="r-card pos"><div class="r-lbl">Interest Saved (extra pmts)</div><div class="r-val" id="am-int-save">—</div></div>
+          <div class="r-card"><div class="r-lbl">Payoff Time (with extra)</div><div class="r-val" id="am-payoff-time">—</div></div>
+        </div>
+        <div class="sched-wrap"><div class="sched-head">Full Amortization Table<button class="sched-toggle" id="am-st-btn" onclick="togSched('am-st','am-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="am-st"><table><thead><tr><th>#</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Extra</th><th>Balance</th></tr></thead><tbody id="am-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         22. CAP RATE
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-22">
+      <div class="panel-header">
+        <div class="panel-tag">Real Estate · 22 of 25</div>
+        <div class="panel-title">Cap Rate Calculator</div>
+        <div class="panel-desc">Capitalization rate is the primary metric for comparing real estate investments. Higher cap rates indicate more income relative to price.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><div class="section-head">Income</div></div>
+        <div class="field"><label>Monthly Gross Rent</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-rent" class="has-p" value="2500"></div></div>
+        <div class="field"><label>Vacancy Rate</label><div class="input-wrap"><input type="number" id="cr-vacancy" class="has-s" value="5"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Annual Operating Expenses</div></div>
+        <div class="field"><label>Property Tax</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-tax" class="has-p" value="4200"></div></div>
+        <div class="field"><label>Insurance</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-ins" class="has-p" value="1400"></div></div>
+        <div class="field"><label>Maintenance &amp; Repairs</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-maint" class="has-p" value="1800"></div></div>
+        <div class="field"><label>Property Management</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-mgmt" class="has-p" value="0"></div></div>
+        <div class="field"><label>HOA &amp; Other</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-other" class="has-p" value="0"></div></div>
+        <div class="field full"><div class="section-head">Property Value</div></div>
+        <div class="field full"><label>Current Market Value</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="cr-value" class="has-p" value="400000"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc22()">Calculate Cap Rate</button>
+      <div class="results" id="r22">
+        <div class="results-title">Investment Metrics</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Cap Rate</div><div class="r-val" id="cr-cap">—</div></div>
+          <div class="r-card"><div class="r-lbl">Net Operating Income</div><div class="r-val" id="cr-noi">—</div></div>
+          <div class="r-card"><div class="r-lbl">Gross Rent Multiplier</div><div class="r-val" id="cr-grm">—</div></div>
+          <div class="r-card"><div class="r-lbl">Expense Ratio</div><div class="r-val" id="cr-exp-ratio">—</div></div>
+          <div class="r-card"><div class="r-lbl">Annual Gross Rent</div><div class="r-val" id="cr-gross-rent">—</div></div>
+          <div class="r-card"><div class="r-lbl">Effective Gross Income</div><div class="r-val" id="cr-egi">—</div></div>
+        </div>
+        <div id="cr-verdict" class="note-box"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         23. IRR
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-23">
+      <div class="panel-header">
+        <div class="panel-tag">Analysis · 23 of 25</div>
+        <div class="panel-title">Internal Rate of Return (IRR)</div>
+        <div class="panel-desc">IRR is the discount rate that makes the NPV of all cash flows equal to zero. It represents the annualized effective return of an investment.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><label>Initial Investment (Year 0 cost)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-init" class="has-p" value="100000"></div></div>
+        <div class="field full"><div class="section-head">Annual Cash Flows (Years 1–8)</div></div>
+        <div class="field"><label>Year 1</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf1" class="has-p" value="15000"></div></div>
+        <div class="field"><label>Year 2</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf2" class="has-p" value="20000"></div></div>
+        <div class="field"><label>Year 3</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf3" class="has-p" value="25000"></div></div>
+        <div class="field"><label>Year 4</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf4" class="has-p" value="30000"></div></div>
+        <div class="field"><label>Year 5</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf5" class="has-p" value="35000"></div></div>
+        <div class="field"><label>Year 6</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf6" class="has-p" value="0"></div></div>
+        <div class="field"><label>Year 7</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf7" class="has-p" value="0"></div></div>
+        <div class="field"><label>Year 8 (incl. terminal value)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="irr-cf8" class="has-p" value="0"></div></div>
+        <div class="field full"><label>Hurdle Rate (required return)</label><div class="input-wrap"><input type="number" id="irr-hurdle" class="has-s" value="10"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc23()">Calculate IRR</button>
+      <div class="results" id="r23">
+        <div class="results-title">IRR Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Internal Rate of Return</div><div class="r-val" id="irr-val">—</div></div>
+          <div class="r-card"><div class="r-lbl">NPV at Hurdle Rate</div><div class="r-val" id="irr-npv">—</div></div>
+          <div class="r-card"><div class="r-lbl">Total Cash Flows</div><div class="r-val" id="irr-total-cf">—</div></div>
+          <div class="r-card" id="irr-verdict-card"><div class="r-lbl">Decision</div><div class="r-val" id="irr-decision">—</div></div>
+        </div>
+        <div id="irr-note" class="note-box"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         24. NPV
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-24">
+      <div class="panel-header">
+        <div class="panel-tag">Analysis · 24 of 25</div>
+        <div class="panel-title">Net Present Value (NPV)</div>
+        <div class="panel-desc">NPV is the difference between the present value of future cash flows and the initial investment. A positive NPV means the investment creates value.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field full"><label>Initial Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-init" class="has-p" value="100000"></div></div>
+        <div class="field full"><label>Discount Rate (required return)</label><div class="input-wrap"><input type="number" id="npv-rate" class="has-s" value="10"><span class="sfx">%</span></div></div>
+        <div class="field full"><div class="section-head">Annual Cash Flows</div></div>
+        <div class="field"><label>Year 1</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf1" class="has-p" value="20000"></div></div>
+        <div class="field"><label>Year 2</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf2" class="has-p" value="25000"></div></div>
+        <div class="field"><label>Year 3</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf3" class="has-p" value="30000"></div></div>
+        <div class="field"><label>Year 4</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf4" class="has-p" value="35000"></div></div>
+        <div class="field"><label>Year 5</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf5" class="has-p" value="40000"></div></div>
+        <div class="field"><label>Year 6</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf6" class="has-p" value="0"></div></div>
+        <div class="field"><label>Year 7</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf7" class="has-p" value="0"></div></div>
+        <div class="field"><label>Year 8</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="npv-cf8" class="has-p" value="0"></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc24()">Calculate NPV</button>
+      <div class="results" id="r24">
+        <div class="results-title">NPV Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Net Present Value</div><div class="r-val" id="npv-val">—</div></div>
+          <div class="r-card"><div class="r-lbl">PV of Cash Flows</div><div class="r-val" id="npv-pvcf">—</div></div>
+          <div class="r-card"><div class="r-lbl">Profitability Index</div><div class="r-val" id="npv-pi">—</div></div>
+          <div class="r-card" id="npv-decision-card"><div class="r-lbl">Decision</div><div class="r-val" id="npv-decision">—</div></div>
+        </div>
+        <div class="sched-wrap"><div class="sched-head">Cash Flow Detail<button class="sched-toggle" id="npv-st-btn" onclick="togSched('npv-st','npv-st-btn')">Show Table</button></div><div class="sched-tbl-wrap" id="npv-st"><table><thead><tr><th>Year</th><th>Cash Flow</th><th>Discount Factor</th><th>Present Value</th><th>Cum. PV</th></tr></thead><tbody id="npv-tbody"></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         25. ROI
+    ══════════════════════════════════════════════════════ -->
+    <div class="calc-panel" id="panel-25">
+      <div class="panel-header">
+        <div class="panel-tag">Analysis · 25 of 25</div>
+        <div class="panel-title">Return on Investment (ROI)</div>
+        <div class="panel-desc">The simplest measure of investment performance. Calculate total ROI, annualized ROI, and CAGR for any investment.</div>
+      </div>
+      <div class="calc-grid">
+        <div class="field"><label>Initial Investment</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="roi-init" class="has-p" value="10000"></div></div>
+        <div class="field"><label>Final Value (or enter profit below)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="roi-final" class="has-p" value="15000"></div></div>
+        <div class="field"><label>Investment Period</label><div class="input-wrap"><input type="number" id="roi-yrs" class="has-s" value="3"><span class="sfx">years</span></div></div>
+        <div class="field"><label>Recurring Annual Cost (optional)</label><div class="input-wrap"><span class="pfx">$</span><input type="number" id="roi-cost" class="has-p" value="0"></div></div>
+        <div class="field full"><div class="section-head">Benchmark Comparison</div></div>
+        <div class="field full"><label>Benchmark Annual Return (e.g. S&amp;P 500 = 10%)</label><div class="input-wrap"><input type="number" id="roi-bench" class="has-s" value="10"><span class="sfx">%</span></div></div>
+      </div>
+      <button class="calc-btn" onclick="calc25()">Calculate ROI</button>
+      <div class="results" id="r25">
+        <div class="results-title">Return Analysis</div>
+        <div class="r-grid">
+          <div class="r-card hi"><div class="r-lbl">Total ROI</div><div class="r-val" id="roi-total">—</div></div>
+          <div class="r-card"><div class="r-lbl">Annualized ROI (CAGR)</div><div class="r-val" id="roi-cagr">—</div></div>
+          <div class="r-card"><div class="r-lbl">Net Profit</div><div class="r-val" id="roi-profit">—</div></div>
+          <div class="r-card"><div class="r-lbl">Benchmark Value</div><div class="r-val" id="roi-bench-val">—</div></div>
+          <div class="r-card" id="roi-vs-card"><div class="r-lbl">vs. Benchmark</div><div class="r-val" id="roi-vs">—</div></div>
+          <div class="r-card"><div class="r-lbl">Benchmark CAGR</div><div class="r-val" id="roi-bench-cagr">—</div></div>
+        </div>
+        <div id="roi-verdict"></div>
+      </div>
+    </div>
+
+  </div><!-- /content-wrap -->
+</div><!-- /main -->
+</div><!-- /layout-row -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value) || 0;
+const intval = id => parseInt($(id).value) || 0;
+const strval = id => $(id).value;
+const fmt = n => '$' + Math.round(Math.abs(n)).toLocaleString();
+const fmtD = n => '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtPct = n => n.toFixed(1) + '%';
+const fmtM = n => {
+  const y = Math.floor(Math.abs(n)/12), m = Math.abs(n)%12;
+  return y > 0 ? `${y}y ${m}m` : `${m}m`;
+};
+const showR = id => $(id).classList.add('show');
+const setVal = (id,v) => { const el=$(id); if(el) el.textContent = v; };
+
+function syncR(inputId, rangeId) {
+  const inp = $(inputId), rng = $(rangeId);
+  if(!inp || !rng) return;
+  if(document.activeElement === inp) rng.value = inp.value;
+  else inp.value = rng.value;
+  const min=+rng.min, max=+rng.max, v=+rng.value;
+  rng.style.setProperty('--pct', ((v-min)/(max-min)*100)+'%');
+}
+
+function togSched(tblId, btnId) {
+  const tbl = $(tblId), btn = $(btnId);
+  const s = tbl.classList.toggle('show');
+  btn.textContent = s ? 'Hide Table' : 'Show Table';
+}
+
+
+// ── Accordion sidebar ───────────────────────────────────
+// Maps panel number → category index (0-based)
+const PANEL_CAT={1:0,2:0,3:0,4:1,5:1,6:1,7:1,8:2,9:2,10:2,11:2,12:3,13:3,14:3,15:3,16:3,17:3,18:3,19:4,20:4,21:4,22:4,23:5,24:5,25:5};
+
+function toggleCat(catEl){
+  const items=catEl.nextElementSibling;
+  const isOpen=catEl.classList.contains('open');
+  catEl.classList.toggle('open',!isOpen);
+  items.classList.toggle('open',!isOpen);
+}
+
+function openCatForPanel(n){
+  const catIdx=PANEL_CAT[n];
+  const cats=document.querySelectorAll('.sb-cat');
+  cats.forEach((cat,i)=>{
+    const items=cat.nextElementSibling;
+    if(!items||!items.classList.contains('sb-items'))return;
+    const shouldOpen=(i===catIdx);
+    cat.classList.toggle('open',shouldOpen);
+    items.classList.toggle('open',shouldOpen);
+  });
+}
+
+function show(n) {
+  openCatForPanel(n);
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach((it, i) => it.classList.toggle('active', i === n-1));
+  $('panel-'+n).classList.add('active');
+  $('breadcrumb').textContent = document.querySelectorAll('.sb-item')[n-1].textContent;
+  $('calc-counter').textContent = n + ' / 25';
+  window.scrollTo(0,0);
+  if(window.innerWidth < 768) closeSidebar();
+}
+
+function toggleSidebar() {
+  $('sidebar').classList.toggle('open');
+  $('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  $('sidebar').classList.remove('open');
+  $('overlay').classList.remove('show');
+}
+
+function pmt(r, n, pv) {
+  if(r === 0) return pv/n;
+  return pv * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+}
+
+function fv(r, n, pmt, pv) {
+  if(r === 0) return pv + pmt * n;
+  return pv * Math.pow(1+r, n) + pmt * (Math.pow(1+r,n)-1)/r;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 1: MONTHLY BUDGET
+// ══════════════════════════════════════════════════════════════
+function calc1() {
+  const income = val('mb-income') + val('mb-other');
+  const housing = val('mb-housing');
+  const food = val('mb-food') + val('mb-dining');
+  const transport = val('mb-transport');
+  const lifestyle = val('mb-ent') + val('mb-clothing');
+  const other = val('mb-utilities') + val('mb-health') + val('mb-misc');
+  const savings = val('mb-savings');
+  const expenses = housing + food + transport + lifestyle + other + savings;
+  const surplus = income - expenses;
+
+  setVal('mb-total-inc', fmt(income));
+  setVal('mb-total-exp', fmt(expenses));
+  setVal('mb-surplus', (surplus >= 0 ? '+' : '-') + fmt(surplus));
+  setVal('mb-srate', fmtPct((savings/income)*100));
+
+  const sc = $('mb-surplus-card');
+  sc.classList.toggle('pos', surplus >= 0);
+  sc.classList.toggle('neg', surplus < 0);
+
+  const total = housing + food + transport + lifestyle + other + savings;
+  const pct = x => total > 0 ? (x/total*100).toFixed(1)+'%' : '0%';
+  $('mb-b1').style.width = pct(housing);
+  $('mb-b2').style.width = pct(food);
+  $('mb-b3').style.width = pct(transport);
+  $('mb-b4').style.width = pct(lifestyle);
+  $('mb-b5').style.width = pct(other + savings);
+  setVal('mb-l1', `Housing ${pct(housing)}`);
+  setVal('mb-l2', `Food ${pct(food)}`);
+  setVal('mb-l3', `Transport ${pct(transport)}`);
+  setVal('mb-l4', `Lifestyle ${pct(lifestyle)}`);
+  setVal('mb-l5', `Other ${pct(other+savings)}`);
+
+  const alert = $('mb-alert');
+  if(surplus < 0) alert.innerHTML = `<div class="alert-red">⚠️ You're spending ${fmt(-surplus)} more than you earn each month. Consider reducing expenses or increasing income.</div>`;
+  else if(savings/income < 0.1) alert.innerHTML = `<div class="alert-red">⚠️ Your savings rate (${fmtPct(savings/income*100)}) is below the recommended 20%. Try to increase savings contributions.</div>`;
+  else alert.innerHTML = `<div class="alert-green">✓ Great budgeting! You have a ${fmtPct(surplus/income*100)} surplus rate and are putting ${fmtPct(savings/income*100)} toward savings.</div>`;
+
+  showR('r1');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 2: ZERO-BASED BUDGET (live)
+// ══════════════════════════════════════════════════════════════
+function calc2live() {
+  const income = val('zb-income');
+  const alloc = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((sum,i) => sum + val('zb-a'+i), 0);
+  const remain = income - alloc;
+  const pct = income > 0 ? (alloc/income*100) : 0;
+  setVal('zb-alloc', fmt(alloc));
+  setVal('zb-remain', (remain >= 0 ? '+' : '') + fmtD(remain));
+  setVal('zb-pct', fmtPct(pct));
+
+  const s = $('zb-status');
+  if(Math.abs(remain) < 1) s.innerHTML = `<div class="alert-green">✓ Zero-Based Budget achieved! Every dollar has been assigned a purpose.</div>`;
+  else if(remain > 0) s.innerHTML = `<div class="note-box">💡 You have ${fmt(remain)} left to assign. Consider splitting between savings, debt payoff, or your next financial goal.</div>`;
+  else s.innerHTML = `<div class="alert-red">⚠️ You've over-allocated by ${fmt(-remain)}. Reduce some category amounts to balance to zero.</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 3: 50/30/20
+// ══════════════════════════════════════════════════════════════
+function calc3() {
+  const gross = val('ff-gross');
+  const taxRate = val('ff-tax') / 100;
+  const net = (gross * (1 - taxRate)) / 12;
+  const needsT = net * 0.5, wantsT = net * 0.3, saveT = net * 0.2;
+  const needsA = val('ff-needs-act'), wantsA = val('ff-wants-act'), saveA = val('ff-save-act');
+  const totalA = needsA + wantsA + saveA;
+  const needsP = net > 0 ? (needsA/net*100) : 0;
+  const wantsP = net > 0 ? (wantsA/net*100) : 0;
+  const saveP = net > 0 ? (saveA/net*100) : 0;
+
+  setVal('ff-net', fmtD(net));
+  setVal('ff-nt', fmtD(needsT));
+  setVal('ff-wt', fmtD(wantsT));
+  setVal('ff-st', fmtD(saveT));
+  setVal('ff-ns', `Actual: ${fmtD(needsA)} (${fmtPct(needsP)})`);
+  setVal('ff-ws', `Actual: ${fmtD(wantsA)} (${fmtPct(wantsP)})`);
+  setVal('ff-ss', `Actual: ${fmtD(saveA)} (${fmtPct(saveP)})`);
+
+  $('ff-b1').style.width = fmtPct(Math.min(needsP, 100));
+  $('ff-b2').style.width = fmtPct(Math.min(wantsP, 100));
+  $('ff-b3').style.width = fmtPct(Math.min(saveP, 100));
+  setVal('ff-l1', `Needs ${fmtPct(needsP)}`);
+  setVal('ff-l2', `Wants ${fmtPct(wantsP)}`);
+  setVal('ff-l3', `Savings ${fmtPct(saveP)}`);
+  showR('r3');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 4: DEBT PAYOFF
+// ══════════════════════════════════════════════════════════════
+function calc4() {
+  const extra = val('dp-extra');
+  const debts = [1,2,3].map(i => ({
+    name: strval('dp-n'+i),
+    balance: val('dp-b'+i),
+    rate: val('dp-r'+i)/100/12,
+    min: val('dp-m'+i)
+  })).filter(d => d.balance > 0 && d.min > 0);
+
+  if(!debts.length) return;
+  const totalDebt = debts.reduce((s,d) => s+d.balance, 0);
+  setVal('dp-total-debt', fmt(totalDebt));
+
+  function simulate(sorted) {
+    let ds = sorted.map(d => ({...d}));
+    let months = 0, totalInt = 0;
+    while(ds.some(d => d.balance > 0) && months < 600) {
+      months++;
+      let extraLeft = extra;
+      ds.forEach((d,i) => {
+        if(d.balance <= 0) return;
+        const intCharge = d.balance * d.rate;
+        totalInt += intCharge;
+        let pay = Math.min(d.min, d.balance + intCharge);
+        if(i === ds.findIndex(x => x.balance > 0)) pay += extraLeft;
+        pay = Math.min(pay, d.balance + intCharge);
+        d.balance = d.balance + intCharge - pay;
+        if(d.balance < 0.01) { extraLeft += Math.abs(d.balance); d.balance = 0; }
+      });
+    }
+    return {months, totalInt};
+  }
+
+  function simulateMin() {
+    let ds = debts.map(d => ({...d}));
+    let months = 0, totalInt = 0;
+    while(ds.some(d => d.balance > 0) && months < 600) {
+      months++;
+      ds.forEach(d => {
+        if(d.balance <= 0) return;
+        const intCharge = d.balance * d.rate;
+        totalInt += intCharge;
+        const pay = Math.min(d.min, d.balance + intCharge);
+        d.balance = d.balance + intCharge - pay;
+        if(d.balance < 0.01) d.balance = 0;
+      });
+    }
+    return {months, totalInt};
+  }
+
+  const snowSort = [...debts].sort((a,b) => a.balance - b.balance);
+  const avalSort = [...debts].sort((a,b) => b.rate - a.rate);
+  const snow = simulate(snowSort);
+  const aval = simulate(avalSort);
+  const minOnly = simulateMin();
+
+  setVal('dp-snow-months', fmtM(snow.months));
+  setVal('dp-snow-int', 'Interest: ' + fmt(snow.totalInt));
+  setVal('dp-aval-months', fmtM(aval.months));
+  setVal('dp-aval-int', 'Interest: ' + fmt(aval.totalInt));
+  setVal('dp-min-months', fmtM(minOnly.months));
+
+  const intSaved = minOnly.totalInt - Math.min(snow.totalInt, aval.totalInt);
+  setVal('dp-int-saved', fmt(intSaved));
+
+  const winnerAval = aval.totalInt <= snow.totalInt;
+  $('dp-aval-card').classList.toggle('winner', winnerAval);
+  $('dp-snow-card').classList.toggle('winner', !winnerAval);
+  $('dp-aval-card').classList.toggle('loser', !winnerAval);
+  $('dp-snow-card').classList.toggle('loser', winnerAval);
+
+  const saved = minOnly.months - Math.min(snow.months, aval.months);
+  $('dp-winner-note').innerHTML = winnerAval
+    ? `<div class="alert-green">🏆 Avalanche saves ${fmt(snow.totalInt - aval.totalInt)} more in interest and pays off ${fmtM(snow.months - aval.months)} sooner.</div>`
+    : `<div class="alert-green">🏆 Snowball wins by time (${fmtM(snow.months - aval.months)} faster). Choose Avalanche if saving ${fmt(aval.totalInt - snow.totalInt)} in interest matters more.</div>`;
+
+  showR('r4');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 5: NET WORTH
+// ══════════════════════════════════════════════════════════════
+function calc5() {
+  const cash = val('nw-a1');
+  const invest = val('nw-a2');
+  const retirement = val('nw-a3');
+  const realEstate = val('nw-a4');
+  const vehicles = val('nw-a5');
+  const otherA = val('nw-a6');
+  const assets = cash + invest + retirement + realEstate + vehicles + otherA;
+  const liab = val('nw-l1') + val('nw-l2') + val('nw-l3') + val('nw-l4') + val('nw-l5');
+  const netWorth = assets - liab;
+
+  setVal('nw-assets', fmt(assets));
+  setVal('nw-liab', fmt(liab));
+  setVal('nw-net', fmt(netWorth));
+  setVal('nw-dtar', assets > 0 ? fmtPct(liab/assets*100) : '0%');
+
+  const pct = x => assets > 0 ? (x/assets*100).toFixed(1)+'%' : '0%';
+  $('nw-b1').style.width = pct(cash);
+  $('nw-b2').style.width = pct(invest);
+  $('nw-b3').style.width = pct(realEstate);
+  $('nw-b4').style.width = pct(retirement);
+  $('nw-b5').style.width = pct(vehicles + otherA);
+  showR('r5');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 6: EMERGENCY FUND
+// ══════════════════════════════════════════════════════════════
+function calc6() {
+  const expenses = val('ef-expenses');
+  const months = val('ef-months');
+  const current = val('ef-current');
+  const monthly = val('ef-monthly');
+  const apy = val('ef-apy')/100/12;
+  const target = expenses * months;
+  const gap = Math.max(0, target - current);
+  let monthsToGoal = 0;
+  if(gap > 0 && monthly > 0) {
+    let bal = current;
+    while(bal < target && monthsToGoal < 600) {
+      bal = bal * (1 + apy) + monthly;
+      monthsToGoal++;
+    }
+  }
+
+  setVal('ef-target', fmt(target));
+  setVal('ef-cur-v', fmt(current));
+  setVal('ef-gap', fmt(gap));
+  setVal('ef-time', gap <= 0 ? 'Goal Reached!' : monthsToGoal > 0 ? fmtM(monthsToGoal) : '—');
+
+  const s = $('ef-status');
+  const coverage = current / expenses;
+  if(current >= target) s.innerHTML = `<div class="alert-green">✓ Congratulations! You have ${coverage.toFixed(1)} months of expenses covered — exceeding your ${months}-month target.</div>`;
+  else if(coverage >= 3) s.innerHTML = `<div class="note-box">💡 You have ${coverage.toFixed(1)} months covered — a solid start. Keep contributing to reach your ${months}-month goal.</div>`;
+  else s.innerHTML = `<div class="alert-red">⚠️ You currently have only ${coverage.toFixed(1)} months of coverage. This is below the recommended 3-month minimum.</div>`;
+
+  showR('r6');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 7: SAVINGS GOAL
+// ══════════════════════════════════════════════════════════════
+function calc7() {
+  const goal = val('sg-goal');
+  const current = val('sg-current');
+  const years = val('sg-years');
+  const rate = val('sg-rate')/100;
+  const freqN = intval('sg-freq');
+  const freqLabel = {12:'month',52:'week',26:'bi-week',4:'quarter'}[freqN] || 'period';
+  const r = rate / freqN;
+  const n = years * freqN;
+  const pvFactor = Math.pow(1+r, n);
+  const needed = goal - current * pvFactor;
+  const pmtNeeded = r > 0 ? needed * r / (pvFactor - 1) : needed / n;
+  const totalC = Math.max(0, pmtNeeded) * n + current;
+  const intEarned = goal - totalC;
+
+  setVal('sg-pmt', fmtD(Math.max(0, pmtNeeded)));
+  setVal('sg-pmt-sub', 'per ' + freqLabel);
+  setVal('sg-total-c', fmt(totalC));
+  setVal('sg-int', fmt(Math.max(0, intEarned)));
+  setVal('sg-fv', fmt(goal));
+  showR('r7');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 8: COMPOUND INTEREST
+// ══════════════════════════════════════════════════════════════
+function calc8() {
+  const P = val('ci-p'), pmtM = val('ci-pmt'), rate = val('ci-rate')/100;
+  const years = val('ci-yr'), n = intval('ci-freq');
+  const r = rate/n;
+  const periods = n * years;
+  const fvFinal = P * Math.pow(1+r, periods) + pmtM*12/n * (Math.pow(1+r,periods)-1)/r;
+  const totalC = P + pmtM * 12 * years;
+  const intEarned = fvFinal - totalC;
+  const roi = totalC > 0 ? (intEarned/totalC*100) : 0;
+
+  setVal('ci-fv', fmt(fvFinal));
+  setVal('ci-fv-sub', `after ${years} years`);
+  setVal('ci-contrib', fmt(totalC));
+  setVal('ci-int', fmt(intEarned));
+  setVal('ci-roi', fmtPct(roi));
+
+  const cPct = fvFinal > 0 ? totalC/fvFinal*100 : 50;
+  $('ci-b1').style.width = cPct+'%';
+  $('ci-b2').style.width = (100-cPct)+'%';
+  setVal('ci-l1', `Contributions ${fmtPct(cPct)}`);
+  setVal('ci-l2', `Growth ${fmtPct(100-cPct)}`);
+
+  let tbody='', bal=P, contrib=P;
+  for(let y=1;y<=years;y++) {
+    const start=bal;
+    for(let p=0;p<n;p++) bal = bal*(1+r) + pmtM*12/n;
+    const yContrib = pmtM*12;
+    contrib += yContrib;
+    tbody += `<tr><td>${y}</td><td>${fmt(bal)}</td><td>${fmt(yContrib)}</td><td>${fmt(bal-start-yContrib)}</td></tr>`;
+  }
+  $('ci-tbody').innerHTML = tbody;
+  showR('r8');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 9: INVESTMENT GROWTH
+// ══════════════════════════════════════════════════════════════
+function calc9() {
+  const P = val('ig-p'), ann = val('ig-ann'), r = val('ig-rate')/100;
+  const inf = val('ig-inf')/100, years = val('ig-yr');
+  let bal = P, totalInv = P;
+  let tbody = '';
+  for(let y=1;y<=years;y++) {
+    bal = bal*(1+r) + ann;
+    totalInv += ann;
+    const realBal = bal / Math.pow(1+inf, y);
+    tbody += `<tr><td>${y}</td><td>${fmt(bal)}</td><td>${fmt(realBal)}</td><td>${fmt(bal-totalInv)}</td></tr>`;
+  }
+  const realFV = bal / Math.pow(1+inf, years);
+  setVal('ig-fv', fmt(bal));
+  setVal('ig-real', fmt(realFV));
+  setVal('ig-inv', fmt(totalInv));
+  setVal('ig-gain', fmt(bal-totalInv));
+  $('ig-tbody').innerHTML = tbody;
+  showR('r9');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 10: DCA
+// ══════════════════════════════════════════════════════════════
+function calc10() {
+  const pmtVal = val('da-pmt'), freqN = intval('da-freq'), years = val('da-yr');
+  const ret = val('da-ret')/100, vol = val('da-vol')/100;
+  const periodsPerYear = freqN, n = periodsPerYear * years;
+  const r = ret / periodsPerYear;
+  const totalInv = pmtVal * n;
+  const fvCalc = pmtVal * (Math.pow(1+r,n)-1)/r;
+  const cagr = Math.pow(fvCalc/totalInv, 1/years) - 1;
+
+  setVal('da-fv', fmt(fvCalc));
+  setVal('da-total', fmt(totalInv));
+  setVal('da-gain', fmt(fvCalc-totalInv));
+  setVal('da-cagr', fmtPct(ret*100));
+  showR('r10');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 11: RETIREMENT SAVINGS
+// ══════════════════════════════════════════════════════════════
+function calc11() {
+  const age = val('rs-age'), retAge = val('rs-ret-age');
+  const savings = val('rs-savings'), monthly = val('rs-monthly');
+  const ret = val('rs-return')/100, inf = val('rs-inf')/100;
+  const need = val('rs-need'), ss = val('rs-ss');
+  const years = Math.max(0, retAge - age);
+  const r = ret/12, n = years*12;
+  const nestEgg = savings * Math.pow(1+r, n) + monthly * (Math.pow(1+r,n)-1)/r;
+  const monthlyInc = nestEgg * 0.04 / 12; // 4% rule
+  const totalInc = monthlyInc + ss;
+  const gap = totalInc - need;
+
+  setVal('rs-nest', fmt(nestEgg));
+  setVal('rs-inc', fmtD(monthlyInc));
+  setVal('rs-gap', (gap >= 0 ? '+' : '') + fmtD(gap));
+  setVal('rs-yrs', years + ' years');
+
+  const status = $('rs-status');
+  if(gap >= 0) status.innerHTML = `<div class="alert-green">✓ On track! Your projected income (${fmtD(totalInc)}/mo with Social Security) exceeds your goal by ${fmtD(gap)}/month.</div>`;
+  else status.innerHTML = `<div class="alert-red">⚠️ Projected income shortfall of ${fmtD(-gap)}/month. Consider increasing contributions by ${fmtD(-gap/0.04*12/n)} monthly or retiring later.</div>`;
+  showR('r11');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 12: 401k / IRA CONTRIBUTION
+// ══════════════════════════════════════════════════════════════
+function calc12() {
+  const income = val('ira-income');
+  const contrib = val('ira-contrib');
+  const bracket = val('ira-bracket')/100;
+  const state = val('ira-state')/100;
+  const matchPct = val('ira-match-pct')/100;
+  const matchCap = val('ira-match-cap')/100;
+  const maxMatchable = income * matchCap;
+  const empMatch = Math.min(contrib, maxMatchable) * matchPct;
+  const taxSavings = contrib * (bracket + state);
+  const netCost = contrib - taxSavings;
+  const totalForRetirement = contrib + empMatch;
+  const instantReturn = (empMatch / netCost) * 100;
+
+  setVal('ira-your', fmt(contrib));
+  setVal('ira-emp', fmt(empMatch));
+  setVal('ira-total', fmt(totalForRetirement));
+  setVal('ira-tax-save', fmt(taxSavings));
+  setVal('ira-net-cost', fmt(netCost));
+  setVal('ira-instant', fmtPct(instantReturn));
+  showR('r12');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 13: ROTH vs TRADITIONAL
+// ══════════════════════════════════════════════════════════════
+function calc13() {
+  const contrib = val('rv-contrib'), years = val('rv-years');
+  const ret = val('rv-return')/100, taxNow = val('rv-tax-now')/100, taxRet = val('rv-tax-ret')/100;
+  const n = years, r = ret;
+  const grossFV = contrib * (Math.pow(1+r,n)-1)/r;
+  const rothAfterTax = grossFV * (1 - 0); // Roth: contributions taxed now, withdrawals tax-free
+  const rothContribAfterTax = contrib * (1 - taxNow);
+  const rothFV = rothContribAfterTax * (Math.pow(1+r,n)-1)/r;
+  const tradFV = grossFV * (1 - taxRet); // Trad: deducted now, taxed at withdrawal
+
+  setVal('rv-gross', fmt(grossFV));
+  setVal('rv-total-c', fmt(contrib * years));
+  setVal('rv-roth-val', fmt(rothFV));
+  setVal('rv-trad-val', fmt(tradFV));
+
+  const rothWins = rothFV >= tradFV;
+  $('rv-roth-card').className = 'compare-card' + (rothWins ? ' winner' : ' loser');
+  $('rv-trad-card').className = 'compare-card' + (!rothWins ? ' winner' : ' loser');
+  $('rv-roth-badge').innerHTML = rothWins ? '<span class="compare-badge">Recommended</span>' : '';
+  $('rv-trad-badge').innerHTML = !rothWins ? '<span class="compare-badge">Recommended</span>' : '';
+
+  const diff = Math.abs(rothFV - tradFV);
+  $('rv-verdict').textContent = `${rothWins ? 'Roth IRA' : 'Traditional IRA'} comes out ahead by ${fmt(diff)} because your tax rate is expected to be ${rothWins ? 'higher' : 'lower'} in retirement (${fmtPct(taxRet*100)}) than it is now (${fmtPct(taxNow*100)}).`;
+  showR('r13');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 14: RMD
+// ══════════════════════════════════════════════════════════════
+function calc14() {
+  const balance = val('rmd-balance'), age = val('rmd-age'), tax = val('rmd-tax')/100;
+  // IRS Uniform Lifetime Table (simplified key ages)
+  const table = {72:27.4,73:26.5,74:25.5,75:24.6,76:23.7,77:22.9,78:22.0,79:21.1,80:20.2,81:19.4,82:18.5,83:17.7,84:16.8,85:16.0,86:15.2,87:14.4,88:13.7,89:12.9,90:12.2,91:11.5,92:10.8,93:10.1,94:9.5,95:8.9,96:8.4,97:7.8,98:7.3,99:6.8,100:6.4};
+  const factor = table[Math.min(Math.max(age, 72), 100)] || 26.5;
+  const rmd = balance / factor;
+  const taxAmt = rmd * tax;
+  const afterTax = rmd - taxAmt;
+  const wdRate = (rmd / balance) * 100;
+
+  setVal('rmd-amount', fmt(rmd));
+  setVal('rmd-monthly', fmtD(rmd/12));
+  setVal('rmd-tax-amount', fmt(taxAmt));
+  setVal('rmd-after-tax', fmt(afterTax));
+  setVal('rmd-factor', factor.toFixed(1));
+  setVal('rmd-rate', fmtPct(wdRate));
+  if(age < 73) $('r14').querySelector('.r-grid').insertAdjacentHTML('afterend','<div class="note-box">ℹ️ RMDs begin at age 73 per the SECURE 2.0 Act. You don\'t need to take one yet.</div>');
+  showR('r14');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 15: SAFE WITHDRAWAL RATE
+// ══════════════════════════════════════════════════════════════
+function calc15() {
+  const portfolio = val('sw-portfolio'), expenses = val('sw-expenses');
+  const rate = val('sw-rate')/100, ret = val('sw-return')/100, inf = val('sw-inf')/100;
+  const annualWithdrawal = portfolio * rate;
+  const needed = expenses / rate;
+  let bal = portfolio, years = 0, tbody='';
+  while(bal > 0 && years < 100) {
+    years++;
+    const withdrawal = annualWithdrawal * Math.pow(1+inf, years-1);
+    const growth = bal * ret;
+    bal = bal + growth - withdrawal;
+    tbody += `<tr><td>${years}</td><td>${bal > 0 ? fmt(bal) : '<span style="color:var(--red)">Depleted</span>'}</td><td>${fmt(withdrawal)}</td><td>${fmt(growth)}</td></tr>`;
+    if(bal <= 0) break;
+  }
+  setVal('sw-annual', fmt(annualWithdrawal));
+  setVal('sw-monthly', fmt(annualWithdrawal/12));
+  setVal('sw-sustain', years >= 100 ? '100+ years' : years + ' years');
+  setVal('sw-needed', fmt(needed));
+  $('sw-tbody').innerHTML = tbody;
+
+  const sc = $('sw-sustain-card');
+  sc.classList.toggle('pos', years >= 30);
+  sc.classList.toggle('neg', years < 30);
+
+  const s = $('sw-status');
+  if(years >= 30) s.innerHTML = `<div class="alert-green">✓ At ${fmtPct(rate*100)} withdrawal, your portfolio should last ${years >= 100 ? '100+' : years} years — sufficient for a 30-year retirement.</div>`;
+  else s.innerHTML = `<div class="alert-red">⚠️ At ${fmtPct(rate*100)}, your portfolio may only last ${years} years. Consider reducing to ${fmtPct((expenses/portfolio)*100)} to match your actual expenses.</div>`;
+  showR('r15');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 16: PORTFOLIO ALLOCATION
+// ══════════════════════════════════════════════════════════════
+function calc16() {
+  const age = val('pa-age'), retAge = val('pa-ret'), risk = strval('pa-risk'), goal = strval('pa-goal');
+  const yrs = retAge - age;
+  let stocks, bonds, cash;
+
+  if(risk === 'conservative') { stocks = Math.max(20, Math.min(50, 110 - age)); bonds = Math.min(60, Math.max(30, age - 20)); cash = 100 - stocks - bonds; }
+  else if(risk === 'aggressive') { stocks = Math.max(60, Math.min(95, 140 - age)); bonds = Math.max(5, Math.min(30, age - 30)); cash = 100 - stocks - bonds; }
+  else { stocks = Math.max(40, Math.min(75, 120 - age)); bonds = Math.max(15, Math.min(45, age - 20)); cash = 100 - stocks - bonds; }
+
+  if(goal === 'income') { stocks -= 10; bonds += 10; }
+  if(goal === 'preservation') { stocks -= 15; bonds += 10; cash += 5; }
+
+  stocks = Math.max(5, Math.min(95, stocks));
+  bonds = Math.max(5, Math.min(80, bonds));
+  cash = Math.max(2, 100 - stocks - bonds);
+  const total = stocks + bonds + cash;
+  const estReturn = (stocks/100 * 9 + bonds/100 * 3.5 + cash/100 * 4.5).toFixed(1);
+
+  setVal('pa-stocks', fmtPct(stocks/total*100));
+  setVal('pa-bonds', fmtPct(bonds/total*100));
+  setVal('pa-cash', fmtPct(cash/total*100));
+  setVal('pa-ret-v', estReturn + '%');
+  setVal('pa-stocks-sub', 'US + International ETFs');
+  setVal('pa-bonds-sub', 'Government + Corporate');
+
+  $('pa-bar').innerHTML = `
+    <div class="alloc-seg" style="background:var(--gold);width:${stocks}%">${stocks}%</div>
+    <div class="alloc-seg" style="background:var(--blue);width:${bonds}%">${bonds}%</div>
+    <div class="alloc-seg" style="background:var(--green);width:${cash}%">${cash}%</div>`;
+
+  $('pa-note').textContent = `Recommendation based on age ${age}, ${risk} risk tolerance, and ${yrs} years to retirement. Review and rebalance annually. This is a general guideline — consult a financial advisor for personalized advice.`;
+  showR('r16');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 17: PORTFOLIO REBALANCING
+// ══════════════════════════════════════════════════════════════
+function calc17() {
+  const assets = [1,2,3,4].map(i => ({
+    name: strval('rb-n'+i),
+    val: val('rb-v'+i),
+    target: val('rb-t'+i)
+  })).filter(a => a.val > 0 || a.target > 0);
+
+  const totalV = assets.reduce((s,a) => s+a.val, 0);
+  const totalT = assets.reduce((s,a) => s+a.target, 0);
+  setVal('rb-total', fmt(totalV));
+  setVal('rb-target-pct', fmtPct(totalT));
+
+  let html = `<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+    <div class="reb-row header" style="padding:10px 16px;background:rgba(201,168,76,.07)">
+      <div class="reb-cell">Asset</div>
+      <div class="reb-cell" style="text-align:right">Current</div>
+      <div class="reb-cell" style="text-align:right">Target</div>
+      <div class="reb-cell" style="text-align:right">Drift</div>
+      <div class="reb-cell" style="text-align:right">Action</div>
+    </div>`;
+  assets.forEach(a => {
+    const currPct = totalV > 0 ? a.val/totalV*100 : 0;
+    const targetAmt = totalV * a.target / 100;
+    const diff = targetAmt - a.val;
+    const drift = currPct - a.target;
+    const actionClass = diff > 100 ? 'buy' : diff < -100 ? 'sell' : 'neutral';
+    const actionText = Math.abs(diff) < 100 ? '✓ Hold' : diff > 0 ? `Buy ${fmt(diff)}` : `Sell ${fmt(-diff)}`;
+    html += `<div class="reb-row" style="padding:9px 16px;border-bottom:1px solid var(--border2)">
+      <div class="reb-cell" style="font-size:11px">${a.name}</div>
+      <div class="reb-cell" style="text-align:right;font-size:11px">${fmtPct(currPct)}</div>
+      <div class="reb-cell" style="text-align:right;font-size:11px;color:var(--muted)">${fmtPct(a.target)}</div>
+      <div class="reb-cell reb-cell ${drift > 2 ? 'sell' : drift < -2 ? 'buy' : 'neutral'}" style="text-align:right;font-size:11px">${drift > 0 ? '+' : ''}${fmtPct(drift)}</div>
+      <div class="reb-cell ${actionClass}" style="text-align:right;font-size:11px;font-weight:500">${actionText}</div>
+    </div>`;
+  });
+  html += '</div>';
+  $('rb-table-wrap').innerHTML = html;
+  showR('r17');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 18: MONTE CARLO
+// ══════════════════════════════════════════════════════════════
+function randNorm(mean, std) {
+  let u=0, v=0;
+  while(!u) u = Math.random();
+  while(!v) v = Math.random();
+  return mean + std * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+
+function calc18() {
+  const port = val('mc-port'), draw = val('mc-draw'), ret = val('mc-ret')/100;
+  const vol = val('mc-vol')/100, yrs = val('mc-yrs'), inf = val('mc-inf')/100;
+  const N = 1000;
+  let successes = 0, finalVals = [];
+  for(let s=0; s<N; s++) {
+    let bal = port, survived = true;
+    for(let y=0; y<yrs; y++) {
+      const annRet = randNorm(ret, vol);
+      const adjDraw = draw * Math.pow(1+inf, y);
+      bal = bal*(1+annRet) - adjDraw;
+      if(bal <= 0) { survived = false; break; }
+    }
+    if(survived) successes++;
+    finalVals.push(Math.max(0, bal));
+  }
+  finalVals.sort((a,b) => a-b);
+  const successRate = (successes/N*100).toFixed(1);
+  const p10 = finalVals[Math.floor(N*0.1)];
+  const p50 = finalVals[Math.floor(N*0.5)];
+  const p90 = finalVals[Math.floor(N*0.9)];
+
+  setVal('mc-success', fmtPct(parseFloat(successRate)));
+  setVal('mc-median', fmt(p50));
+  setVal('mc-p90', fmt(p90));
+  setVal('mc-p10', fmt(p10));
+  setVal('mc-b10', fmt(p10));
+  setVal('mc-b50', fmt(p50));
+  setVal('mc-b90', fmt(p90));
+
+  const rate = parseFloat(successRate);
+  let noteText = '';
+  if(rate >= 90) noteText = `✓ Excellent! A ${successRate}% success rate means your portfolio survives in ${successRate}% of simulated market scenarios. Financial planners typically target 85–95%.`;
+  else if(rate >= 80) noteText = `⚠️ A ${successRate}% success rate is acceptable but leaves meaningful risk. Consider reducing annual withdrawals by ${fmt(draw*0.05)} to improve your odds.`;
+  else noteText = `⚠️ Only ${successRate}% success rate. Your current withdrawal strategy poses significant depletion risk. Consider reducing withdrawals or increasing your portfolio before retiring.`;
+  $('mc-note').textContent = noteText;
+  showR('r18');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 19: REAL ESTATE CASH FLOW
+// ══════════════════════════════════════════════════════════════
+function calc19() {
+  const price = val('re-price'), down = val('re-down');
+  const rate = val('re-rate')/100/12, term = val('re-term')*12;
+  const loan = price - down;
+  const mortgage = loan * (rate * Math.pow(1+rate,term)) / (Math.pow(1+rate,term)-1);
+  const rent = val('re-rent'), vacancy = val('re-vacancy')/100;
+  const egi = rent * (1-vacancy);
+  const opex = val('re-tax') + val('re-ins') + val('re-maint') + val('re-mgmt') + val('re-hoa');
+  const noi = egi - opex;
+  const cf = noi - mortgage;
+  const annualCF = cf * 12;
+  const coc = down > 0 ? (annualCF/down*100) : 0;
+  const capRate = price > 0 ? (noi*12/price*100) : 0;
+  const grm = price > 0 ? (price/(rent*12)) : 0;
+
+  setVal('re-cf', (cf >= 0 ? '' : '-') + fmtD(Math.abs(cf)));
+  setVal('re-acf', (annualCF >= 0 ? '' : '-') + fmt(Math.abs(annualCF)));
+  setVal('re-coc', fmtPct(coc));
+  setVal('re-cap', fmtPct(capRate));
+  setVal('re-mort', fmtD(mortgage));
+  setVal('re-grm', grm.toFixed(1) + 'x');
+
+  const verdict = $('re-verdict');
+  if(cf > 100) verdict.innerHTML = `<div class="alert-green">✓ Positive cash flow of ${fmtD(cf)}/month. Cash-on-cash return of ${fmtPct(coc)} is ${coc >= 8 ? 'excellent' : 'acceptable'}.</div>`;
+  else if(cf >= 0) verdict.innerHTML = `<div class="note-box">💡 Barely cash-flow positive at ${fmtD(cf)}/month. While not immediately strong, rental appreciation and mortgage paydown add equity over time.</div>`;
+  else verdict.innerHTML = `<div class="alert-red">⚠️ Negative cash flow of ${fmtD(-cf)}/month. You'll need to cover this shortfall from other income or increase rent.</div>`;
+  showR('r19');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 20: MORTGAGE PAYMENT
+// ══════════════════════════════════════════════════════════════
+function calc20() {
+  const price = val('mp-price'), down = val('mp-down');
+  const rate = val('mp-rate')/100/12, n = val('mp-term')*12;
+  const tax = val('mp-tax')/12, ins = val('mp-ins')/12;
+  const loan = price - down;
+  const pi = loan * (rate*Math.pow(1+rate,n))/(Math.pow(1+rate,n)-1);
+  const totalPaid = pi*n, totalInt = totalPaid - loan;
+  const pPct = loan/totalPaid*100;
+
+  setVal('mp-total', fmtD(pi+tax+ins));
+  setVal('mp-pi', fmtD(pi));
+  setVal('mp-int', fmt(totalInt));
+  setVal('mp-cost', fmt(totalPaid+down));
+  $('mp-b1').style.width = pPct+'%';
+  $('mp-b2').style.width = (100-pPct)+'%';
+  setVal('mp-l1', `Principal ${fmtPct(pPct)}`);
+  setVal('mp-l2', `Interest ${fmtPct(100-pPct)}`);
+
+  let tbody='', bal=loan;
+  for(let i=1;i<=n;i++) {
+    const intP=bal*rate, prinP=pi-intP;
+    bal-=prinP;
+    tbody+=`<tr><td>${i}</td><td>${fmtD(pi)}</td><td>${fmtD(prinP)}</td><td>${fmtD(intP)}</td><td>${fmtD(Math.max(0,bal))}</td></tr>`;
+  }
+  $('mp-tbody').innerHTML = tbody;
+  showR('r20');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 21: AMORTIZATION WITH EXTRA PAYMENTS
+// ══════════════════════════════════════════════════════════════
+function calc21() {
+  const loan = val('am-loan'), rate = val('am-rate')/100/12, term = val('am-term')*12;
+  const extra = val('am-extra');
+  const pmtStd = loan * (rate*Math.pow(1+rate,term))/(Math.pow(1+rate,term)-1);
+  const totalIntStd = pmtStd*term - loan;
+
+  let bal=loan, month=0, totalInt=0, tbody='';
+  while(bal > 0 && month < 600) {
+    month++;
+    const intP = bal*rate;
+    const prinP = Math.min(bal, pmtStd - intP + extra);
+    bal -= prinP;
+    totalInt += intP;
+    tbody += `<tr><td>${month}</td><td>${fmtD(pmtStd)}</td><td>${fmtD(pmtStd-intP)}</td><td>${fmtD(intP)}</td><td>${fmtD(extra)}</td><td>${fmtD(Math.max(0,bal))}</td></tr>`;
+    if(bal <= 0.01) break;
+  }
+  setVal('am-pmt', fmtD(pmtStd + extra));
+  setVal('am-int-std', fmt(totalIntStd));
+  setVal('am-int-save', fmt(Math.max(0, totalIntStd - totalInt)));
+  setVal('am-payoff-time', fmtM(month));
+  $('am-tbody').innerHTML = tbody;
+  showR('r21');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 22: CAP RATE
+// ══════════════════════════════════════════════════════════════
+function calc22() {
+  const rent = val('cr-rent'), vacancy = val('cr-vacancy')/100;
+  const grossRent = rent*12;
+  const egi = grossRent*(1-vacancy);
+  const opex = val('cr-tax') + val('cr-ins') + val('cr-maint') + val('cr-mgmt') + val('cr-other');
+  const noi = egi - opex;
+  const propertyVal = val('cr-value');
+  const capRate = propertyVal > 0 ? (noi/propertyVal*100) : 0;
+  const grm = grossRent > 0 ? (propertyVal/grossRent) : 0;
+  const expRatio = egi > 0 ? (opex/egi*100) : 0;
+
+  setVal('cr-cap', fmtPct(capRate));
+  setVal('cr-noi', fmt(noi));
+  setVal('cr-grm', grm.toFixed(1)+'x');
+  setVal('cr-exp-ratio', fmtPct(expRatio));
+  setVal('cr-gross-rent', fmt(grossRent));
+  setVal('cr-egi', fmt(egi));
+
+  const v = $('cr-verdict');
+  if(capRate >= 8) v.textContent = `✓ Excellent cap rate of ${fmtPct(capRate)}. This property generates strong income relative to its price, indicating solid investment potential.`;
+  else if(capRate >= 5) v.textContent = `💡 Moderate cap rate of ${fmtPct(capRate)}. Typical for stable residential markets. Factor in appreciation potential and financing terms.`;
+  else v.textContent = `⚠️ Low cap rate of ${fmtPct(capRate)}. This property may be overpriced relative to its income potential, or the market has very low yields. Ensure the return justifies the risk.`;
+  showR('r22');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 23: IRR
+// ══════════════════════════════════════════════════════════════
+function calcIRR(cfs) {
+  let r = 0.1;
+  for(let i=0; i<200; i++) {
+    let npv=0, dnpv=0;
+    for(let t=0; t<cfs.length; t++) {
+      npv += cfs[t]/Math.pow(1+r,t);
+      if(t>0) dnpv -= t*cfs[t]/Math.pow(1+r,t+1);
+    }
+    const nr = r - npv/dnpv;
+    if(Math.abs(nr-r) < 1e-8 || !isFinite(nr)) break;
+    r = nr;
+  }
+  return isFinite(r) ? r : null;
+}
+
+function calcNPVatRate(cfs, r) {
+  return cfs.reduce((s,cf,t) => s + cf/Math.pow(1+r,t), 0);
+}
+
+function calc23() {
+  const init = val('irr-init');
+  const cfs = [-init, ...([1,2,3,4,5,6,7,8].map(i => val('irr-cf'+i)).filter((v,i) => i===0 || v!==0 || i<4))];
+  const hurdle = val('irr-hurdle')/100;
+  const allCFs = [-init, ...([1,2,3,4,5,6,7,8].map(i => val('irr-cf'+i)))];
+  const irrVal = calcIRR(allCFs);
+  const npvAtHurdle = calcNPVatRate(allCFs, hurdle);
+  const totalCF = allCFs.slice(1).reduce((s,v) => s+v, 0);
+
+  if(irrVal !== null) {
+    setVal('irr-val', fmtPct(irrVal*100));
+    setVal('irr-npv', (npvAtHurdle >= 0 ? '' : '-') + fmt(Math.abs(npvAtHurdle)));
+    setVal('irr-total-cf', fmt(totalCF));
+    const accept = irrVal > hurdle;
+    setVal('irr-decision', accept ? 'Accept ✓' : 'Reject ✗');
+    $('irr-verdict-card').className = 'r-card ' + (accept ? 'pos' : 'neg');
+    $('irr-note').textContent = `IRR of ${fmtPct(irrVal*100)} is ${accept ? 'above' : 'below'} your ${fmtPct(hurdle*100)} hurdle rate. ${accept ? 'This investment meets your required return and creates value.' : 'This investment fails to meet your required return — consider alternative uses of capital.'}`;
+  }
+  showR('r23');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 24: NPV
+// ══════════════════════════════════════════════════════════════
+function calc24() {
+  const init = val('npv-init'), r = val('npv-rate')/100;
+  const cashflows = [1,2,3,4,5,6,7,8].map(i => val('npv-cf'+i));
+  let pvTotal=0, cumPV=0, tbody='';
+  cashflows.forEach((cf,i) => {
+    const t = i+1, factor = 1/Math.pow(1+r,t), pv = cf*factor;
+    pvTotal += pv; cumPV += pv;
+    if(cf !== 0 || t <= 5) tbody += `<tr><td>${t}</td><td>${fmt(cf)}</td><td>${(1/Math.pow(1+r,t)).toFixed(4)}</td><td>${fmt(pv)}</td><td>${fmt(cumPV)}</td></tr>`;
+  });
+  const npv = pvTotal - init;
+  const pi = init > 0 ? ((pvTotal/init)).toFixed(3) : '—';
+  const accept = npv >= 0;
+
+  setVal('npv-val', (npv >= 0 ? '' : '-') + fmt(Math.abs(npv)));
+  setVal('npv-pvcf', fmt(pvTotal));
+  setVal('npv-pi', pi);
+  setVal('npv-decision', accept ? 'Accept ✓' : 'Reject ✗');
+  $('npv-decision-card').className = 'r-card ' + (accept ? 'pos' : 'neg');
+  $('npv-val').closest('.r-card').className = 'r-card hi ' + (accept ? 'pos' : 'neg');
+  $('npv-tbody').innerHTML = tbody;
+  showR('r24');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CALC 25: ROI
+// ══════════════════════════════════════════════════════════════
+function calc25() {
+  const init = val('roi-init'), final = val('roi-final');
+  const yrs = val('roi-yrs'), annualCost = val('roi-cost');
+  const bench = val('roi-bench')/100;
+  const totalCost = init + annualCost * yrs;
+  const netProfit = final - totalCost;
+  const roi = totalCost > 0 ? (netProfit/totalCost*100) : 0;
+  const cagr = yrs > 0 && init > 0 ? (Math.pow(final/init, 1/yrs) - 1) * 100 : 0;
+  const benchVal = init * Math.pow(1+bench, yrs);
+  const vsB = cagr - bench*100;
+
+  setVal('roi-total', fmtPct(roi));
+  setVal('roi-cagr', fmtPct(cagr));
+  setVal('roi-profit', (netProfit >= 0 ? '' : '-') + fmt(Math.abs(netProfit)));
+  setVal('roi-bench-val', fmt(benchVal));
+  setVal('roi-vs', (vsB >= 0 ? '+' : '') + fmtPct(vsB));
+  setVal('roi-bench-cagr', fmtPct(bench*100));
+
+  const card = $('roi-vs-card');
+  card.className = 'r-card ' + (vsB >= 0 ? 'pos' : 'neg');
+  const verdict = $('roi-verdict');
+  if(vsB >= 0) verdict.innerHTML = `<div class="alert-green">✓ Your investment outperformed the benchmark by ${fmtPct(vsB)} annualized. The investment created ${fmt(final - benchVal)} more value than the benchmark.</div>`;
+  else verdict.innerHTML = `<div class="alert-red">⚠️ Your investment underperformed the benchmark by ${fmtPct(-vsB)} annualized. You would have ${fmt(benchVal - final)} more by investing in the benchmark.</div>`;
+  showR('r25');
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Init active sidebar
+  document.querySelectorAll('.sb-item')[0].classList.add('active');
+  // Init range inputs
+  document.querySelectorAll('input[type=range]').forEach(r => {
+    const min=+r.min, max=+r.max, v=+r.value;
+    r.style.setProperty('--pct', ((v-min)/(max-min)*100)+'%');
+  });
+  // Run defaults
+  calc2live();
+  calc1();
+});
+
+// ── Nav username ──────────────────────────────────────
+(function(){
+  const u=JSON.parse(localStorage.getItem('ia_user')||'{ }');
+  const el=document.getElementById('sn-username');
+  if(el&&(u.name||u.email))el.textContent='★ '+(u.name||u.email).split(' ')[0];
+  else if(el)el.style.display='none';
+})();
+function snSignOut(){
+  fetch('/api/auth/logout',{method:'POST',credentials:'include'}).finally(()=>{
+    localStorage.removeItem('ia_user');
+    window.location.href='premium-login.html';
+  });
+}
+</script>
+</body>
+</html>
+

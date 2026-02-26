@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Book Download — Funds Edge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --slate:       #3D5A80;
+      --slate-dark:  #1B3A5C;
+      --slate-deep:  #0F2340;
+      --gold:        #D4A843;
+      --gold-light:  #F0C060;
+      --gold-warm:   #C49030;
+      --green:       #2E7D32;
+      --white:       #FFFFFF;
+      --gray-50:     #F8F9FA;
+      --gray-100:    #F0F2F5;
+      --gray-200:    #E2E6EA;
+      --gray-600:    #6B7280;
+      --radius:      14px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.1);
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.15);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-50);
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,35,64,0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212,168,67,0.2);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 2rem;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold); font-size: 1.25rem; font-weight: 800;
+      text-decoration: none;
+    }
+    .nav-back {
+      color: rgba(255,255,255,0.7); text-decoration: none;
+      font-size: 0.9rem; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--gold); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 760px; margin: 0 auto;
+      padding: 110px 2rem 4rem;
+    }
+
+    /* ── SUCCESS BANNER ── */
+    .success-banner {
+      background: linear-gradient(135deg, var(--slate-dark), var(--slate-deep));
+      border: 1px solid rgba(212,168,67,0.3);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      color: var(--white);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .success-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 0%, rgba(212,168,67,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .success-banner h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .success-banner p {
+      color: rgba(255,255,255,0.75);
+      font-size: 1rem; line-height: 1.7;
+      max-width: 500px; margin: 0 auto;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      padding: 2rem 2.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; color: var(--slate-dark);
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+
+    /* ── DOWNLOAD BUTTON ── */
+    .btn-download {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, var(--slate), var(--slate-dark));
+      color: var(--white);
+      font-weight: 700; font-size: 1.05rem;
+      border: none; border-radius: 10px;
+      padding: 1rem 2rem; width: 100%;
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(29,58,92,0.3);
+    }
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(29,58,92,0.4);
+    }
+    .btn-download-icon { font-size: 1.4rem; }
+
+    .download-note {
+      margin-top: 0.75rem;
+      font-size: 0.8rem; color: var(--gray-600);
+      text-align: center;
+    }
+
+    /* ── WHAT'S INCLUDED ── */
+    .includes-list {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    .includes-list li {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font-size: 0.95rem; color: #374151;
+    }
+    .includes-list li::before {
+      content: '✓';
+      color: var(--green); font-weight: 700;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ── PREMIUM UPSELL ── */
+    .premium-card {
+      background: linear-gradient(135deg, var(--slate-dark), var(--slate-deep));
+      border: 2px solid var(--gold);
+      border-radius: 20px;
+      padding: 2.5rem;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .premium-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 20%, rgba(212,168,67,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .premium-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--gold); color: var(--slate-dark);
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em;
+      padding: 0.3rem 0.9rem; border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+    .premium-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; margin-bottom: 0.75rem;
+    }
+    .premium-card .sub {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem; line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    .premium-features {
+      list-style: none;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+    .premium-features li {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.88rem; color: rgba(255,255,255,0.85);
+    }
+    .premium-features li::before {
+      content: '★';
+      color: var(--gold); font-size: 0.75rem;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    .pricing-options {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .price-option {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .price-option:hover {
+      border-color: var(--gold);
+      background: rgba(212,168,67,0.08);
+    }
+    .price-option.recommended {
+      border-color: var(--gold);
+      background: rgba(212,168,67,0.06);
+    }
+    .price-option .rec-tag {
+      display: inline-block;
+      background: var(--gold); color: var(--slate-dark);
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+    .price-option .price {
+      font-size: 1.8rem; font-weight: 800; color: var(--white);
+      line-height: 1;
+    }
+    .price-option .price span { font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.6); }
+    .price-option .label {
+      font-size: 0.8rem; color: rgba(255,255,255,0.6);
+      margin-top: 0.3rem;
+    }
+    .btn-premium {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      background: var(--gold);
+      color: var(--slate-dark);
+      font-weight: 800; font-size: 1rem;
+      border: none; border-radius: 10px;
+      padding: 0.9rem 2rem; width: 100%;
+      cursor: pointer; margin-top: 1.25rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(212,168,67,0.4);
+    }
+    .btn-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212,168,67,0.5);
+    }
+    .btn-premium-loading {
+      display: none; text-align: center;
+      color: rgba(255,255,255,0.7); font-size: 0.9rem;
+      padding: 0.75rem 0;
+    }
+    .btn-premium-error {
+      display: none; margin-top: 0.75rem;
+      padding: 0.75rem; background: rgba(255,0,0,0.15);
+      border-radius: 8px; font-size: 0.82rem; color: #fca5a5;
+    }
+    .timer-note {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.8rem; color: rgba(255,255,255,0.5);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      max-width: 760px; margin: 0 auto;
+      padding: 2rem; text-align: center;
+      color: var(--gray-600); font-size: 0.8rem;
+    }
+    footer a { color: var(--gray-600); }
+
+    /* ── NOT LOGGED IN / NO BOOK ── */
+    #accessDenied {
+      display: none;
+      background: #fff3cd; border: 1px solid #ffc107;
+      border-radius: var(--radius); padding: 2rem;
+      text-align: center; margin-bottom: 2rem;
+    }
+    #accessDenied h2 { color: #856404; margin-bottom: 0.5rem; }
+    #accessDenied p { color: #664d03; }
+
+    /* ── LOADING ── */
+    #pageLoading {
+      text-align: center; padding: 6rem 2rem;
+      color: var(--gray-600); font-size: 1rem;
+    }
+    #pageContent { display: none; }
+
+    @media (max-width: 600px) {
+      .premium-features { grid-template-columns: 1fr; }
+      .pricing-options { grid-template-columns: 1fr; }
+      .success-banner { padding: 2rem 1.5rem; }
+      .card { padding: 1.5rem; }
+      .premium-card { padding: 1.75rem; }
+    }
+  </style>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:48px;display:block;"></a>
+    <a href="index.html" class="nav-back">← Back to Home</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Loading state while auth check runs -->
+  <div id="pageLoading">Verifying your purchase…</div>
+
+  <!-- Access denied (not logged in or no book) -->
+  <div id="accessDenied">
+    <h2>⚠ Access Restricted</h2>
+    <p>This page is for book purchasers only. <a href="index.html#pricing">Get your copy →</a></p>
+  </div>
+
+  <!-- Main content (shown after auth check confirms has_book) -->
+  <div id="pageContent">
+
+    <!-- Success banner -->
+    <div class="success-banner">
+      <div class="success-icon">📘</div>
+      <h1>Your Book is Ready!</h1>
+      <p>Thank you for your purchase. Click the button below to download your copy of <em>Beginner's Guide to Investing Principles</em>.</p>
+    </div>
+
+    <!-- Download card -->
+    <div class="card">
+      <div class="card-title">⬇ Download Your Book</div>
+      <a href="THE_SIMPLE_PATH_TO_WEALTH.pdf" download class="btn-download">
+        <span class="btn-download-icon">📄</span>
+        Download PDF — Beginner's Guide to Investing Principles
+      </a>
+      <p class="download-note">PDF format · Opens in any PDF reader · Free updates for life</p>
+    </div>
+
+    <!-- What's included -->
+    <div class="card">
+      <div class="card-title">📦 What's Included</div>
+      <ul class="includes-list">
+        <li>Full 12-chapter eBook (PDF)</li>
+        <li>Bonus: Stock Research Checklist</li>
+        <li>Bonus: First 30-Day Action Plan Template</li>
+        <li>Free lifetime updates — re-download anytime</li>
+      </ul>
+    </div>
+
+    <!-- Premium upsell -->
+    <div class="premium-card">
+      <div class="premium-badge">⏰ LIMITED-TIME OFFER</div>
+      <h2>Take Your Investing Further</h2>
+      <p class="sub">As a book owner, you get exclusive access to upgrade to Funds Edge Premium at a special discounted rate. Unlock powerful tools that put your new knowledge into action.</p>
+
+      <ul class="premium-features">
+        <li>Financial Health Score</li>
+        <li>Live Market Dashboard</li>
+        <li>Scenario Comparison Tool</li>
+        <li>Financial Checklists</li>
+        <li>Financial Calendar</li>
+        <li>Education Library</li>
+        <li>Community Q&amp;A</li>
+        <li>Advisor Directory</li>
+      </ul>
+
+      <!-- Pricing toggle -->
+      <div class="pricing-options">
+        <div class="price-option" id="optMonthly" onclick="selectPlan('premium_monthly')">
+          <div class="price">$7<span>.99/mo</span></div>
+          <div class="label">Monthly</div>
+        </div>
+        <div class="price-option recommended" id="optLifetime" onclick="selectPlan('premium_lifetime')">
+          <div class="rec-tag">BEST VALUE</div>
+          <div class="price">$99<span> once</span></div>
+          <div class="label">Lifetime Access</div>
+        </div>
+      </div>
+
+      <div id="premiumBtnWrap">
+        <button class="btn-premium" id="premiumBtn" onclick="upgradePremium()">
+          ★ Upgrade to Premium Now
+        </button>
+      </div>
+      <div class="btn-premium-loading" id="premiumLoading" style="display:none;"></div>
+      <div class="btn-premium-error" id="premiumError"></div>
+
+      <p class="timer-note">🔒 30-day money-back guarantee · Powered by Stripe</p>
+    </div>
+
+  </div><!-- end #pageContent -->
+</main>
+
+<footer>
+  <p>&copy; <span id="footerYear"></span> FundsEdge.com · <a href="index.html">Home</a> · <a href="financial-calculators.html">Calculators</a></p>
+</footer>
+
+<script>
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+  let selectedPlan = 'premium_lifetime';
+
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    document.getElementById('optMonthly').classList.toggle('recommended', plan === 'premium_monthly');
+    document.getElementById('optLifetime').classList.toggle('recommended', plan === 'premium_lifetime');
+  }
+
+  // ── Stripe Embedded Checkout ─────────────────────────────
+  let _stripe = null;
+  let _embeddedCheckout = null;
+
+  async function upgradePremium() {
+    openEmbeddedCheckout(selectedPlan);
+  }
+
+  async function openEmbeddedCheckout(type) {
+    const overlay   = document.getElementById('stripeOverlay');
+    const container = document.getElementById('stripeCheckoutEl');
+    overlay.style.display = 'block';
+    container.innerHTML = '<div style="text-align:center;padding:2.5rem;color:#666;font-family:Inter,sans-serif;">Loading secure checkout…</div>';
+
+    try {
+      if (!_stripe) {
+        const cfg = await fetch('/api/stripe/config').then(r => r.json());
+        if (!cfg.publishableKey) throw new Error(cfg.error || 'Stripe not configured');
+        _stripe = Stripe(cfg.publishableKey);
+      }
+      if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+
+      _embeddedCheckout = await _stripe.initEmbeddedCheckout({
+        fetchClientSecret: async () => {
+          const res = await fetch('/api/stripe/create-checkout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, embedded: true }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Checkout failed');
+          return data.clientSecret;
+        },
+      });
+      container.innerHTML = '';
+      _embeddedCheckout.mount('#stripeCheckoutEl');
+    } catch (err) {
+      container.innerHTML = `<div style="padding:1.5rem;color:#c0392b;background:#fde8e8;border-radius:8px;font-family:Inter,sans-serif;">${err.message}</div>`;
+    }
+  }
+
+  function closeStripeOverlay() {
+    if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+    document.getElementById('stripeOverlay').style.display = 'none';
+  }
+
+  // ── Auth check ─────────────────────────────────────────────
+  (async function checkAccess() {
+    const loading = document.getElementById('pageLoading');
+    const denied  = document.getElementById('accessDenied');
+    const content = document.getElementById('pageContent');
+
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+
+      if (!res.ok) {
+        // Not logged in
+        loading.style.display = 'none';
+        denied.style.display  = 'block';
+        return;
+      }
+
+      const { user } = await res.json();
+      localStorage.setItem('ia_user', JSON.stringify(user));
+
+      if (!user.has_book && !user.is_admin) {
+        // Logged in but didn't buy the book
+        loading.style.display = 'none';
+        denied.style.display  = 'block';
+        return;
+      }
+
+      // Already premium — hide the upsell card
+      if (user.subscription_status === 'premium' || user.is_admin) {
+        const upsell = document.querySelector('.premium-card');
+        if (upsell) upsell.style.display = 'none';
+      }
+
+      loading.style.display = 'none';
+      content.style.display = 'block';
+
+    } catch (_) {
+      loading.style.display = 'none';
+      denied.style.display  = 'block';
+    }
+  })();
+</script>
+
+<!-- ── Stripe Embedded Checkout Overlay ─────────────────── -->
+<div id="stripeOverlay" onclick="if(event.target===this)closeStripeOverlay()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10000;overflow-y:auto;padding:20px;">
+  <div style="position:relative;width:100%;max-width:640px;margin:40px auto;border-radius:16px;overflow:hidden;background:#fff;">
+    <button onclick="closeStripeOverlay()" aria-label="Close checkout"
+            style="position:absolute;top:10px;right:10px;z-index:1;background:rgba(0,0,0,0.08);border:none;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:32px;cursor:pointer;color:#444;">×</button>
+    <div id="stripeCheckoutEl" style="min-height:220px;"></div>
+  </div>
+</div>
+
+</body>
+</html>

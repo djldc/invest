@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Funds Edge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --slate: #3D5A80; --slate-dark: #1B3A5C; --gold: #D4A843;
+      --white: #fff; --gray-50: #F5F7FA; --gray-100: #E8ECF2;
+      --gray-200: #D0D7E2; --gray-600: #5A6B82; --gray-800: #2A3B52;
+      --green: #4ECB71; --red: #E55; --radius: 10px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      background: var(--slate-dark); padding: 0.85rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(212,168,67,0.2);
+    }
+    .nav-logo { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.2rem; font-weight: 800; text-decoration: none; }
+    .nav-badge { background: rgba(212,168,67,0.2); border: 1px solid rgba(212,168,67,0.4); color: var(--gold); padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-link { color: rgba(255,255,255,0.65); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    .nav-link:hover { color: var(--gold); }
+    .nav-signout { background: none; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.65); padding: 0.35rem 0.9rem; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-family: inherit; transition: all 0.2s; }
+    .nav-signout:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* LAYOUT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--white); border-radius: var(--radius); padding: 1.5rem; border: 1px solid var(--gray-200); }
+    .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--slate-dark); line-height: 1; }
+    .stat-sub { font-size: 0.78rem; color: var(--gray-600); margin-top: 0.3rem; }
+
+    /* TABLE CARD */
+    .table-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray-200); overflow: hidden; }
+    .table-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .table-title { font-size: 1rem; font-weight: 700; color: var(--slate-dark); }
+    .search-input { padding: 0.55rem 1rem; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: 0.88rem; font-family: inherit; outline: none; width: 240px; transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--slate); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { padding: 0.75rem 1.25rem; text-align: left; font-size: 0.72rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.06em; background: var(--gray-50); border-bottom: 1px solid var(--gray-100); }
+    td { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbfd; }
+
+    .user-info { display: flex; align-items: center; gap: 0.75rem; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--slate); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--white); flex-shrink: 0; overflow: hidden; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name { font-weight: 600; color: var(--slate-dark); }
+    .user-email { font-size: 0.78rem; color: var(--gray-600); }
+
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .badge-free { background: var(--gray-100); color: var(--gray-600); }
+    .badge-premium { background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3); color: #8a6200; }
+    .badge-admin { background: rgba(61,90,128,0.12); border: 1px solid rgba(61,90,128,0.25); color: var(--slate); }
+    .badge-google { background: #e8f0fe; color: #1a56db; }
+    .badge-email { background: #e0f2ed; color: #1a6b5a; }
+    .badge-apple { background: #f0f0f0; color: #333; }
+
+    .action-btn {
+      padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.78rem;
+      font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all 0.15s;
+      font-family: inherit; white-space: nowrap;
+    }
+    .btn-make-premium { color: #8a6200; border-color: rgba(212,168,67,0.5); background: rgba(212,168,67,0.08); }
+    .btn-make-premium:hover { background: rgba(212,168,67,0.2); }
+    .btn-make-free { color: var(--gray-600); border-color: var(--gray-200); background: var(--gray-50); }
+    .btn-make-free:hover { border-color: var(--gray-600); background: var(--gray-100); }
+    .btn-make-admin { color: var(--slate); border-color: rgba(61,90,128,0.3); background: rgba(61,90,128,0.06); }
+    .btn-make-admin:hover { background: rgba(61,90,128,0.14); }
+    .btn-remove-admin { color: var(--red); border-color: rgba(221,85,85,0.3); background: rgba(221,85,85,0.05); }
+    .btn-remove-admin:hover { background: rgba(221,85,85,0.12); }
+    .btn-grant-book  { color: #1a4a7a; border-color: rgba(91,155,213,0.5); background: rgba(91,155,213,0.08); }
+    .btn-grant-book:hover  { background: rgba(91,155,213,0.2); }
+    .btn-revoke-book { color: var(--red); border-color: rgba(221,85,85,0.3); background: rgba(221,85,85,0.05); }
+    .btn-revoke-book:hover { background: rgba(221,85,85,0.12); }
+    .badge-book { background: rgba(91,155,213,0.12); border: 1px solid rgba(91,155,213,0.25); color: #1a4a7a; }
+
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--gray-600); }
+    .loading { text-align: center; padding: 2rem; color: var(--gray-600); font-size: 0.9rem; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: var(--slate-dark); color: var(--white);
+      padding: 0.75rem 1.25rem; border-radius: 10px; font-size: 0.88rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Feature Visibility Section */
+    .section-gap { margin-top: 2rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.6rem; padding: 1.25rem 1.5rem; }
+    .feature-row { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; border: 1px solid var(--gray-200); border-radius: 8px; background: var(--gray-50); transition: all 0.2s; }
+    .feature-row.disabled { opacity: 0.5; background: #fff; }
+    .ft-info { display: flex; align-items: center; gap: 0.75rem; }
+    .ft-icon { font-size: 1.25rem; line-height: 1; }
+    .ft-name { font-size: 0.88rem; font-weight: 600; color: var(--slate-dark); }
+    .ft-url { font-size: 0.72rem; color: var(--gray-600); margin-top: 2px; }
+    /* Toggle switch */
+    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track { position: absolute; cursor: pointer; inset: 0; background: var(--gray-200); border-radius: 24px; transition: 0.25s; }
+    .toggle-track::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    .toggle input:checked + .toggle-track { background: var(--green); }
+    .toggle input:checked + .toggle-track::before { transform: translateX(20px); }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .search-input { width: 100%; }
+      table { font-size: 0.8rem; }
+      th, td { padding: 0.65rem 0.75rem; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:48px;display:block;"></a>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <span class="nav-badge">ADMIN</span>
+  </div>
+  <div class="nav-right">
+    <a href="premium-hub.html" class="nav-link">Hub</a>
+    <a href="index.html" class="nav-link">Home</a>
+    <button class="nav-signout" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">all registered</div></div>
+    <div class="stat-card"><div class="stat-label">Free</div><div class="stat-value" id="statFree">—</div><div class="stat-sub">free tier</div></div>
+    <div class="stat-card"><div class="stat-label">Premium</div><div class="stat-value" id="statPremium">—</div><div class="stat-sub">paid subscribers</div></div>
+    <div class="stat-card"><div class="stat-label">Book Owners</div><div class="stat-value" id="statBook">—</div><div class="stat-sub">📘 book access</div></div>
+    <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-value" id="statAdmins">—</div><div class="stat-sub">admin access</div></div>
+  </div>
+
+  <!-- User table -->
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">All Users</span>
+      <input class="search-input" type="search" placeholder="Search by name or email…" oninput="filterUsers(this.value)">
+    </div>
+    <div id="tableWrap"><div class="loading">Loading users…</div></div>
+  </div>
+
+  <!-- Feature Visibility -->
+  <div class="section-gap">
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <span class="table-title">Feature Visibility</span>
+          <div style="font-size:0.8rem;color:var(--gray-600);margin-top:3px">Toggle premium sections on/off — hidden sections won't appear in the hub nav or feature cards</div>
+        </div>
+      </div>
+      <div id="featuresWrap"><div class="loading">Loading features…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let allUsers = [];
+
+  function showToast(msg, ms = 2500) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, ms);
+  }
+
+  async function signOut() {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    localStorage.removeItem('ia_token'); localStorage.removeItem('ia_user');
+    window.location.href = 'premium-login.html';
+  }
+
+  // ── Load users ──────────────────────────────────────────
+  async function loadUsers() {
+    try {
+      const res = await fetch('/api/admin/users', { credentials: 'include' });
+      if (res.status === 401 || res.status === 403) {
+        document.getElementById('tableWrap').innerHTML =
+          '<div class="empty-state">Access denied — admin account required.</div>';
+        return;
+      }
+      const { users } = await res.json();
+      allUsers = users;
+      updateStats(users);
+      renderTable(users);
+    } catch (err) {
+      document.getElementById('tableWrap').innerHTML =
+        '<div class="empty-state">Failed to load users. Is the server running?</div>';
+    }
+  }
+
+  function updateStats(users) {
+    document.getElementById('statTotal').textContent = users.length;
+    document.getElementById('statFree').textContent = users.filter(u => u.subscription_status === 'free').length;
+    document.getElementById('statPremium').textContent = users.filter(u => u.subscription_status === 'premium').length;
+    document.getElementById('statBook').textContent = users.filter(u => u.has_book).length;
+    document.getElementById('statAdmins').textContent = users.filter(u => u.is_admin).length;
+  }
+
+  function filterUsers(q) {
+    const lower = q.toLowerCase();
+    const filtered = allUsers.filter(u =>
+      (u.name || '').toLowerCase().includes(lower) ||
+      (u.email || '').toLowerCase().includes(lower)
+    );
+    renderTable(filtered);
+  }
+
+  function renderTable(users) {
+    if (!users.length) {
+      document.getElementById('tableWrap').innerHTML = '<div class="empty-state">No users found.</div>';
+      return;
+    }
+
+    const rows = users.map(u => {
+      const initials = (u.name || u.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const avatarHtml = u.picture
+        ? `<div class="avatar"><img src="${u.picture}" alt=""></div>`
+        : `<div class="avatar" style="background:${hashColor(u.email)}">${initials}</div>`;
+
+      const joined = new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const lastLogin = u.last_login ? new Date(u.last_login).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+
+      const subBadge = u.subscription_status === 'premium'
+        ? '<span class="badge badge-premium">Premium</span>'
+        : '<span class="badge badge-free">Free</span>';
+      const adminBadge = u.is_admin ? ' <span class="badge badge-admin">Admin</span>' : '';
+      const providerBadge = `<span class="badge badge-${u.provider}">${u.provider}</span>`;
+
+      const subBtn = u.subscription_status === 'premium'
+        ? `<button class="action-btn btn-make-free" onclick="setSubscription(${u.id}, 'free')">Make Free</button>`
+        : `<button class="action-btn btn-make-premium" onclick="setSubscription(${u.id}, 'premium')">★ Make Premium</button>`;
+      const adminBtn = u.is_admin
+        ? `<button class="action-btn btn-remove-admin" onclick="setAdmin(${u.id}, false)">Remove Admin</button>`
+        : `<button class="action-btn btn-make-admin" onclick="setAdmin(${u.id}, true)">Make Admin</button>`;
+
+      const bookBadge = u.has_book ? ' <span class="badge badge-book">📘 Book</span>' : '';
+      const bookBtn = u.has_book
+        ? `<button class="action-btn btn-revoke-book" onclick="setBook(${u.id}, false)" title="Revoke on refund">Revoke Book</button>`
+        : `<button class="action-btn btn-grant-book"  onclick="setBook(${u.id}, true)"  title="Grant for cash/check payment">📘 Grant Book</button>`;
+
+      return `<tr id="row-${u.id}">
+        <td><div class="user-info">${avatarHtml}<div><div class="user-name">${u.name || '—'}</div><div class="user-email">${u.email}</div></div></div></td>
+        <td>${providerBadge}</td>
+        <td>${subBadge}${adminBadge}${bookBadge}</td>
+        <td>${joined}</td>
+        <td>${lastLogin}</td>
+        <td><div class="actions">${subBtn}${adminBtn}${bookBtn}</div></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('tableWrap').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>User</th><th>Provider</th><th>Status</th><th>Joined</th><th>Last Login</th><th>Actions</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── Actions ─────────────────────────────────────────────
+  async function setSubscription(id, status) {
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription_status: status }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const u = allUsers.find(u => u.id === id);
+      if (u) u.subscription_status = status;
+      updateStats(allUsers);
+      renderTable(allUsers);
+      showToast(`User set to ${status}`);
+    } catch { showToast('Update failed', 2000); }
+  }
+
+  async function setAdmin(id, isAdmin) {
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_admin: isAdmin }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const u = allUsers.find(u => u.id === id);
+      if (u) u.is_admin = isAdmin;
+      updateStats(allUsers);
+      renderTable(allUsers);
+      showToast(isAdmin ? 'Admin granted' : 'Admin removed');
+    } catch { showToast('Update failed', 2000); }
+  }
+
+  async function setBook(id, grant) {
+    const u = allUsers.find(u => u.id === id);
+    const name = u ? (u.name || u.email) : `User #${id}`;
+    const msg = grant
+      ? `Grant book access to ${name}?\n\nUse this for cash / check / manual payments.`
+      : `Revoke book access for ${name}?\n\nUse this for refunds. Removes the 📘 Book badge.`;
+    if (!confirm(msg)) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ has_book: grant }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      if (u) u.has_book = grant;
+      updateStats(allUsers);
+      renderTable(allUsers);
+      showToast(grant ? '📘 Book access granted' : 'Book access revoked');
+    } catch { showToast('Update failed', 2000); }
+  }
+
+  // Simple hash → color for avatars
+  function hashColor(str) {
+    const colors = ['#3D5A80','#2C4A6E','#1B3A5C','#4B6D94','#5B7FA6','#1a6b5a','#4a2080'];
+    let h = 0;
+    for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff;
+    return colors[Math.abs(h) % colors.length];
+  }
+
+  // ── Features ─────────────────────────────────────────────
+  let allFeatures = [];
+
+  async function loadFeatures() {
+    try {
+      const res = await fetch('/api/admin/features', { credentials: 'include' });
+      if (!res.ok) throw new Error('failed');
+      const { features } = await res.json();
+      allFeatures = features;
+      renderFeatures(features);
+    } catch {
+      document.getElementById('featuresWrap').innerHTML =
+        '<div class="empty-state">Failed to load features.</div>';
+    }
+  }
+
+  function renderFeatures(features) {
+    if (!features.length) {
+      document.getElementById('featuresWrap').innerHTML =
+        '<div class="empty-state">No features found — restart the server to seed them.</div>';
+      return;
+    }
+    document.getElementById('featuresWrap').innerHTML =
+      '<div class="features-grid">' +
+      features.map(f => `
+        <div class="feature-row${f.enabled ? '' : ' disabled'}" id="ft-${f.key}">
+          <div class="ft-info">
+            <div class="ft-icon">${f.icon}</div>
+            <div>
+              <div class="ft-name">${f.label}</div>
+              <div class="ft-url">${f.url}</div>
+            </div>
+          </div>
+          <label class="toggle" title="${f.enabled ? 'Click to hide' : 'Click to show'}">
+            <input type="checkbox" ${f.enabled ? 'checked' : ''} onchange="toggleFeature('${f.key}', this.checked)">
+            <span class="toggle-track"></span>
+          </label>
+        </div>`).join('') +
+      '</div>';
+  }
+
+  async function toggleFeature(key, enabled) {
+    const row = document.getElementById('ft-' + key);
+    try {
+      const res = await fetch(`/api/admin/features/${key}`, {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      });
+      if (!res.ok) throw new Error('failed');
+      if (row) row.classList.toggle('disabled', !enabled);
+      const f = allFeatures.find(f => f.key === key);
+      if (f) f.enabled = enabled;
+      showToast(enabled ? '✓ Section visible to users' : '○ Section hidden from users');
+    } catch {
+      showToast('Update failed');
+      const input = row?.querySelector('input');
+      if (input) input.checked = !enabled; // revert
+    }
+  }
+
+  // ── Check admin access then load ─────────────────────────
+  (async function init() {
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) throw new Error('not authenticated');
+      const { user } = await res.json();
+      if (!user.is_admin) {
+        document.getElementById('tableWrap').innerHTML =
+          '<div class="empty-state">You do not have admin access.</div>';
+        document.getElementById('featuresWrap').innerHTML = '';
+        return;
+      }
+      await Promise.all([loadUsers(), loadFeatures()]);
+    } catch {
+      window.location.href = 'premium-login.html?redirect=admin.html';
+    }
+  })();
+</script>
+</body>
+</html>

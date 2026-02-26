@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account — Funds Edge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --slate:       #3D5A80;
+      --slate-dark:  #1B3A5C;
+      --slate-deep:  #0F2340;
+      --gold:        #D4A843;
+      --gold-light:  #F0C060;
+      --gold-warm:   #C49030;
+      --green:       #2E7D32;
+      --green-light: #e8f5e9;
+      --white:       #FFFFFF;
+      --gray-50:     #F8F9FA;
+      --gray-100:    #F0F2F5;
+      --gray-200:    #E2E6EA;
+      --gray-600:    #6B7280;
+      --gray-800:    #1F2937;
+      --radius:      14px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.08);
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.13);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(15,35,64,0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212,168,67,0.2);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 2rem;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold); font-size: 1.25rem; font-weight: 800;
+      text-decoration: none; letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links .premium-link { color: var(--gold-light) !important; font-weight: 700 !important; }
+
+    /* User menu */
+    #navUserMenu {
+      display: none; position: relative;
+      align-items: center; gap: 0.5rem;
+    }
+    .nav-avatar-btn {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+      cursor: pointer; color: var(--white);
+    }
+    .nav-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--gold); color: var(--slate-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.75rem;
+    }
+    .nav-username { font-size: 0.83rem; font-weight: 600; }
+    .nav-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: white; border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      min-width: 190px; overflow: hidden; z-index: 200;
+    }
+    .nav-dropdown a, .nav-dropdown button {
+      display: block; width: 100%; text-align: left;
+      padding: 0.75rem 1.25rem; text-decoration: none;
+      font-size: 0.88rem; font-family: inherit;
+      background: none; border: none; cursor: pointer;
+    }
+    .nav-dropdown a { color: var(--slate-dark); font-weight: 600; }
+    .nav-dropdown a:hover { background: var(--gray-50); }
+    .nav-dropdown .divider { border: none; border-top: 1px solid var(--gray-200); margin: 0; }
+    .nav-dropdown .sign-out { color: #c0392b; }
+    .nav-dropdown .sign-out:hover { background: #fef2f2; }
+
+    /* ── MAIN ── */
+    main { max-width: 900px; margin: 0 auto; padding: 100px 2rem 4rem; }
+
+    /* ── WELCOME ── */
+    .welcome {
+      background: linear-gradient(135deg, var(--slate-dark), var(--slate-deep));
+      border-radius: 20px; padding: 2.5rem 3rem;
+      color: var(--white); margin-bottom: 2rem;
+      position: relative; overflow: hidden;
+    }
+    .welcome::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 0%, rgba(212,168,67,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .welcome-label {
+      font-size: 0.78rem; letter-spacing: 0.08em; font-weight: 700;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .welcome h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 800; margin-bottom: 0.35rem;
+    }
+    .welcome-meta {
+      color: rgba(255,255,255,0.6); font-size: 0.88rem;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .welcome-meta span::before { content: '· '; opacity: 0.5; }
+    .welcome-meta span:first-child::before { content: ''; }
+
+    /* ── SECTION HEADER ── */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; color: var(--slate-dark);
+      margin-bottom: 1.25rem; font-weight: 700;
+    }
+
+    /* ── PRODUCT CARDS ── */
+    .products-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .product-card {
+      background: var(--white); border-radius: var(--radius);
+      border: 2px solid var(--gray-200); padding: 1.75rem;
+      box-shadow: var(--shadow); position: relative;
+    }
+    .product-card.owned { border-color: var(--green); }
+    .product-card.owned .product-icon { color: var(--green); }
+
+    .product-owned-badge {
+      position: absolute; top: -11px; left: 1.25rem;
+      background: var(--green); color: white;
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em;
+      padding: 0.25rem 0.75rem; border-radius: 999px;
+    }
+    .product-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+    .product-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700; color: var(--slate-dark);
+      margin-bottom: 0.4rem;
+    }
+    .product-desc {
+      font-size: 0.85rem; color: var(--gray-600); line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+    .product-actions { display: flex; flex-direction: column; gap: 0.6rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.4rem; font-family: inherit; font-weight: 700;
+      border: none; border-radius: 9px; cursor: pointer;
+      padding: 0.65rem 1.25rem; font-size: 0.88rem; text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-slate {
+      background: var(--slate-dark); color: var(--white);
+      box-shadow: 0 3px 12px rgba(27,58,92,0.25);
+    }
+    .btn-slate:hover { box-shadow: 0 6px 18px rgba(27,58,92,0.35); }
+    .btn-gold {
+      background: var(--gold); color: var(--slate-dark);
+      box-shadow: 0 3px 12px rgba(212,168,67,0.3);
+    }
+    .btn-gold:hover { box-shadow: 0 6px 18px rgba(212,168,67,0.45); }
+    .btn-outline {
+      background: transparent; color: var(--slate-dark);
+      border: 2px solid var(--gray-200); box-shadow: none;
+    }
+    .btn-outline:hover { border-color: var(--slate); }
+    .btn-full { width: 100%; }
+
+    /* ── EMPTY PRODUCTS ── */
+    .empty-products {
+      background: var(--white); border-radius: var(--radius);
+      border: 1px solid var(--gray-200); padding: 2.5rem;
+      text-align: center; margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    .empty-products p { color: var(--gray-600); font-size: 0.95rem; }
+
+    /* ── UPSELL SECTION ── */
+    .upsell-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+    }
+    .upsell-card {
+      background: var(--white); border-radius: var(--radius);
+      border: 1px solid var(--gray-200); padding: 1.75rem;
+      box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .upsell-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    }
+    .upsell-badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: #FEF3C7; color: #92400E;
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em;
+      padding: 0.25rem 0.7rem; border-radius: 999px; margin-bottom: 0.9rem;
+    }
+    .upsell-icon { font-size: 1.75rem; margin-bottom: 0.6rem; display: block; }
+    .upsell-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700; color: var(--slate-dark);
+      margin-bottom: 0.4rem;
+    }
+    .upsell-desc {
+      font-size: 0.83rem; color: var(--gray-600); line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .upsell-price {
+      display: flex; align-items: baseline; gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    .upsell-price .amount {
+      font-size: 1.6rem; font-weight: 800; color: var(--slate-dark);
+    }
+    .upsell-price .period {
+      font-size: 0.82rem; color: var(--gray-600);
+    }
+
+    /* Premium upsell card */
+    .upsell-card.premium-upsell {
+      background: linear-gradient(135deg, var(--slate-dark), var(--slate-deep));
+      border-color: var(--gold);
+      color: var(--white);
+    }
+    .upsell-card.premium-upsell::before {
+      background: var(--gold);
+    }
+    .upsell-card.premium-upsell .upsell-name { color: var(--white); }
+    .upsell-card.premium-upsell .upsell-desc { color: rgba(255,255,255,0.7); }
+    .upsell-card.premium-upsell .upsell-price .amount { color: var(--gold-light); }
+    .upsell-card.premium-upsell .upsell-price .period { color: rgba(255,255,255,0.5); }
+    .upsell-card.premium-upsell .upsell-badge {
+      background: rgba(212,168,67,0.2); color: var(--gold-light);
+    }
+    .premium-features-mini {
+      list-style: none; display: flex; flex-direction: column; gap: 0.35rem;
+      margin-bottom: 1.1rem;
+    }
+    .premium-features-mini li {
+      font-size: 0.8rem; color: rgba(255,255,255,0.75);
+      display: flex; gap: 0.5rem;
+    }
+    .premium-features-mini li::before { content: '★'; color: var(--gold); font-size: 0.65rem; }
+
+    /* Premium pricing toggle */
+    .plan-toggle {
+      display: flex; gap: 0.6rem; margin-bottom: 1rem;
+    }
+    .plan-opt {
+      flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 9px; padding: 0.65rem 0.5rem; text-align: center; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .plan-opt.active {
+      border-color: var(--gold); background: rgba(212,168,67,0.1);
+    }
+    .plan-opt .p-price { font-size: 1.1rem; font-weight: 800; color: var(--white); }
+    .plan-opt .p-label { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+    .plan-opt .p-tag {
+      display: inline-block; background: var(--gold); color: var(--slate-dark);
+      font-size: 0.6rem; font-weight: 800; padding: 0.1rem 0.4rem;
+      border-radius: 999px; margin-bottom: 0.2rem;
+    }
+
+    /* Stripe button error/loading */
+    .pay-loading { display: none; text-align: center; font-size: 0.85rem; padding: 0.5rem 0; }
+    .pay-error { display: none; margin-top: 0.5rem; padding: 0.6rem 0.8rem; background: #fde8e8; border-radius: 8px; font-size: 0.8rem; color: #7a1f20; }
+    .upsell-card.premium-upsell .pay-loading { color: rgba(255,255,255,0.6); }
+    .upsell-card.premium-upsell .pay-error { background: rgba(255,0,0,0.15); color: #fca5a5; }
+
+    /* ── LOADING / ACCESS ── */
+    #pageLoading { text-align: center; padding: 5rem 2rem; color: var(--gray-600); }
+    #pageContent { display: none; }
+
+    @media (max-width: 640px) {
+      .products-grid, .upsell-grid { grid-template-columns: 1fr; }
+      .welcome { padding: 2rem 1.5rem; }
+      .welcome h1 { font-size: 1.5rem; }
+      .nav-inner { padding: 0.85rem 1.25rem; }
+    }
+  </style>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><img src="FUNDS-EDGE-LOGO.png" alt="Funds Edge" style="height:48px;display:block;"></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="financial-calculators.html">Calculators</a></li>
+      <li id="navPremiumCalc" style="display:none">
+        <a href="premium-financial-calculators.html" class="premium-link">★ Premium Calcs</a>
+      </li>
+      <li id="navPremiumHub" style="display:none">
+        <a href="premium-hub.html" class="premium-link">Premium Hub</a>
+      </li>
+    </ul>
+    <div id="navUserMenu" style="position:relative;">
+      <button class="nav-avatar-btn" onclick="toggleDropdown()">
+        <div class="nav-avatar" id="navAvatar">?</div>
+        <span class="nav-username" id="navUserName">Account</span>
+        <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-left:2px;">▾</span>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a href="my-account.html" style="border-bottom:1px solid var(--gray-200);">👤 My Account</a>
+        <hr class="divider">
+        <button class="sign-out" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PAGE LOADING ───────────────────────────────────────── -->
+<main>
+  <div id="pageLoading">Loading your account…</div>
+
+  <div id="pageContent">
+
+    <!-- Welcome banner -->
+    <div class="welcome">
+      <div class="welcome-label">My Account</div>
+      <h1>Welcome back, <span id="welcomeName">there</span>!</h1>
+      <div class="welcome-meta">
+        <span id="welcomeEmail"></span>
+        <span id="welcomeSince"></span>
+      </div>
+    </div>
+
+    <!-- ── YOUR PRODUCTS ───────────────────────────────── -->
+    <div class="section-title">Your Products</div>
+
+    <!-- Shown when user owns nothing -->
+    <div id="noProducts" class="empty-products" style="display:none;">
+      <p>You haven't purchased anything yet. See the offers below to get started!</p>
+    </div>
+
+    <!-- Product cards (shown based on ownership) -->
+    <div class="products-grid" id="productsGrid" style="display:none;">
+
+      <!-- Book card -->
+      <div class="product-card owned" id="cardBook" style="display:none;">
+        <span class="product-owned-badge">✓ PURCHASED</span>
+        <span class="product-icon">📘</span>
+        <div class="product-name">Beginner's Guide to Investing Principles</div>
+        <p class="product-desc">Full 12-chapter eBook (PDF) · Free lifetime updates</p>
+        <div class="product-actions">
+          <a href="book-download.html" class="btn btn-slate btn-full">⬇ Download Your Book</a>
+        </div>
+      </div>
+
+      <!-- Premium card -->
+      <div class="product-card owned" id="cardPremium" style="display:none;">
+        <span class="product-owned-badge">✓ ACTIVE</span>
+        <span class="product-icon">⭐</span>
+        <div class="product-name">Premium Membership</div>
+        <p class="product-desc">Full access to all premium tools, dashboards, and community features.</p>
+        <div class="product-actions">
+          <a href="premium-hub.html" class="btn btn-gold btn-full">⭐ Go to Premium Hub</a>
+          <a href="premium-financial-calculators.html" class="btn btn-outline btn-full">🧮 Premium Calculators</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── UPGRADE OFFERS ───────────────────────────────── -->
+    <div id="upsellSection" style="display:none;">
+      <div class="section-title" style="margin-top:2rem;">Complete Your Collection</div>
+      <div class="upsell-grid" id="upsellGrid">
+
+        <!-- Book upsell (shown if no book) -->
+        <div class="upsell-card" id="upsellBook" style="display:none;">
+          <div class="upsell-badge">📚 DIGITAL EDITION</div>
+          <span class="upsell-icon">📘</span>
+          <div class="upsell-name">Beginner's Guide to Investing Principles</div>
+          <p class="upsell-desc">12 chapters of clear, actionable investing fundamentals. Includes bonus checklists and a 30-day action plan.</p>
+          <div class="upsell-price">
+            <span class="amount">$29</span>
+            <span class="period">.99 one-time · instant PDF delivery</span>
+          </div>
+          <button class="btn btn-slate btn-full" id="btnBuyBook" onclick="checkout('book')">
+            🔒 Buy Now — $29.99
+          </button>
+        </div>
+
+        <!-- Premium upsell (shown if not premium) -->
+        <div class="upsell-card premium-upsell" id="upsellPremium" style="display:none;">
+          <div class="upsell-badge">⭐ MEMBER UPGRADE</div>
+          <span class="upsell-icon">🚀</span>
+          <div class="upsell-name">Funds Edge Premium</div>
+          <p class="upsell-desc">Put your knowledge into action with professional-grade tools.</p>
+          <ul class="premium-features-mini">
+            <li>Financial Health Score</li>
+            <li>Live Market Dashboard</li>
+            <li>Scenario Comparison Tool</li>
+            <li>Financial Checklists &amp; Calendar</li>
+            <li>Community Q&amp;A · Advisor Directory</li>
+          </ul>
+
+          <div class="plan-toggle" id="planToggle">
+            <div class="plan-opt" id="planMonthly" onclick="selectPlan('monthly')">
+              <div class="p-price">$7<small style="font-size:0.7rem">.99</small></div>
+              <div class="p-label">per month</div>
+            </div>
+            <div class="plan-opt active" id="planLifetime" onclick="selectPlan('lifetime')">
+              <div class="p-tag">BEST VALUE</div>
+              <div class="p-price">$99</div>
+              <div class="p-label">one-time</div>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-full" id="btnPremium" onclick="checkout(selectedPlan)">
+            ★ Upgrade to Premium
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /pageContent -->
+</main>
+
+<script>
+  // ── Plan toggle ─────────────────────────────────────────
+  let selectedPlan = 'premium_lifetime';
+
+  function selectPlan(which) {
+    selectedPlan = which === 'monthly' ? 'premium_monthly' : 'premium_lifetime';
+    document.getElementById('planMonthly').classList.toggle('active', which === 'monthly');
+    document.getElementById('planLifetime').classList.toggle('active', which === 'lifetime');
+  }
+
+  // ── Stripe Embedded Checkout ─────────────────────────────
+  let _stripe = null;
+  let _embeddedCheckout = null;
+
+  async function checkout(type) {
+    openEmbeddedCheckout(type);
+  }
+
+  async function openEmbeddedCheckout(type) {
+    const overlay   = document.getElementById('stripeOverlay');
+    const container = document.getElementById('stripeCheckoutEl');
+    overlay.style.display = 'block';
+    container.innerHTML = '<div style="text-align:center;padding:2.5rem;color:#666;font-family:Inter,sans-serif;">Loading secure checkout…</div>';
+
+    try {
+      if (!_stripe) {
+        const cfg = await fetch('/api/stripe/config').then(r => r.json());
+        if (!cfg.publishableKey) throw new Error(cfg.error || 'Stripe not configured');
+        _stripe = Stripe(cfg.publishableKey);
+      }
+      if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+
+      _embeddedCheckout = await _stripe.initEmbeddedCheckout({
+        fetchClientSecret: async () => {
+          const res = await fetch('/api/stripe/create-checkout', {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, embedded: true }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Checkout failed');
+          return data.clientSecret;
+        },
+      });
+      container.innerHTML = '';
+      _embeddedCheckout.mount('#stripeCheckoutEl');
+    } catch (err) {
+      container.innerHTML = `<div style="padding:1.5rem;color:#c0392b;background:#fde8e8;border-radius:8px;font-family:Inter,sans-serif;">${err.message}</div>`;
+    }
+  }
+
+  function closeStripeOverlay() {
+    if (_embeddedCheckout) { _embeddedCheckout.destroy(); _embeddedCheckout = null; }
+    document.getElementById('stripeOverlay').style.display = 'none';
+  }
+
+  // ── Nav dropdown ────────────────────────────────────────
+  function toggleDropdown() {
+    const d = document.getElementById('navDropdown');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+  }
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#navUserMenu')) {
+      document.getElementById('navDropdown').style.display = 'none';
+    }
+  });
+
+  async function signOut() {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    localStorage.removeItem('ia_token');
+    localStorage.removeItem('ia_user');
+    window.location.href = 'index.html';
+  }
+
+  // ── Build page from user data ────────────────────────────
+  function buildPage(user) {
+    // Welcome
+    const firstName = (user.name || user.email || 'there').split(' ')[0];
+    document.getElementById('welcomeName').textContent = firstName;
+    document.getElementById('welcomeEmail').textContent = user.email;
+    if (user.created_at) {
+      const d = new Date(user.created_at);
+      document.getElementById('welcomeSince').textContent =
+        'Member since ' + d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    // Nav
+    document.getElementById('navAvatar').textContent =
+      (user.name || user.email || '?')[0].toUpperCase();
+    document.getElementById('navUserName').textContent =
+      (user.name || user.email || '').split(' ')[0];
+    document.getElementById('navUserMenu').style.display = 'flex';
+
+    const isPremium = user.subscription_status === 'premium' || user.is_admin;
+    const hasBook   = !!user.has_book || user.is_admin;
+
+    if (isPremium || user.is_admin) {
+      document.getElementById('navPremiumCalc').style.display = '';
+      document.getElementById('navPremiumHub').style.display = '';
+    }
+
+    // Products section
+    const hasAny = isPremium || hasBook;
+    document.getElementById('noProducts').style.display  = hasAny ? 'none' : 'block';
+    document.getElementById('productsGrid').style.display = hasAny ? 'grid' : 'none';
+    document.getElementById('cardBook').style.display    = hasBook    ? '' : 'none';
+    document.getElementById('cardPremium').style.display = isPremium  ? '' : 'none';
+
+    // Upsell section — only show for items not owned
+    const needBook    = !hasBook;
+    const needPremium = !isPremium;
+    if (needBook || needPremium) {
+      document.getElementById('upsellSection').style.display = '';
+      document.getElementById('upsellBook').style.display    = needBook    ? '' : 'none';
+      document.getElementById('upsellPremium').style.display = needPremium ? '' : 'none';
+      // If only one upsell card, make it full-width
+      if (!(needBook && needPremium)) {
+        document.getElementById('upsellGrid').style.gridTemplateColumns = '1fr';
+        document.getElementById('upsellGrid').style.maxWidth = '480px';
+      }
+    }
+  }
+
+  // ── Auth check ───────────────────────────────────────────
+  (async function init() {
+    const loading = document.getElementById('pageLoading');
+    const content = document.getElementById('pageContent');
+
+    try {
+      // Quick render from cache while server verifies
+      const cached = localStorage.getItem('ia_user');
+      if (cached) {
+        buildPage(JSON.parse(cached));
+        content.style.display = 'block';
+        loading.style.display = 'none';
+      }
+
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) {
+        // Not authenticated — redirect to home
+        window.location.replace('index.html');
+        return;
+      }
+
+      const { user } = await res.json();
+      localStorage.setItem('ia_user', JSON.stringify(user));
+      buildPage(user);
+      loading.style.display = 'none';
+      content.style.display = 'block';
+
+    } catch (_) {
+      window.location.replace('index.html');
+    }
+  })();
+</script>
+
+<!-- ── Stripe Embedded Checkout Overlay ─────────────────── -->
+<div id="stripeOverlay" onclick="if(event.target===this)closeStripeOverlay()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10000;overflow-y:auto;padding:20px;">
+  <div style="position:relative;width:100%;max-width:640px;margin:40px auto;border-radius:16px;overflow:hidden;background:#fff;">
+    <button onclick="closeStripeOverlay()" aria-label="Close checkout"
+            style="position:absolute;top:10px;right:10px;z-index:1;background:rgba(0,0,0,0.08);border:none;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:32px;cursor:pointer;color:#444;">×</button>
+    <div id="stripeCheckoutEl" style="min-height:220px;"></div>
+  </div>
+</div>
+
+</body>
+</html>
