@@ -486,8 +486,8 @@
   async function saveSitelock() {
     const status = document.getElementById('slSaveStatus');
     status.textContent = 'Saving…';
-    const pw = document.getElementById('slPassword').value.trim();
     try {
+      const pw = document.getElementById('slPassword').value.trim();
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -507,8 +507,8 @@
         status.textContent = '✗ Error';
       }
       setTimeout(() => { status.textContent = ''; }, 3000);
-    } catch {
-      status.textContent = '✗ Failed';
+    } catch (err) {
+      status.textContent = '✗ Failed: ' + (err?.message || 'network error');
     }
   }
 
