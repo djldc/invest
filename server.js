@@ -58,7 +58,11 @@ app.get('*', (_req, res) => {
 async function start() {
   if (process.env.DATABASE_URL) {
     await initDB();
-    await initTracking();
+    try {
+      await initTracking();
+    } catch (err) {
+      console.warn('⚠  Tracking tables could not be initialized:', err.message, '— analytics disabled.');
+    }
   } else {
     console.warn('⚠  DATABASE_URL not set — database features disabled. Add it to .env to enable.');
   }
