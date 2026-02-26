@@ -117,8 +117,36 @@
     .toggle input:checked + .toggle-track { background: var(--green); }
     .toggle input:checked + .toggle-track::before { transform: translateX(20px); }
 
+    /* Analytics */
+    .analytics-stat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+    .analytics-stat { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 1rem 1.1rem; }
+    .analytics-stat .stat-label { font-size: 0.7rem; }
+    .analytics-stat .stat-value { font-size: 1.6rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .mini-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .mini-table td { padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--gray-100); }
+    .mini-table tr:last-child td { border-bottom: none; }
+    .mini-table tr:hover td { background: #fafbfd; }
+    .mini-table td:last-child { text-align: right; font-weight: 600; color: var(--slate-dark); }
+    .bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .bar-track { flex: 1; height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--slate), var(--slate-dark)); }
+    .bar-fill.gold { background: linear-gradient(90deg, var(--gold), #b8860b); }
+    .device-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+    .section-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .refresh-btn { background: none; border: 1px solid var(--gray-200); border-radius: 6px; padding: 0.3rem 0.75rem; font-size: 0.78rem; color: var(--gray-600); cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .refresh-btn:hover { border-color: var(--slate); color: var(--slate-dark); }
+    .recent-table td { font-size: 0.8rem; }
+    .ip-text { font-family: monospace; font-size: 0.78rem; color: var(--gray-600); }
+    .page-pill { display: inline-block; background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ref-text { font-size: 0.75rem; color: var(--gray-600); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .time-text { white-space: nowrap; color: var(--gray-600); font-size: 0.78rem; }
+    .device-icon { font-size: 0.9rem; }
+
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
+      .analytics-stat-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; }
       .search-input { width: 100%; }
       table { font-size: 0.8rem; }
       th, td { padding: 0.65rem 0.75rem; }
@@ -158,6 +186,22 @@
       <input class="search-input" type="search" placeholder="Search by name or email…" oninput="filterUsers(this.value)">
     </div>
     <div id="tableWrap"><div class="loading">Loading users…</div></div>
+  </div>
+
+  <!-- ── Visitor Analytics ───────────────────────────────── -->
+  <div class="section-gap">
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <span class="table-title">📊 Visitor Analytics</span>
+          <div style="font-size:0.8rem;color:var(--gray-600);margin-top:3px">Page views, clicks, IP addresses, devices &amp; referrers — updated in real time</div>
+        </div>
+        <button class="refresh-btn" onclick="loadAnalytics()">↻ Refresh</button>
+      </div>
+      <div id="analyticsWrap" style="padding:1.25rem 1.5rem;">
+        <div class="loading">Loading analytics…</div>
+      </div>
+    </div>
   </div>
 
   <!-- Feature Visibility -->
@@ -404,6 +448,137 @@
     }
   }
 
+  // ── Analytics ─────────────────────────────────────────────
+  function timeAgo(dateStr) {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60)   return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+
+  function deviceIcon(d) {
+    if (d === 'mobile') return '📱';
+    if (d === 'tablet') return '📟';
+    return '🖥';
+  }
+
+  function shortPage(p) {
+    return (p || '/').replace(/\.html$/, '').replace(/^\//, '') || 'home';
+  }
+
+  function shortRef(r) {
+    if (!r) return '—';
+    try { return new URL(r).hostname; } catch { return r.slice(0, 30); }
+  }
+
+  async function loadAnalytics() {
+    const wrap = document.getElementById('analyticsWrap');
+    try {
+      const res = await fetch('/api/track/stats', { credentials: 'include' });
+      if (!res.ok) { wrap.innerHTML = '<div class="empty-state">Failed to load analytics.</div>'; return; }
+      const { totals, byPage, byDevice, recent, topClicks, topReferrers } = await res.json();
+
+      const t = totals || {};
+      const maxPageViews = byPage[0]?.views || 1;
+      const maxClicks    = topClicks[0]?.count || 1;
+      const totalDevices = byDevice.reduce((s, d) => s + Number(d.count), 0) || 1;
+
+      const deviceColors = { desktop: '#3D5A80', mobile: '#D4A843', tablet: '#4ECB71' };
+
+      wrap.innerHTML = `
+        <!-- Stat row -->
+        <div class="analytics-stat-grid">
+          <div class="analytics-stat"><div class="stat-label">Today</div><div class="stat-value">${Number(t.today||0).toLocaleString()}</div><div class="stat-sub">page views</div></div>
+          <div class="analytics-stat"><div class="stat-label">This Week</div><div class="stat-value">${Number(t.week||0).toLocaleString()}</div><div class="stat-sub">page views</div></div>
+          <div class="analytics-stat"><div class="stat-label">This Month</div><div class="stat-value">${Number(t.month||0).toLocaleString()}</div><div class="stat-sub">page views</div></div>
+          <div class="analytics-stat"><div class="stat-label">All Time</div><div class="stat-value">${Number(t.total||0).toLocaleString()}</div><div class="stat-sub">page views</div></div>
+          <div class="analytics-stat"><div class="stat-label">Sessions</div><div class="stat-value">${Number(t.unique_sessions||0).toLocaleString()}</div><div class="stat-sub">unique sessions</div></div>
+          <div class="analytics-stat"><div class="stat-label">Unique IPs</div><div class="stat-value">${Number(t.unique_ips||0).toLocaleString()}</div><div class="stat-sub">distinct visitors</div></div>
+        </div>
+
+        <!-- Top Pages + Device Breakdown -->
+        <div class="two-col">
+          <div class="table-card" style="border:1px solid var(--gray-200)">
+            <div class="table-header" style="padding:0.9rem 1rem"><span class="table-title" style="font-size:0.9rem">Top Pages</span></div>
+            <table class="mini-table">
+              ${byPage.map(p => `<tr>
+                <td><span class="page-pill">${shortPage(p.page)}</span></td>
+                <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${Math.round(p.views/maxPageViews*100)}%"></div></div></div></td>
+                <td>${Number(p.views).toLocaleString()}</td>
+              </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--gray-600);padding:1rem">No data yet</td></tr>'}
+            </table>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <!-- Device breakdown -->
+            <div class="table-card" style="border:1px solid var(--gray-200)">
+              <div class="table-header" style="padding:0.9rem 1rem"><span class="table-title" style="font-size:0.9rem">Devices</span></div>
+              <table class="mini-table">
+                ${byDevice.map(d => `<tr>
+                  <td><span class="device-icon">${deviceIcon(d.device)}</span> ${d.device||'unknown'}</td>
+                  <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.count/totalDevices*100)}%;background:${deviceColors[d.device]||'#999'}"></div></div></div></td>
+                  <td>${Math.round(d.count/totalDevices*100)}%</td>
+                </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--gray-600);padding:1rem">No data yet</td></tr>'}
+              </table>
+            </div>
+
+            <!-- Top Referrers -->
+            <div class="table-card" style="border:1px solid var(--gray-200)">
+              <div class="table-header" style="padding:0.9rem 1rem"><span class="table-title" style="font-size:0.9rem">Top Referrers</span></div>
+              <table class="mini-table">
+                ${topReferrers.map(r => `<tr>
+                  <td><span class="ref-text" title="${r.referrer}">${shortRef(r.referrer)}</span></td>
+                  <td>${Number(r.count).toLocaleString()}</td>
+                </tr>`).join('') || '<tr><td colspan="2" style="text-align:center;color:var(--gray-600);padding:1rem">No referrers yet</td></tr>'}
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Clicks -->
+        <div class="table-card" style="border:1px solid var(--gray-200);margin-bottom:1rem;">
+          <div class="table-header" style="padding:0.9rem 1rem"><span class="table-title" style="font-size:0.9rem">Top Clicks</span></div>
+          <table class="mini-table">
+            ${topClicks.map(c => `<tr>
+              <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.element}</td>
+              <td><span class="page-pill">${shortPage(c.page)}</span></td>
+              <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill gold" style="width:${Math.round(c.count/maxClicks*100)}%"></div></div></div></td>
+              <td>${Number(c.count).toLocaleString()}</td>
+            </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray-600);padding:1rem">No click data yet</td></tr>'}
+          </table>
+        </div>
+
+        <!-- Recent Visits -->
+        <div class="table-card" style="border:1px solid var(--gray-200)">
+          <div class="table-header" style="padding:0.9rem 1rem"><span class="table-title" style="font-size:0.9rem">Recent Visits</span><span style="font-size:0.75rem;color:var(--gray-600)">Last 100</span></div>
+          <div style="overflow-x:auto">
+            <table class="recent-table" style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+              <thead><tr style="background:var(--gray-50)">
+                <th style="padding:0.6rem 0.9rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-100)">Time</th>
+                <th style="padding:0.6rem 0.9rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-100)">Page</th>
+                <th style="padding:0.6rem 0.9rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-100)">IP Address</th>
+                <th style="padding:0.6rem 0.9rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-100)">Device</th>
+                <th style="padding:0.6rem 0.9rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-100)">Referrer</th>
+              </tr></thead>
+              <tbody>
+                ${recent.map(v => `<tr style="border-bottom:1px solid var(--gray-100)">
+                  <td style="padding:0.55rem 0.9rem"><span class="time-text" title="${v.created_at}">${timeAgo(v.created_at)}</span></td>
+                  <td style="padding:0.55rem 0.9rem"><span class="page-pill">${shortPage(v.page)}</span></td>
+                  <td style="padding:0.55rem 0.9rem"><span class="ip-text">${v.ip||'—'}</span></td>
+                  <td style="padding:0.55rem 0.9rem"><span title="${v.user_agent||''}">${deviceIcon(v.device)} ${v.device||'—'}</span></td>
+                  <td style="padding:0.55rem 0.9rem"><span class="ref-text" title="${v.referrer||''}">${shortRef(v.referrer)}</span></td>
+                </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray-600);padding:1.5rem">No visits recorded yet</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      wrap.innerHTML = `<div class="empty-state">Error loading analytics: ${err.message}</div>`;
+    }
+  }
+
   // ── Check admin access then load ─────────────────────────
   (async function init() {
     try {
@@ -416,7 +591,7 @@
         document.getElementById('featuresWrap').innerHTML = '';
         return;
       }
-      await Promise.all([loadUsers(), loadFeatures()]);
+      await Promise.all([loadUsers(), loadFeatures(), loadAnalytics()]);
     } catch {
       window.location.href = 'premium-login.html?redirect=admin.html';
     }

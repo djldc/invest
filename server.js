@@ -4,10 +4,11 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initDB, getFeatures } from './db/index.js';
+import { initDB, initTracking, getFeatures } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import stripeRoutes, { stripeWebhook } from './routes/stripe.js';
+import trackRoutes from './routes/track.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/track', trackRoutes);
 
 // ── Public: feature visibility map (no auth required) ─────
 app.get('/api/features', async (_req, res) => {
@@ -56,6 +58,7 @@ app.get('*', (_req, res) => {
 async function start() {
   if (process.env.DATABASE_URL) {
     await initDB();
+    await initTracking();
   } else {
     console.warn('⚠  DATABASE_URL not set — database features disabled. Add it to .env to enable.');
   }

@@ -191,6 +191,75 @@ export async function setAdminByEmail(email) {
   await sql`UPDATE users SET is_admin = TRUE WHERE email = ${email}`;
 }
 
+// ── Tracking ───────────────────────────────────────────────
+export async function initTracking() {
+  const sql = getDB();
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_views (
+      id          SERIAL PRIMARY KEY,
+      session_id  TEXT,
+      user_id     INTEGER,
+      page        TEXT NOT NULL,
+      referrer    TEXT,
+      ip          TEXT,
+      user_agent  TEXT,
+      device      TEXT,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS click_events (
+      id          SERIAL PRIMARY KEY,
+      session_id  TEXT,
+      page        TEXT,
+      element     TEXT,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_pv_created ON page_views(created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_pv_page    ON page_views(page)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_pv_session ON page_views(session_id)`;
+  console.log('Tracking tables ready');
+}
+
+export async function logPageView({ session_id, user_id, page, referrer, ip, user_agent, device }) {
+  const sql = getDB();
+  await sql`
+    INSERT INTO page_views (session_id, user_id, page, referrer, ip, user_agent, device)
+    VALUES (${session_id}, ${user_id || null}, ${page}, ${referrer || null}, ${ip}, ${user_agent}, ${device})
+  `;
+}
+
+export async function logClickEvent({ session_id, page, element }) {
+  const sql = getDB();
+  await sql`
+    INSERT INTO click_events (session_id, page, element)
+    VALUES (${session_id}, ${page}, ${element})
+  `;
+}
+
+export async function getTrackingStats() {
+  const sql = getDB();
+  const [totals, byPage, byDevice, recent, topClicks, topReferrers] = await Promise.all([
+    sql`
+      SELECT
+        COUNT(*)                                                          AS total,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '1 day')  AS today,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') AS week,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') AS month,
+        COUNT(DISTINCT session_id)                                        AS unique_sessions,
+        COUNT(DISTINCT ip)                                                AS unique_ips
+      FROM page_views
+    `,
+    sql`SELECT page, COUNT(*) AS views FROM page_views GROUP BY page ORDER BY views DESC LIMIT 20`,
+    sql`SELECT device, COUNT(*) AS count FROM page_views GROUP BY device ORDER BY count DESC`,
+    sql`SELECT id, session_id, page, referrer, ip, user_agent, device, created_at FROM page_views ORDER BY created_at DESC LIMIT 100`,
+    sql`SELECT element, page, COUNT(*) AS count FROM click_events GROUP BY element, page ORDER BY count DESC LIMIT 20`,
+    sql`SELECT referrer, COUNT(*) AS count FROM page_views WHERE referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY count DESC LIMIT 15`,
+  ]);
+  return { totals: totals[0], byPage, byDevice, recent, topClicks, topReferrers };
+}
+
 // ── Features ───────────────────────────────────────────────
 export async function getFeatures() {
   const sql = getDB();
