@@ -69,8 +69,9 @@ export async function initDB() {
   `;
   await sql`
     INSERT INTO settings (key, value) VALUES
-      ('sitelock_enabled', 'false'),
-      ('sitelock_message', 'This site is temporarily unavailable. Please check back soon.')
+      ('sitelock_enabled',  'false'),
+      ('sitelock_message',  'This site is temporarily unavailable. Please check back soon.'),
+      ('sitelock_password', '')
     ON CONFLICT (key) DO NOTHING
   `;
   console.log('Database initialized — users + features + settings tables ready');

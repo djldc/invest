@@ -210,10 +210,11 @@
       <div class="table-header">
         <div>
           <span class="table-title">🔒 Site Lockdown</span>
-          <div style="font-size:0.8rem;color:var(--gray-600);margin-top:3px">Show a splash screen to all non-admin visitors — admins always see the site normally</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);margin-top:3px">Show a password-protected splash screen to all non-admin visitors</div>
         </div>
       </div>
       <div style="padding:1.5rem;">
+        <!-- Toggle -->
         <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
           <span style="font-size:0.9rem;color:var(--gray-700);font-weight:500;">Status:</span>
           <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
@@ -233,6 +234,7 @@
             <span id="slStatusLabel" style="font-size:0.9rem;font-weight:600;color:var(--gray-500);">OPEN</span>
           </label>
         </div>
+        <!-- Visitor Message -->
         <div style="margin-bottom:1.25rem;">
           <label style="display:block;font-size:0.85rem;font-weight:500;color:var(--gray-700);margin-bottom:0.4rem;">Visitor Message</label>
           <textarea id="slMessage" rows="3" style="
@@ -240,13 +242,28 @@
             padding:0.65rem 0.75rem;
             border:1px solid var(--border);border-radius:8px;
             font-family:Inter,sans-serif;font-size:0.9rem;
-            color:var(--gray-800);background:#fff;resize:vertical;
-            outline:none;
+            color:var(--gray-800);background:#fff;resize:vertical;outline:none;
           " placeholder="This site is temporarily unavailable. Please check back soon."></textarea>
         </div>
+        <!-- Access Password -->
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block;font-size:0.85rem;font-weight:500;color:var(--gray-700);margin-bottom:0.4rem;">
+            Access Password
+            <span style="font-weight:400;color:var(--gray-500);margin-left:0.4rem;">— visitors who know this can unlock the site</span>
+          </label>
+          <input type="text" id="slPassword" autocomplete="off" style="
+            width:100%;max-width:320px;box-sizing:border-box;
+            padding:0.65rem 0.75rem;
+            border:1px solid var(--border);border-radius:8px;
+            font-family:Inter,sans-serif;font-size:0.9rem;
+            color:var(--gray-800);background:#fff;outline:none;
+          " placeholder="Enter new password (leave blank to keep current)">
+          <div id="slPasswordHint" style="font-size:0.8rem;color:var(--gray-500);margin-top:0.3rem;"></div>
+        </div>
+        <!-- Save -->
         <div style="display:flex;align-items:center;gap:1rem;">
           <button onclick="saveSitelock()" style="
-            background:var(--primary);color:#fff;border:none;
+            background:var(--slate);color:#fff;border:none;
             padding:0.55rem 1.4rem;border-radius:8px;
             font-size:0.9rem;font-weight:600;cursor:pointer;
           ">Save Settings</button>
@@ -449,6 +466,8 @@
       const data = await res.json();
       document.getElementById('slToggle').checked = !!data.sitelock_enabled;
       document.getElementById('slMessage').value = data.sitelock_message || '';
+      document.getElementById('slPasswordHint').textContent =
+        data.has_password ? '● Password is set' : '○ No password set — visitors cannot unlock the site';
       updateSlStatus();
     } catch { /* silent */ }
   }
@@ -467,6 +486,7 @@
   async function saveSitelock() {
     const status = document.getElementById('slSaveStatus');
     status.textContent = 'Saving…';
+    const pw = document.getElementById('slPassword').value.trim();
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -475,10 +495,17 @@
         body: JSON.stringify({
           sitelock_enabled: document.getElementById('slToggle').checked,
           sitelock_message: document.getElementById('slMessage').value.trim(),
+          ...(pw ? { sitelock_password: pw } : {}),
         }),
       });
       const data = await res.json();
-      status.textContent = data.ok ? '✓ Saved' : '✗ Error';
+      if (data.ok) {
+        status.textContent = '✓ Saved';
+        document.getElementById('slPassword').value = '';
+        await loadSitelock(); // refresh password hint
+      } else {
+        status.textContent = '✗ Error';
+      }
       setTimeout(() => { status.textContent = ''; }, 3000);
     } catch {
       status.textContent = '✗ Failed';

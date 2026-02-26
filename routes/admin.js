@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { getTokenFromRequest } from './auth.js';
 import { getAllUsers, updateUser, getUserById, getFeatures, updateFeature, getSettings, setSetting } from '../db/index.js';
 
@@ -92,14 +93,19 @@ router.patch('/features/:key', requireAdmin, async (req, res) => {
 });
 
 // ── POST /api/admin/settings ───────────────────────────────
-// Body: { sitelock_enabled: bool, sitelock_message: string }
+// Body: { sitelock_enabled: bool, sitelock_message: string, sitelock_password: string }
 router.post('/settings', requireAdmin, async (req, res) => {
   try {
-    const { sitelock_enabled, sitelock_message } = req.body;
+    const { sitelock_enabled, sitelock_message, sitelock_password } = req.body;
     if (sitelock_enabled !== undefined)
       await setSetting('sitelock_enabled', String(!!sitelock_enabled));
     if (sitelock_message !== undefined)
       await setSetting('sitelock_message', sitelock_message);
+    // Only update password if a non-empty value was provided
+    if (sitelock_password && sitelock_password.trim()) {
+      const hash = await bcrypt.hash(sitelock_password.trim(), 10);
+      await setSetting('sitelock_password', hash);
+    }
     res.json({ ok: true });
   } catch (err) {
     console.error('Save settings error:', err.message);
@@ -114,6 +120,7 @@ router.get('/settings', requireAdmin, async (_req, res) => {
     res.json({
       sitelock_enabled: s.sitelock_enabled === 'true',
       sitelock_message: s.sitelock_message || '',
+      has_password: !!(s.sitelock_password),
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

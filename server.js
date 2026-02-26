@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
 import { initDB, initTracking, getFeatures, getSettings } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
@@ -61,16 +62,48 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api/track', trackRoutes);
 
 // ── Public: site settings (sitelock status, etc.) ─────────
-app.get('/api/settings', async (_req, res) => {
+app.get('/api/settings', async (req, res) => {
   try {
-    if (!process.env.DATABASE_URL) return res.json({ sitelock_enabled: false, sitelock_message: '' });
+    if (!process.env.DATABASE_URL) return res.json({ sitelock_enabled: false, sitelock_message: '', unlocked: false });
     const s = await getSettings();
+    const locked = s.sitelock_enabled === 'true';
+    // Check if visitor has a valid bypass cookie
+    const bypass = req.cookies?.sitelock_bypass;
+    const unlocked = locked && bypass === process.env.JWT_SECRET + '_sitelock';
     res.json({
-      sitelock_enabled: s.sitelock_enabled === 'true',
+      sitelock_enabled: locked,
       sitelock_message: s.sitelock_message || '',
+      unlocked,
     });
   } catch {
-    res.json({ sitelock_enabled: false, sitelock_message: '' }); // fail open
+    res.json({ sitelock_enabled: false, sitelock_message: '', unlocked: false }); // fail open
+  }
+});
+
+// ── Public: unlock site with password ─────────────────────
+app.post('/api/settings/unlock', async (req, res) => {
+  try {
+    if (!process.env.DATABASE_URL) return res.status(400).json({ error: 'No database' });
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: 'Password required' });
+
+    const s = await getSettings();
+    const stored = s.sitelock_password || '';
+    if (!stored) return res.status(403).json({ error: 'No password set' });
+
+    const valid = await bcrypt.compare(password, stored);
+    if (!valid) return res.status(401).json({ error: 'Incorrect password' });
+
+    // Set a bypass cookie valid for 7 days
+    res.cookie('sitelock_bypass', process.env.JWT_SECRET + '_sitelock', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
