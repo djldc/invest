@@ -509,7 +509,8 @@
         </button>
         <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);min-width:180px;overflow:hidden;z-index:200;">
           <a href="my-account.html" style="display:block;padding:0.75rem 1.25rem;color:var(--slate-dark);text-decoration:none;font-size:0.88rem;font-weight:600;border-bottom:1px solid #f0f0f0;">👤 My Account</a>
-          <button onclick="signOut()" style="display:block;width:100%;text-align:left;padding:0.75rem 1.25rem;color:#c0392b;background:none;border:none;font-size:0.88rem;cursor:pointer;font-family:inherit;border-top:1px solid #f0f0f0;">Sign Out</button>
+          <a id="navAdminLink" href="admin.html" style="display:none;padding:0.75rem 1.25rem;color:var(--slate);text-decoration:none;font-size:0.88rem;font-weight:600;border-bottom:1px solid #f0f0f0;">⚙️ Admin Panel</a>
+          <button onclick="signOut()" style="display:block;width:100%;text-align:left;padding:0.75rem 1.25rem;color:#c0392b;background:none;border:none;font-size:0.88rem;cursor:pointer;font-family:inherit;">Sign Out</button>
         </div>
       </div>
     </div>
@@ -1201,6 +1202,12 @@ function updateNavForUser(user) {
   if (user.subscription_status === 'premium' || user.is_admin) {
     const li = document.getElementById('li-premium-calc');
     if (li) li.style.display = '';
+  }
+
+  // Show Admin Panel link for admins only
+  if (user.is_admin) {
+    const adminLink = document.getElementById('navAdminLink');
+    if (adminLink) adminLink.style.display = 'block';
   }
 }
 
